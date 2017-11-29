@@ -18,6 +18,7 @@ def ping_alive(host):
 
 
 def notify(title, text):
+    # TODO: add ref
     os.system("""
               osascript -e 'display notification "{}" with title "{}"'
               """.format(text, title))

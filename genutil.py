@@ -1,5 +1,11 @@
 import ast
-from configparser import ConfigParser, NoOptionError, NoSectionError
+try:
+    # Python 3
+    from configparser import ConfigParser, NoOptionError, NoSectionError
+except ImportError:
+    # Python 2.7
+    from ConfigParser import NoOptionError, NoSectionError
+    from ConfigParser import SafeConfigParser as ConfigParser
 import json
 import linecache
 import os
@@ -7,8 +13,9 @@ import pickle
 import sqlite3
 import sys
 
-from googletrans import Translator
-import numpy as np
+# TODO: check that it is right to only load these modules when needed
+#from googletrans import Translator
+#import numpy as np
 
 
 def create_connection(db_path, autocommit=False):
@@ -239,6 +246,8 @@ def print_exception(error=None):
 
 
 def filter_data(data, min_threshold, max_threshold):
+    # TODO: everytime this function is called, the module is is loaded
+    import numpy as np
     # Sanity check on input thresholds
     if not (data.max() >= min_threshold >= data.min()):
         min_threshold = data.min()
@@ -360,6 +369,9 @@ class StackOverflowLocation:
             import ipdb
             ipdb.set_trace()
             # TODO: google translation service has problems with Suisse->Suisse
+            # TODO: googletrans can't be a top-level module because we might not need it
+            # at all but the other methods in the genutil module
+            from googletrans import Translator
             translator = Translator()
             transl_country = translator.translate(country, dest='en').text
             # Save the translation
