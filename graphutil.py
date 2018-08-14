@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 import plotly
-from plotly.graph_objs import Scatter, Figure, Layout
+from plotly.graph_objs import Scatter, Layout
 
 
 def generate_bar_chart(plt_config):

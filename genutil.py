@@ -58,7 +58,7 @@ def check_file_exists(path):
 
 def check_dir_exists(path):
     """
-    Checks if both a directory exists and it is a directory. Returns True if it
+    Checks if both a directory exists and is a directory. Returns True if it
     is the case (can be a directory or directory symlink).
 
     ref.: http://stackabuse.com/python-check-if-a-file-or-directory-exists/
