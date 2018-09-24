@@ -17,9 +17,18 @@ def generate_bar_chart(
         "generate_bar_chart(): wrong shape with 'x' and 'y'"
     assert grid_which in ["minor", "major", "both"], \
         "generate_bar_chart(): wrong value for grid_which='{}'".format(grid_which)
+    plt.figure(figsize=(10, 10))
     ax = plt.gca()
     index = np.arange(len(x))
-    plt.bar(index, y)
+    import ipdb
+    ipdb.set_trace()
+    rects = plt.bar(index, y)
+    # Add number text on top of each bar
+    for rect in rects:
+        height = rect.get_height()
+        ax.text(rect.get_x() + rect.get_width() / 2., 1 * height,
+                '%d' % int(height),
+                ha='center', va='bottom')
     plt.xticks(index, x)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
