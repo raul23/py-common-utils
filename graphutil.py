@@ -22,7 +22,7 @@ def generate_bar_chart(
     ax = plt.gca()
     index = np.arange(len(x))
     rects = plt.bar(index, y)
-    # Add number text on top of each bar
+    # Add number-text on top of each bar
     for rect in rects:
         height = rect.get_height()
         ax.text(rect.get_x() + rect.get_width() / 2., 1 * height,
