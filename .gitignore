@@ -102,3 +102,6 @@ ENV/
 
 # macOS files
 .DS_Store
+
+# Test directory
+sandbox/
