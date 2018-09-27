@@ -156,7 +156,8 @@ def dump_pickle_with_logger(filepath, data, logger):
 
 def get_geo_coords_with_logger(geolocator, location, logger):
     try:
-        logger.debug("Sending request to geopy ...")
+        logger.debug("Geo coordinates for '{}' not found".format(location))
+        logger.debug("Sending request to geocoding service ...")
         geo_coords = geolocator.geocode(location)
     except (geopy.exc.GeocoderTimedOut,
             geopy.exc.GeocoderServiceError) as e:

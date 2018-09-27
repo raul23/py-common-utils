@@ -125,14 +125,14 @@ def draw_us_states_names_on_map(basemap, us_states_filepath):
         printed_names += [short_name, ]
 
 
-# `locations_geo_coords` is a dictionary with keys being the location name and
-# the values are their corresponding `geopy.location.Location` objects
-def draw_usa_map(locations_geo_coords,
+# TODO: refer to `job_locations_analyzer` for full details of dict's structure
+# `addresses_data` is a dictionary with the addresses as its keys ...
+def draw_usa_map(addresses_data,
                  shape_filepath,
                  us_states_filepath,
                  title, fig_width,
                  fig_height,
-                 annotate_locations=None,
+                 annotate_addresses=None,
                  annotation_cfg=None,
                  basemap_cfg=None,
                  map_coords_cfg=None,
@@ -145,7 +145,7 @@ def draw_usa_map(locations_geo_coords,
         return int(np.sqrt(count)) * marker_scale
 
     # Init variables
-    annotate_locations = init_variable(annotate_locations, [])
+    annotate_addresses = init_variable(annotate_addresses, [])
     annotation_cfg = init_variable(annotation_cfg, {})
     basemap_cfg = init_variable(basemap_cfg, {})
     map_coords_cfg = init_variable(map_coords_cfg, {})
@@ -164,8 +164,8 @@ def draw_usa_map(locations_geo_coords,
                           name="states",
                           drawbounds=True)
     draw_us_states_names_on_map(basemap, us_states_filepath)
-    mark_map_coords(basemap, locations_geo_coords, get_markersize,
-                    annotate_locations, annotation_cfg, map_coords_cfg)
+    mark_map_coords(basemap, addresses_data, get_markersize,
+                    annotate_addresses, annotation_cfg, map_coords_cfg)
     if draw_meridians:
         basemap.drawmeridians(np.arange(-120, -40, 20), labels=[0, 0, 0, 1])
     if draw_parallels:
@@ -173,11 +173,11 @@ def draw_usa_map(locations_geo_coords,
     plt.show()
 
 
-def draw_world_map(locations_geo_coords,
+def draw_world_map(addresses_data,
                    title,
                    fig_width,
                    fig_height,
-                   annotate_locations=None,
+                   annotate_addresses=None,
                    annotation_cfg=None,
                    basemap_cfg=None,
                    map_coords_cfg=None,
@@ -189,11 +189,17 @@ def draw_world_map(locations_geo_coords,
                    draw_states=True,
                    fill_continents=True):
 
+    """
     def get_markersize(**kwargs):
         return kwargs['marker_scale']
+    """
+    def get_markersize(**kwargs):
+        count = kwargs['count']
+        marker_scale = kwargs['marker_scale']
+        return int(np.sqrt(count)) * marker_scale
 
     # Init variables
-    annotate_locations = init_variable(annotate_locations, [])
+    annotate_addresses = init_variable(annotate_addresses, [])
     annotation_cfg = init_variable(annotation_cfg, {})
     basemap_cfg = init_variable(basemap_cfg, {})
     map_coords_cfg = init_variable(map_coords_cfg, {})
@@ -206,13 +212,20 @@ def draw_world_map(locations_geo_coords,
                       llcrnrlat=basemap_cfg['llcrnrlat'],
                       urcrnrlon=basemap_cfg['urcrnrlon'],
                       urcrnrlat=basemap_cfg['urcrnrlat'])
-    mark_map_coords(basemap, locations_geo_coords, get_markersize,
-                    annotate_locations, annotation_cfg, map_coords_cfg)
+    mark_map_coords(basemap, addresses_data, get_markersize,
+                    annotate_addresses, annotation_cfg, map_coords_cfg)
     if draw_coastlines:
         basemap.drawcoastlines()
     if draw_countries:
         basemap.drawcountries()
     if draw_map_boundary:
+        # TODO: MatplotlibDeprecationWarning with matplotlib-2.1.0
+        # - The get_axis_bgcolor function was deprecated in version 2.0. Use
+        #   get_facecolor instead.
+        # - The axesPatch function was deprecated in version 2.1. Use Axes.patch
+        #   instead.
+        # NOTE: if matplotlib-2.2.2 is used, code crashes with
+        # AttributeError: 'AxesSubplot' object has no attribute 'get_axis_bgcolor'
         basemap.drawmapboundary()
     if draw_meridians:
         # basemap.drawmeridians(np.arange(-120, -40, 20), labels=[0, 0, 0, 1])
@@ -223,7 +236,13 @@ def draw_world_map(locations_geo_coords,
     if draw_states:
         basemap.drawstates()
     if fill_continents:
+        # TODO: MatplotlibDeprecationWarning with matplotlib-2.1.0
+        # The get_axis_bgcolor function was deprecated in version 2.0. Use
+        # get_facecolor instead.
+        # NOTE: if matplotlib-2.2.2 is used, code crashes with
+        # AttributeError: 'AxesSubplot' object has no attribute 'get_axis_bgcolor'
         basemap.fillcontinents()
+    ipdb.set_trace()
     plt.show()
 
 
@@ -260,21 +279,26 @@ def draw_scatter_plot(x, y, text, title, mode='markers', hovermode='closest',
 
 
 # `get_markersize` is a function to compute the markersize
-def mark_map_coords(basemap, locations_geo_coords, get_markersize,
-                    annotate_locations=None, annotation_cfg=None,
+def mark_map_coords(basemap, addresses_data, get_markersize,
+                    annotate_addresses=None, annotation_cfg=None,
                     map_coords_cfg=None):
     # Init variables
-    annotate_locations = init_variable(annotate_locations, [])
+    annotate_addresses = init_variable(annotate_addresses, [])
     annotation_cfg = init_variable(annotation_cfg, {})
     map_coords_cfg = init_variable(map_coords_cfg, {})
-    for address, data in locations_geo_coords.items():
-        location = data['location']
+    for address, data in addresses_data.items():
+        # TODO: get the longest location string, not the first that you find
+        location = list(data['locations'])[0]
         # Transform the location's longitude and latitude to the projection map
         # coordinates
         geo_coords = data['geo_coords']
         x, y = basemap(geo_coords.longitude, geo_coords.latitude)
         # Plot the map coordinates on the map; the size of the marker is
         # proportional to the number of occurrences of the location in job posts
+        # TODO: MatplotlibDeprecationWarning with matplotlib-2.1.0
+        # - The ishold function was deprecated in version 2.0.
+        # - axes.hold is deprecated. See the API Changes document
+        #   (http://matplotlib.org/api/api_changes.html) for more details.
         basemap.plot(
             x, y,
             color=map_coords_cfg.get('color', 'Red'),
@@ -282,8 +306,8 @@ def mark_map_coords(basemap, locations_geo_coords, get_markersize,
             markersize=get_markersize(
                 count=data['count'],
                 marker_scale=map_coords_cfg.get('marker_scale', 1.5)))
-        # Annotate some locations, e.g. the topk locations with the most job posts
-        if location in annotate_locations:
+        # Annotate some addresses, e.g. the topk addresses with the most job posts
+        if address in annotate_addresses:
             plt.text(x, y, location,
                      fontsize=annotation_cfg.get('fontsize', 5),
                      fontweight=annotation_cfg.get('fontweight', 'bold'),
