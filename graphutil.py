@@ -267,7 +267,8 @@ def mark_map_coords(basemap, locations_geo_coords, get_markersize,
     annotate_locations = init_variable(annotate_locations, [])
     annotation_cfg = init_variable(annotation_cfg, {})
     map_coords_cfg = init_variable(map_coords_cfg, {})
-    for location, data in locations_geo_coords.items():
+    for address, data in locations_geo_coords.items():
+        location = data['location']
         # Transform the location's longitude and latitude to the projection map
         # coordinates
         geo_coords = data['geo_coords']

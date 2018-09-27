@@ -9,10 +9,45 @@ import pickle
 # TODO: cPickle for Python 2?
 import sqlite3
 # Third-party modules
-# TODO: check that if it is right to only load modules from third-party when needed
+# TODO: check that if it is right to only load modules from third-party when
+# needed
+import geopy
 import pytz
 import tzlocal
 import yaml
+
+
+class GenUtil:
+    def __init__(self, logger):
+        self.logger = logger
+
+    def dump_pickle(self, filepath, data):
+        self.logger.debug("Saving path: {}".format(filepath))
+        try:
+            dump_pickle(filepath, data)
+        except FileNotFoundError as e:
+            self.logger.exception(e)
+            self.logger.error(
+                "The file '{}' couldn't be saved".format(filepath))
+        else:
+            self.logger.debug("Saved!")
+
+    def load_pickle(self, filepath, default=None):
+        if default is None:
+            dict_ = {}
+        else:
+            dict_ = default
+        try:
+            dict_ = load_pickle(filepath)
+        except FileNotFoundError as e:
+            self.logger.exception(e)
+            self.logger.warning(
+                "The dictionary '{}' will be initialized to {}".format(
+                    filepath, dict_))
+        else:
+            self.logger.debug("Dictionary '{}' loaded!".format(filepath))
+        finally:
+            return dict_
 
 
 def add_plural(v):
@@ -108,6 +143,32 @@ def dump_pickle(filepath, data):
         raise FileNotFoundError(e)
 
 
+def dump_pickle_with_logger(filepath, data, logger):
+    logger.debug("Saving path: {}".format(filepath))
+    try:
+        dump_pickle(filepath, data)
+    except FileNotFoundError as e:
+        logger.exception(e)
+        logger.error("The file '{}' couldn't be saved".format(filepath))
+    else:
+        logger.debug("Saved!")
+
+
+def get_geo_coords_with_logger(geolocator, location, logger):
+    try:
+        logger.debug("Sending request to geopy ...")
+        geo_coords = geolocator.geocode(location)
+    except (geopy.exc.GeocoderTimedOut,
+            geopy.exc.GeocoderServiceError) as e:
+        logger.exception(e)
+        logger.critical("The location '{}' will be skipped".format(location))
+    else:
+        logger.debug("Geo coordinates of '{}': {} lat, {} long [{}]".format(
+            geo_coords.address, geo_coords.latitude,
+            geo_coords.longitude, geo_coords.point))
+        return geo_coords
+
+
 def get_local_time(utc_time=None):
     """
     If a UTC time is given, it is converted to the local time zone. If
@@ -166,20 +227,38 @@ def load_json_with_codecs(path, encoding='utf8'):
         return data
 
 
-def load_pickle(path):
+def load_pickle(filepath):
     """
-    Opens a pickle file and returns its contents or None if file not found.
+    Opens a pickle file and returns its contents or raises FileNotFoundError if
+    file not found.
 
-    :param path: path to the pickle file
-    :return: content of the pickle file or None if error
+    :param filepath: path to the pickle file
+    :return: content of the pickle file
     """
     try:
-        with open(path, 'rb') as f:
+        with open(filepath, 'rb') as f:
             data = pickle.load(f)
     except FileNotFoundError as e:
         raise FileNotFoundError(e)
     else:
         return data
+
+
+def load_pickle_with_logger(filepath, logger, default=None):
+    if default is None:
+        dict_ = {}
+    else:
+        dict_ = default
+    try:
+        dict_ = load_pickle(filepath)
+    except FileNotFoundError as e:
+        logger.exception(e)
+        logger.warning("The dictionary '{}' will be initialized to {}".format(
+            filepath, dict_))
+    else:
+        logger.debug("Dictionary '{}' loaded!".format(filepath))
+    finally:
+        return dict_
 
 
 def load_yaml(f):
