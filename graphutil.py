@@ -17,7 +17,8 @@ def draw_bar_chart(x,
                    xlabel,
                    ylabel,
                    title,
-                   grid_which='major',
+                   grid_which="major",
+                   color="b",
                    yaxis_major_mutiplelocator=20,
                    yaxis_minor_mutiplelocator=10,
                    fig_width=5,
@@ -31,18 +32,19 @@ def draw_bar_chart(x,
         "generate_bar_chart(): wrong shape with 'x' and 'y'"
     assert grid_which in ["minor", "major", "both"], \
         "generate_bar_chart(): wrong value for grid_which='{}'".format(grid_which)
+    # TODO: add color option
     plt.figure(figsize=(fig_width, fig_height))
     ax = plt.gca()
     index = np.arange(len(x))
-    rects = plt.bar(index, y)
+    rects = plt.bar(index, y, color=color)
     # Add number-text on top of each bar
     for rect in rects:
         height = rect.get_height()
         ax.text(rect.get_x() + rect.get_width() / 2.,
-                1 * height,
-                '%d' % int(height),
-                ha='center',
-                va='bottom')
+                height,
+                "{}".format(height),
+                ha="center",
+                va="bottom")
     plt.xticks(index, x)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
@@ -62,11 +64,14 @@ def draw_histogram(data,
                    xlabel,
                    ylabel,
                    title,
-                   grid_which='major',
+                   grid_which="major",
+                   color="b",
                    xaxis_major_mutiplelocator=10000,
                    xaxis_minor_mutiplelocator=1000,
                    yaxis_major_mutiplelocator=5,
-                   yaxis_minor_mutiplelocator=1):
+                   yaxis_minor_mutiplelocator=1,
+                   fig_width=5,
+                   fig_height=5):
     # TODO: `bin_width": 10000` not used
     # TODO: `xaxis_minor_mutiplelocator` not used
     # Sanity check on the input array
@@ -74,18 +79,19 @@ def draw_histogram(data,
         "wrong type on input array 'data'"
     assert grid_which in ["minor", "major", "both"], \
         "wrong value for grid_which='{}'".format(grid_which)
+    plt.figure(figsize=(fig_width, fig_height))
     ax = plt.gca()
-    ax.hist(data, bins=bins, color="r")
+    ax.hist(data, bins=bins, color=color)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.set_title(title)
     ax.xaxis.set_major_locator(ticker.MultipleLocator(xaxis_major_mutiplelocator))
     ax.yaxis.set_major_locator(ticker.MultipleLocator(yaxis_major_mutiplelocator))
     ax.yaxis.set_minor_locator(ticker.MultipleLocator(yaxis_minor_mutiplelocator))
-    plt.xlim(0, data.max())
+    plt.xlim(data.min()/2, data.max())
     labels = ax.get_xticklabels()
     plt.setp(labels, rotation=270.)
-    plt.grid(True, which="major")
+    plt.grid(True, which=grid_which)
     plt.tight_layout()
     # TODO: add function to save image instead of showing it
     plt.show()
@@ -102,6 +108,8 @@ def draw_us_states_names_on_map(basemap, us_states_filepath):
         draw_state_name = True
         short_name = us_states[(shapedict['NAME'])]
         if short_name == 'PR':
+            # TODO: Puerto Rico is ignored because the island is not drawn. Thus
+            # the label can not be displayed.
             continue
         if short_name in printed_names and short_name not in ['MI', 'WI']:
             continue
@@ -114,7 +122,7 @@ def draw_us_states_names_on_map(basemap, us_states_filepath):
                 draw_state_name = False
             wi_index += 1
         # center of polygon
-        x, y = np.array(state).mean(axis=0)
+        # x, y = np.array(state).mean(axis=0) # NOTE: data not used
         hull = ConvexHull(state)
         hull_points = np.array(state)[hull.vertices]
         # center of convex hull over the polygon points
@@ -204,7 +212,6 @@ def draw_world_map(addresses_data,
     basemap_cfg = init_variable(basemap_cfg, {})
     map_coords_cfg = init_variable(map_coords_cfg, {})
 
-    ipdb.set_trace()
     plt.figure(figsize=(fig_width, fig_height))
     plt.title(title)
     basemap = Basemap(projection=basemap_cfg['projection'],
@@ -242,7 +249,6 @@ def draw_world_map(addresses_data,
         # NOTE: if matplotlib-2.2.2 is used, code crashes with
         # AttributeError: 'AxesSubplot' object has no attribute 'get_axis_bgcolor'
         basemap.fillcontinents()
-    ipdb.set_trace()
     plt.show()
 
 
@@ -286,6 +292,8 @@ def mark_map_coords(basemap, addresses_data, get_markersize,
     annotate_addresses = init_variable(annotate_addresses, [])
     annotation_cfg = init_variable(annotation_cfg, {})
     map_coords_cfg = init_variable(map_coords_cfg, {})
+    # TODO: remove for loop, `basemap.plot()` should take as inputs numpy arrays
+    # of all the map coordinates
     for address, data in addresses_data.items():
         # TODO: get the longest location string, not the first that you find
         location = list(data['locations'])[0]
