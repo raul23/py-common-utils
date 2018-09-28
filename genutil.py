@@ -73,26 +73,38 @@ def connect_db(db_path, autocommit=False):
         raise sqlite3.Error(e)
 
 
-def create_directory_prompt(dir_path):
-    if not os.path.isdir(dir_path):
-        print("[ERROR] The directory '{}' doesn't exist".format(dir_path))
-        print("Do you want to create the directory {}?".format(dir_path))
+def create_directory_prompt(dirpath):
+    if not os.path.isdir(dirpath):
+        print("[ERROR] The directory '{}' doesn't exist".format(dirpath))
+        print("Do you want to create the directory {}?".format(dirpath))
         answer = input("Y/N: ").strip().lower().startswith("y")
         if answer:
-            print("[INFO] The directory '{}' will be created".format(dir_path))
-            # NOTE: only works on Python 3.4+ (however Python 3.4 pathlib is
-            # missing `exist_ok` option
+            print("[INFO] The directory '{}' will be created".format(dirpath))
+            # NOTE: only works on Python 3.4+ (however Python3.4 pathlib is
+            # missing the `exist_ok` option
             # see https://stackoverflow.com/a/14364249 for different methods of
             # creating directories in Python 2.7+, 3.2+, 3.5+
-            pathlib.Path(dir_path).mkdir(parents=True, exist_ok=True)
+            pathlib.Path(dirpath).mkdir(parents=True, exist_ok=True)
             return 0
         else:
             print("[WARNING] The directory '{}' will not be created".format(
-                dir_path))
+                dirpath))
             return 1
     else:
-        print("[INFO] Good! The directory '{}' exists".format(dir_path))
+        print("[INFO] Good! The directory '{}' exists".format(dirpath))
         return 0
+
+
+def create_timestamped_directory(new_fname, parent_dirpath):
+    timestamped = datetime.now().strftime('%Y%m%d-%H%M%S-{fname}')
+    new_dirpath = os.path.join(
+        parent_dirpath, timestamped.format(fname=new_fname))
+    try:
+        pathlib.Path(new_dirpath).mkdir(parents=True, exist_ok=True)
+    except PermissionError as e:
+        raise PermissionError(e)
+    else:
+        return new_dirpath
 
 
 # Cross-platform code for getting file creation of a file

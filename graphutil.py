@@ -1,4 +1,3 @@
-from collections import OrderedDict
 # Third-party modules
 import ipdb
 import matplotlib.pyplot as plt
@@ -12,17 +11,66 @@ from scipy.spatial import ConvexHull
 from .genutil import init_variable, load_json_with_codecs
 
 
-def draw_bar_chart(x,
-                   y,
-                   xlabel,
-                   ylabel,
-                   title,
-                   grid_which="major",
-                   color="b",
-                   yaxis_major_mutiplelocator=20,
-                   yaxis_minor_mutiplelocator=10,
-                   fig_width=5,
-                   fig_height=5):
+# Horizontal bar chart
+def draw_barh_chart(x,
+                    y,
+                    title,
+                    xlabel,
+                    add_text_right_bar=True,
+                    color="b",
+                    fig_width=5,
+                    fig_height=5,
+                    grid_which="major",
+                    display_graph=True,
+                    save_graph=True,
+                    fname="savefig.png"):
+    # Sanity check on the input arrays
+    assert isinstance(x, type(np.array([]))), "wrong type on input array 'x'"
+    assert isinstance(y, type(np.array([]))), "wrong type on input array 'y'"
+    assert x.shape == y.shape, "wrong shape with 'x' and 'y'"
+    assert grid_which in ["minor", "major", "both"], \
+        "wrong value for grid_which='{}'".format(grid_which)
+
+    plt.figure(figsize=(fig_width, fig_height))
+    ax = plt.gca()
+    y_pos = np.arange(len(y))
+    rects = ax.barh(y_pos, x, align='center', color=color)
+    if add_text_right_bar:
+        # Add text (count) on the right of each bar
+        for rect in rects:
+            width = rect.get_width()
+            ax.text(width,
+                    rect.get_y() + rect.get_height() / 2.,
+                    "{}".format(width),
+                    ha="left",
+                    va="baseline")
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(y)
+    ax.invert_yaxis()  # labels read top-to-bottom
+    ax.set_xlabel(xlabel)
+    ax.set_title(title)
+    plt.grid(which=grid_which)
+    plt.tight_layout()
+    if display_graph:
+        plt.show()
+    if save_graph:
+        plt.savefig(fname)
+
+
+# Vertical bar chart
+# TODO: complete code for vertical bar chart
+"""
+def draw_barv_chart(x,
+                    y,
+                    xlabel,
+                    ylabel,
+                    title,
+                    grid_which="major",
+                    color="b",
+                    yaxis_major_mutiplelocator=20,
+                    yaxis_minor_mutiplelocator=10,
+                    fig_width=5,
+                    fig_height=5):
     # Sanity check on the input arrays
     assert isinstance(x, type(np.array([]))), \
         "generate_bar_chart(): wrong type on input array 'x'"
@@ -57,6 +105,7 @@ def draw_bar_chart(x,
     plt.grid(which=grid_which)
     plt.tight_layout()
     plt.show()
+"""
 
 
 def draw_histogram(data,
