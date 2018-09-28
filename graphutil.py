@@ -267,21 +267,30 @@ def draw_pie_chart(values, labels, title):
     plt.show()
 
 
-def draw_scatter_plot(x, y, text, title, mode='markers', hovermode='closest',
-                      yaxis_tickformat='$0.0f'):
+def draw_scatter_plot(x, y, text, scatter_cfg=None, layout_cfg=None):
     # TODO: add labels to axes
     assert isinstance(x, type(np.array([]))), "wrong type on input array 'x'"
     assert isinstance(y, type(np.array([]))), "wrong type on input array 'y'"
     assert isinstance(text, type(np.array([]))), "wrong type on input array 'text'"
+
+    # Init variables
+    init_scatter = {'mode': 'markers'}
+    init_layout = {
+        'hovermode': 'closet',
+        'xaxis': {'tickformat': "$0.0f"},
+        'yaxis': {'tickformat': "$0.0f"}
+    }
+
+    scatter_cfg = init_variable(scatter_cfg, init_scatter)
+    layout_cfg = init_variable(layout_cfg, init_layout)
+
     plotly.offline.plot({
         "data": [Scatter(x=list(x.flatten()),
                          y=list(y.flatten()),
-                         mode=mode,
-                         text=list(text.flatten()))],
-        "layout": Layout(title=title,
-                         hovermode=hovermode,
-                         yaxis={'tickformat': yaxis_tickformat})
-    })
+                         text=list(text.flatten()),
+                         **scatter_cfg)],
+        "layout": Layout(**layout_cfg)
+    }, filename='my-graph.html', output_type='file', auto_open=False)
 
 
 # `get_markersize` is a function to compute the markersize

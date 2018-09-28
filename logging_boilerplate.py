@@ -8,19 +8,19 @@ from .logging_wrapper import LoggingWrapper
 
 
 class LoggingBoilerplate:
-    # `logging_config` can either be the path to the logging configuration file
+    # `logging_cfg` can either be the path to the logging configuration file
     # or the logging `dict`
-    def __init__(self, module_name, module_file, cwd, logging_config,
+    def __init__(self, module_name, module_file, cwd, logging_cfg,
                  use_default_colors=False, use_pycharm_colors=False):
         self.module_name = module_name
         self.module_file = module_file
         self.cwd = cwd
-        if isinstance(logging_config, str):
+        if isinstance(logging_cfg, str):
             self.use_default_colors = use_default_colors
             self.use_pycharm_colors = use_pycharm_colors
         else:
-            self.use_default_colors = logging_config['logging_options']['use_default_colors']
-            self.use_pycharm_colors = logging_config['logging_options']['use_pycharm_colors']
+            self.use_default_colors = logging_cfg['logging_options']['use_default_colors']
+            self.use_pycharm_colors = logging_cfg['logging_options']['use_pycharm_colors']
         # Get the loggers
         c_logger, f_logger = self._get_loggers()
         # Init the logging wrapper
@@ -32,20 +32,21 @@ class LoggingBoilerplate:
             self.lw.info("The colors of the logging messages are those used "
                          "for the Pycharm Terminal")
         # Setup loggers from YAML logging configuration file or dict
-        self.logging_config_dict = self._setup_loggers_from_config(logging_config)
-        if isinstance(logging_config, str):
+        self.logging_cfg_dict = self._setup_loggers_from_cfg(logging_cfg)
+        if isinstance(logging_cfg, str):
             # Update the dict `config` with logging options necessary for setting
             # up the logging mechanism in the other modules,
             # e.g. `industries_analyzer.py`
+            # NOTE: `logging_cfg_filepath` not used in this module
             logging_options = {
                 'logging_options':
                     {
-                        'logging_config_filepath': logging_config,
+                        'logging_cfg_filepath': logging_cfg,
                         'use_default_colors': use_default_colors,
                         'use_pycharm_colors': use_pycharm_colors
                     }
             }
-            self._update_logging_config_dict(logging_options)
+            self._update_logging_cfg_dict(logging_options)
 
     # Init the console and file loggers
     def _get_loggers(self):
@@ -79,25 +80,25 @@ class LoggingBoilerplate:
         self.setup_logger(c_logger)
         return c_logger, f_logger
 
-    # `logging_config` is the absolute path of the logging configuration file
+    # `logging_cfg` is the absolute path of the logging configuration file
     # or a logging `dict`
-    def _setup_loggers_from_config(self, logging_config):
+    def _setup_loggers_from_cfg(self, logging_cfg):
         # TODO: not needed anymore
-        # logging_config = os.path.realpath(logging_config)
+        # logging_cfg = os.path.realpath(logging_cfg)
         # Setup loggers from YAML logging configuration file or logging `dict`
         try:
-            if isinstance(logging_config, str):
+            if isinstance(logging_cfg, str):
                 # Add datetime at the beginning of the log filename
                 # e.g. 2018-09-21-23-24-15-debug.log
                 add_datetime = True
                 self.lw.info(
                     "Setting up logging from the YAML configuration file "
-                    "'{}'".format(logging_config))
+                    "'{}'".format(logging_cfg))
             else:
                 add_datetime = False
                 self.lw.info(
                     "Setting up logging from a dictionary")
-            logging_config_dict = setup_logging(logging_config, add_datetime=add_datetime)
+            logging_cfg_dict = setup_logging(logging_cfg, add_datetime=add_datetime)
         except (KeyError, OSError, ValueError) as e:
             # TODO: write the traceback with one line, see https://bit.ly/2DkH63E
             self.lw.critical(e)
@@ -106,22 +107,22 @@ class LoggingBoilerplate:
             raise SystemExit("Logging could not be setup. Program will exit.")
         else:
             self.lw.debug("Logging setup completed")
-            return logging_config_dict
+            return logging_cfg_dict
 
-    def _update_logging_config_dict(self, options):
+    def _update_logging_cfg_dict(self, options):
         self.lw.debug(
             "Updating the logging config dict with logging options: "
             "{}".format(options))
-        config_keys_set = set(self.logging_config_dict.keys())
+        cfg_keys_set = set(self.logging_cfg_dict.keys())
         options_keys_set = set(options.keys())
-        result_set = config_keys_set.intersection(options_keys_set)
+        result_set = cfg_keys_set.intersection(options_keys_set)
         if result_set:
             # TODO: raise a custom Exception that could be caught in
             # run_data_analysis.py
             self.lw.debug("The logging options' keys are not unique")
             raise SystemExit("Program will exit.")
         else:
-            self.logging_config_dict.update(options)
+            self.logging_cfg_dict.update(options)
 
     def get_logger(self):
         return self.lw

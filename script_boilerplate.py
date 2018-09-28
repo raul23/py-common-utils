@@ -18,17 +18,17 @@ class ScriptBoilerplate(LoggingBoilerplate):
         super().__init__(
             module_name=module_name,
             module_file=module_file,
-            logging_config=self.args.logging_config,
+            logging_cfg=self.args.logging_cfg,
             cwd=cwd,
             use_default_colors=self.args.use_default_colors,
             use_pycharm_colors=self.args.use_pycharm_colors)
 
     def _setup_argparser(self):
         self.parser.add_argument(
-            "-l", "--logging_config", default="logging_config.yaml",
+            "-l", "--logging_cfg", default="logging_cfg.yaml",
             help="Path to the YAML logging configuration file.")
         self.parser.add_argument(
-            "-m", "--main_config", default="main_config.yaml",
+            "-m", "--main_cfg", default="main_cfg.yaml",
             help="Path to the YAML main configuration file.")
         # TODO: combine both options `pycharm_colors` and `use_color` into one option
         self.parser.add_argument(
