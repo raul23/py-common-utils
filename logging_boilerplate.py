@@ -56,7 +56,11 @@ class LoggingBoilerplate:
             module_name = os.path.splitext(self.module_file)[0]
         else:
             # When it is imported as a module
-            package_name, module_name = self.module_name.split('.')
+            if '.' in self.module_name:
+                package_name, module_name = self.module_name.split('.')
+            else:
+                package_name = os.path.basename(self.cwd)
+                module_name = self.module_name
         # TODO: I could create one logger that logs into the console and a
         # file. But since the console's log messages can be colored, the file's
         # log messages will have color information. I could remove the file
@@ -136,7 +140,7 @@ class LoggingBoilerplate:
     # Setup logger without the logging configuration
     def setup_logger(logger, logger_level=logging.DEBUG,
                      handler_level=logging.DEBUG, handler=logging.StreamHandler(),
-                     handler_format='%(name)-40s: %(levelname)-8s %(message)s'):
+                     handler_format='%(name)-30s: %(levelname)-8s %(message)s'):
         handler.setLevel(handler_level)
         formatter = logging.Formatter(handler_format)
         handler.setFormatter(formatter)
