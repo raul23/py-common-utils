@@ -8,7 +8,7 @@ import plotly
 from plotly.graph_objs import Scatter, Layout
 from scipy.spatial import ConvexHull
 # Own modules
-from .genutil import init_variable, load_json_with_codecs
+from .genutil import init_variable, load_json
 
 
 # Horizontal bar chart
@@ -23,7 +23,7 @@ def draw_barh_chart(x,
                     grid_which="major",
                     display_graph=True,
                     save_graph=True,
-                    fname="savefig.png"):
+                    fname="barh_chart.png"):
     # Sanity check on the input arrays
     assert isinstance(x, type(np.array([]))), "wrong type on input array 'x'"
     assert isinstance(y, type(np.array([]))), "wrong type on input array 'y'"
@@ -51,10 +51,15 @@ def draw_barh_chart(x,
     ax.set_title(title)
     plt.grid(which=grid_which)
     plt.tight_layout()
-    if display_graph:
-        plt.show()
+    # Saving and displaying
+    # IMPORTANT: need to save first before showing because showing clears the
+    # figure and you end up saving an empty figure
+    # ref.: https://stackoverflow.com/a/21884187
     if save_graph:
         plt.savefig(fname)
+    if display_graph:
+        plt.show()
+    plt.close()
 
 
 # Vertical bar chart
@@ -120,8 +125,10 @@ def draw_histogram(data,
                    yaxis_major_mutiplelocator=5,
                    yaxis_minor_mutiplelocator=1,
                    fig_width=5,
-                   fig_height=5):
-    # TODO: `bin_width": 10000` not used
+                   fig_height=5,
+                   display_graph=True,
+                   save_graph=True,
+                   fname="barh_chart.png"):
     # TODO: `xaxis_minor_mutiplelocator` not used
     # Sanity check on the input array
     assert isinstance(data, type(np.array([]))), \
@@ -143,13 +150,18 @@ def draw_histogram(data,
     plt.grid(True, which=grid_which)
     plt.tight_layout()
     # TODO: add function to save image instead of showing it
-    plt.show()
+    # Saving and displaying
+    if save_graph:
+        plt.savefig(fname)
+    if display_graph:
+        plt.show()
+    plt.close()
 
 
 # TODO: check the code and improve it
 # ref.: https://stackoverflow.com/a/42685102
 def draw_us_states_names_on_map(basemap, us_states_filepath):
-    us_states = load_json_with_codecs(us_states_filepath)
+    us_states = load_json(us_states_filepath)
     printed_names = []
     mi_index = 0
     wi_index = 0
@@ -187,14 +199,18 @@ def draw_us_states_names_on_map(basemap, us_states_filepath):
 def draw_usa_map(addresses_data,
                  shape_filepath,
                  us_states_filepath,
-                 title, fig_width,
+                 title,
+                 fig_width,
                  fig_height,
                  annotate_addresses=None,
                  annotation_cfg=None,
                  basemap_cfg=None,
-                 map_coords_cfg=None,
+                 draw_meridians=True,
                  draw_parallels=True,
-                 draw_meridians=True):
+                 map_coords_cfg=None,
+                 display_graph=True,
+                 save_graph=True,
+                 fname="usa_map.png"):
 
     def get_markersize(**kwargs):
         count = kwargs['count']
@@ -209,6 +225,8 @@ def draw_usa_map(addresses_data,
 
     plt.figure(figsize=(fig_width, fig_height))
     plt.title(title)
+    # TODO: which init method is better? This one, or the one used in
+    # `draw_scatter_plot()`?
     basemap = Basemap(projection=basemap_cfg.get('projection', 'lcc'),
                       llcrnrlon=basemap_cfg.get('llcrnrlon', -119),
                       llcrnrlat=basemap_cfg.get('llcrnrlat', 22),
@@ -227,7 +245,12 @@ def draw_usa_map(addresses_data,
         basemap.drawmeridians(np.arange(-120, -40, 20), labels=[0, 0, 0, 1])
     if draw_parallels:
         basemap.drawparallels(np.arange(25, 65, 20), labels=[1, 0, 0, 0])
-    plt.show()
+    # Saving and displaying
+    if save_graph:
+        plt.savefig(fname)
+    if display_graph:
+        plt.show()
+    plt.close()
 
 
 def draw_world_map(addresses_data,
@@ -244,8 +267,10 @@ def draw_world_map(addresses_data,
                    draw_meridians=True,
                    draw_parallels=True,
                    draw_states=True,
-                   fill_continents=True):
-
+                   fill_continents=True,
+                   display_graph=True,
+                   save_graph=True,
+                   fname="world_map.png"):
     """
     def get_markersize(**kwargs):
         return kwargs['marker_scale']
@@ -298,10 +323,16 @@ def draw_world_map(addresses_data,
         # NOTE: if matplotlib-2.2.2 is used, code crashes with
         # AttributeError: 'AxesSubplot' object has no attribute 'get_axis_bgcolor'
         basemap.fillcontinents()
-    plt.show()
+    # Saving and displaying
+    if save_graph:
+        plt.savefig(fname)
+    if display_graph:
+        plt.show()
+    plt.close()
 
 
-def draw_pie_chart(values, labels, title):
+def draw_pie_chart(values, labels, title, display_graph=True, save_graph=True,
+                   fname="pie_chart.png"):
     # Sanity check on the input arrays
     assert isinstance(values, type(np.array([]))), \
         "Wrong type on input array 'values'"
@@ -313,10 +344,20 @@ def draw_pie_chart(values, labels, title):
     plt.pie(values, labels=labels, autopct="%1.1f%%")
     ax.set_title(title)
     plt.axis("equal")
-    plt.show()
+    # Saving and displaying
+    if save_graph:
+        plt.savefig(fname)
+    if display_graph:
+        plt.show()
+    plt.close()
 
 
-def draw_scatter_plot(x, y, text, scatter_cfg=None, layout_cfg=None):
+def draw_scatter_plot(x,
+                      y,
+                      text,
+                      scatter_cfg=None,
+                      layout_cfg=None,
+                      plot_cfg=None):
     # TODO: add labels to axes
     assert isinstance(x, type(np.array([]))), "wrong type on input array 'x'"
     assert isinstance(y, type(np.array([]))), "wrong type on input array 'y'"
@@ -329,9 +370,11 @@ def draw_scatter_plot(x, y, text, scatter_cfg=None, layout_cfg=None):
         'xaxis': {'tickformat': "$0.0f"},
         'yaxis': {'tickformat': "$0.0f"}
     }
+    init_plot = {'auto_open': False}
 
     scatter_cfg = init_variable(scatter_cfg, init_scatter)
     layout_cfg = init_variable(layout_cfg, init_layout)
+    plot_cfg = init_variable(plot_cfg, init_plot)
 
     plotly.offline.plot({
         "data": [Scatter(x=list(x.flatten()),
@@ -339,7 +382,7 @@ def draw_scatter_plot(x, y, text, scatter_cfg=None, layout_cfg=None):
                          text=list(text.flatten()),
                          **scatter_cfg)],
         "layout": Layout(**layout_cfg)
-    }, filename='my-graph.html', output_type='file', auto_open=False)
+    }, **plot_cfg)
 
 
 # `get_markersize` is a function to compute the markersize

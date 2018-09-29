@@ -17,39 +17,6 @@ import tzlocal
 import yaml
 
 
-class GenUtil:
-    def __init__(self, logger):
-        self.logger = logger
-
-    def dump_pickle(self, filepath, data):
-        self.logger.debug("Saving path: {}".format(filepath))
-        try:
-            dump_pickle(filepath, data)
-        except FileNotFoundError as e:
-            self.logger.exception(e)
-            self.logger.error(
-                "The file '{}' couldn't be saved".format(filepath))
-        else:
-            self.logger.debug("Saved!")
-
-    def load_pickle(self, filepath, default=None):
-        if default is None:
-            dict_ = {}
-        else:
-            dict_ = default
-        try:
-            dict_ = load_pickle(filepath)
-        except FileNotFoundError as e:
-            self.logger.exception(e)
-            self.logger.warning(
-                "The dictionary '{}' will be initialized to {}".format(
-                    filepath, dict_))
-        else:
-            self.logger.debug("Dictionary '{}' loaded!".format(filepath))
-        finally:
-            return dict_
-
-
 def add_plural(v):
     return "s" if v > 1 else ""
 
@@ -71,6 +38,13 @@ def connect_db(db_path, autocommit=False):
         return conn
     except sqlite3.Error as e:
         raise sqlite3.Error(e)
+
+
+# Useful for building SQL expressions
+def convert_list_to_str(list_):
+    str_ = ", ".join(
+        map(lambda a: "'{}'".format(a), list_))
+    return str_
 
 
 def create_directory_prompt(dirpath):
@@ -155,26 +129,16 @@ def dump_pickle(filepath, data):
         raise FileNotFoundError(e)
 
 
-def dump_pickle_with_logger(filepath, data, logger):
-    logger.debug("Saving path: {}".format(filepath))
-    try:
-        dump_pickle(filepath, data)
-    except FileNotFoundError as e:
-        logger.exception(e)
-        logger.error("The file '{}' couldn't be saved".format(filepath))
-    else:
-        logger.debug("Saved!")
-
-
 def get_geo_coords_with_logger(geolocator, location, logger):
     try:
         logger.debug("Sending request to the geocoding service for location "
                      "'{}'".format(location))
         geo_coords = geolocator.geocode(location)
     except (geopy.exc.GeocoderTimedOut,
-            geopy.exc.GeocoderServiceError) as e:
-        logger.exception(e)
+            geopy.exc.GeocoderServiceError) as exception:
+        logger.exception(exception)
         logger.critical("The location '{}' will be skipped".format(location))
+        raise exception
     else:
         logger.debug("Geo coordinates received from the geocoding service")
         logger.debug("Address: {}".format(geo_coords.address))
@@ -222,16 +186,7 @@ def init_variable(v, default):
         return v
 
 
-def load_json(path):
-    try:
-        with open(path, 'r') as f:
-            data = json.load(f)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(e)
-    return data
-
-
-def load_json_with_codecs(path, encoding='utf8'):
+def load_json(path, encoding='utf8'):
     try:
         with codecs.open(path, 'r', encoding) as f:
             data = json.load(f)
@@ -256,23 +211,6 @@ def load_pickle(filepath):
         raise FileNotFoundError(e)
     else:
         return data
-
-
-def load_pickle_with_logger(filepath, logger, default=None):
-    if default is None:
-        dict_ = {}
-    else:
-        dict_ = default
-    try:
-        dict_ = load_pickle(filepath)
-    except FileNotFoundError as e:
-        logger.exception(e)
-        logger.warning("The dictionary '{}' will be initialized to {}".format(
-            filepath, dict_))
-    else:
-        logger.debug("Dictionary '{}' loaded!".format(filepath))
-    finally:
-        return dict_
 
 
 def load_yaml(f):
