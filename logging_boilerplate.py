@@ -19,8 +19,11 @@ class LoggingBoilerplate:
             self.use_default_colors = use_default_colors
             self.use_pycharm_colors = use_pycharm_colors
         else:
-            self.use_default_colors = logging_cfg['logging_options']['use_default_colors']
-            self.use_pycharm_colors = logging_cfg['logging_options']['use_pycharm_colors']
+            # Sanity check on `logging_cfg`
+            assert isinstance(logging_cfg, dict), "`logging_cfg` must be a `dict`"
+            logging_opts = logging_cfg['logging_options']
+            self.use_default_colors = logging_opts['use_default_colors']
+            self.use_pycharm_colors = logging_opts['use_pycharm_colors']
         # Get the loggers
         c_logger, f_logger = self._get_loggers()
         # Init the logging wrapper

@@ -147,6 +147,14 @@ def get_geo_coords_with_logger(geolocator, location, logger):
         return geo_coords
 
 
+# Returns a `datetime` from the local time zone
+def get_local_datetime():
+    # Get the local timezone name
+    tz = pytz.timezone(tzlocal.get_localzone().zone)
+    # Get the time in the system's time zone
+    return datetime.now(tz)
+
+
 def get_local_time(utc_time=None):
     """
     If a UTC time is given, it is converted to the local time zone. If
@@ -159,8 +167,6 @@ def get_local_time(utc_time=None):
     """
     # Get the local timezone name
     tz = pytz.timezone(tzlocal.get_localzone().zone)
-    local_time = None
-
     if utc_time:
         # Convert time.struct_time into datetime
         utc_time = datetime(*utc_time[:6])
