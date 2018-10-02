@@ -11,14 +11,13 @@ import sqlite3
 # Third-party modules
 # TODO: check that if it is right to only load modules from third-party when
 # needed
-import geopy
 import pytz
 import tzlocal
 import yaml
 
 
-def add_plural(v):
-    return "s" if v > 1 else ""
+def add_plural(v, plural_end="s", singular_end=""):
+    return plural_end if v > 1 else singular_end
 
 
 def connect_db(db_path, autocommit=False):
@@ -127,24 +126,6 @@ def dump_pickle(filepath, data):
             pickle.dump(data, f)
     except FileNotFoundError as e:
         raise FileNotFoundError(e)
-
-
-def get_geo_coords_with_logger(geolocator, location, logger):
-    try:
-        logger.debug("Sending request to the geocoding service for location "
-                     "'{}'".format(location))
-        geo_coords = geolocator.geocode(location)
-    except (geopy.exc.GeocoderTimedOut,
-            geopy.exc.GeocoderServiceError) as exception:
-        logger.exception(exception)
-        logger.critical("The location '{}' will be skipped".format(location))
-        raise exception
-    else:
-        logger.debug("Geo coordinates received from the geocoding service")
-        logger.debug("Address: {}".format(geo_coords.address))
-        logger.debug("Geo coordinates: {} lat, {} long [{}]".format(
-            geo_coords.latitude, geo_coords.longitude, geo_coords.point))
-        return geo_coords
 
 
 # Returns a `datetime` from the local time zone

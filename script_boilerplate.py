@@ -4,6 +4,8 @@ from .logging_boilerplate import LoggingBoilerplate
 
 
 class ScriptBoilerplate:
+    # TODO: add configuration filenames/short and long names options in
+    # `__init__()`
     def __init__(self, module_name, module_file, cwd, parser_desc,
                  parser_formatter_class):
         self.module_name = module_name
