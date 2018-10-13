@@ -9,7 +9,7 @@ import plotly
 from plotly.graph_objs import Scatter, Layout
 from scipy.spatial import ConvexHull
 # Own modules
-from .genutil import init_variable, load_json, write_file
+from .genutils import init_variable, load_json, write_file
 
 
 # Horizontal bar chart
