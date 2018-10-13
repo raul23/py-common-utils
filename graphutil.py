@@ -1,3 +1,4 @@
+import os
 # Third-party modules
 import ipdb
 import matplotlib.pyplot as plt
@@ -8,7 +9,7 @@ import plotly
 from plotly.graph_objs import Scatter, Layout
 from scipy.spatial import ConvexHull
 # Own modules
-from .genutil import init_variable, load_json
+from .genutil import init_variable, load_json, write_file
 
 
 # Horizontal bar chart
@@ -48,7 +49,7 @@ def draw_barh_chart(x,
     ax.set_yticklabels(y)
     ax.invert_yaxis()  # labels read top-to-bottom
     ax.set_xlabel(xlabel)
-    ax.set_title(title)
+    ax.set_title(title, fontweight='bold')
     plt.grid(which=grid_which)
     plt.tight_layout()
     # Saving and displaying
@@ -140,7 +141,7 @@ def draw_histogram(data,
     ax.hist(data, bins=bins, color=color)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.set_title(title)
+    ax.set_title(title, fontweight='bold')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(xaxis_major_mutiplelocator))
     ax.yaxis.set_major_locator(ticker.MultipleLocator(yaxis_major_mutiplelocator))
     ax.yaxis.set_minor_locator(ticker.MultipleLocator(yaxis_minor_mutiplelocator))
@@ -196,7 +197,7 @@ def draw_us_states_names_on_map(basemap, us_states_filepath):
 
 # TODO: refer to `job_locations_analyzer` for full details of dict's structure
 # `addresses_data` is a dictionary with the addresses as its keys ...
-def draw_usa_map(addresses_data,
+def draw_map_usa(addresses_data,
                  shape_filepath,
                  us_states_filepath,
                  title,
@@ -224,7 +225,7 @@ def draw_usa_map(addresses_data,
     map_coords_cfg = init_variable(map_coords_cfg, {})
 
     plt.figure(figsize=(fig_width, fig_height))
-    plt.title(title)
+    plt.title(title, fontweight='bold')
     # TODO: which init method is better? This one, or the one used in
     # `draw_scatter_plot()`?
     basemap = Basemap(projection=basemap_cfg.get('projection', 'lcc'),
@@ -246,6 +247,7 @@ def draw_usa_map(addresses_data,
     if draw_parallels:
         basemap.drawparallels(np.arange(25, 65, 20), labels=[1, 0, 0, 0])
     # Saving and displaying
+    plt.tight_layout()
     if save_graph:
         plt.savefig(fname)
     if display_graph:
@@ -253,7 +255,7 @@ def draw_usa_map(addresses_data,
     plt.close()
 
 
-def draw_world_map(addresses_data,
+def draw_map_world(addresses_data,
                    title,
                    fig_width,
                    fig_height,
@@ -287,7 +289,7 @@ def draw_world_map(addresses_data,
     map_coords_cfg = init_variable(map_coords_cfg, {})
 
     plt.figure(figsize=(fig_width, fig_height))
-    plt.title(title)
+    plt.title(title, fontweight='bold')
     basemap = Basemap(projection=basemap_cfg['projection'],
                       llcrnrlon=basemap_cfg['llcrnrlon'],
                       llcrnrlat=basemap_cfg['llcrnrlat'],
@@ -325,7 +327,7 @@ def draw_world_map(addresses_data,
         basemap.fillcontinents()
     # Saving and displaying
     if save_graph:
-        plt.savefig(fname)
+        plt.savefig(fname, bbox_inches='tight')
     if display_graph:
         plt.show()
     plt.close()
@@ -358,7 +360,6 @@ def draw_scatter_plot(x,
                       scatter_cfg=None,
                       layout_cfg=None,
                       plot_cfg=None):
-    # TODO: add labels to axes
     assert isinstance(x, type(np.array([]))), "wrong type on input array 'x'"
     assert isinstance(y, type(np.array([]))), "wrong type on input array 'y'"
     assert isinstance(text, type(np.array([]))), "wrong type on input array 'text'"
@@ -376,13 +377,16 @@ def draw_scatter_plot(x,
     layout_cfg = init_variable(layout_cfg, init_layout)
     plot_cfg = init_variable(plot_cfg, init_plot)
 
-    plotly.offline.plot({
+    div = plotly.offline.plot({
         "data": [Scatter(x=list(x.flatten()),
                          y=list(y.flatten()),
                          text=list(text.flatten()),
                          **scatter_cfg)],
         "layout": Layout(**layout_cfg)
     }, **plot_cfg)
+    if plot_cfg['output_type'] == 'div':
+        filepath_without_ext, ext = os.path.splitext(plot_cfg['filename'])
+        write_file(filepath_without_ext+'.txt', div)
 
 
 # `get_markersize` is a function to compute the markersize
