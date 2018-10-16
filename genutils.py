@@ -14,6 +14,8 @@ import sqlite3
 import pytz
 import tzlocal
 import yaml
+# Own modules
+from .exc import OverwriteFileError
 
 
 def add_plural(v, plural_end="s", singular_end=""):
@@ -250,9 +252,13 @@ def setup_logging(logging_config, add_datetime=False):
         return config_dict
 
 
-def write_file(filepath, data):
+def write_file(filepath, data, overwrite_file=True):
     try:
-        with open(filepath, 'w') as f:
-            f.write(data)
+        if os.path.isfile(filepath) and not overwrite_file:
+            raise OverwriteFileError("File '{}' already exists and `overwrite` "
+                                     "is False".format(filepath))
+        else:
+            with open(filepath, 'w') as f:
+                f.write(data)
     except OSError as e:
         raise OSError(e)
