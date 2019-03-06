@@ -1,3 +1,4 @@
 # utility
 
-Python toolbox used in various projects
+Used in various Python projects
+
