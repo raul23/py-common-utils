@@ -204,7 +204,11 @@ def load_pickle(filepath):
 
 def load_yaml(f):
     try:
-        return yaml.load(f)
+        # IMPORTANT: I got a YAMLLoadWarning when calling `yaml.load()` without
+        # `Loader=...` [deprecated], as the default Loader is unsafe.
+        # Ref.: https://msg.pyyaml.org/load or https://bit.ly/2ZuYSrD
+        # You must specify a loader with the `Loader=` argument
+        return yaml.load(f, Loader=yaml.FullLoader)
     except yaml.YAMLError as e:
         raise yaml.YAMLError(e)
 
