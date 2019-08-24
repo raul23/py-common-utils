@@ -5,6 +5,9 @@ import time
 
 
 def create_db(overwrite, db_filepath, schema_filepath):
+    # NOTE: if you need to suppress printing, check the following links
+    # - https://bit.ly/2QKRFPX
+    # - https://bit.ly/2HmTIa4
     db_exists = os.path.exists(db_filepath)
 
     if overwrite and db_exists:
