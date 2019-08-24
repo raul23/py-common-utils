@@ -48,6 +48,16 @@ def convert_list_to_str(list_):
     return str_
 
 
+def create_directory(dirpath):
+    if os.path.isdir(dirpath):
+        raise ResourceWarning(
+            "The directory '{}' already exists!".format(dirpath))
+    try:
+        pathlib.Path(dirpath).mkdir(parents=True, exist_ok=True)
+    except PermissionError as e:
+        raise PermissionError(e)
+
+
 def create_directory_prompt(dirpath):
     if not os.path.isdir(dirpath):
         print("[ERROR] The directory '{}' doesn't exist".format(dirpath))
@@ -84,7 +94,7 @@ def create_timestamped_directory(new_fname, parent_dirpath):
 
 # Cross-platform code for getting file creation of a file
 # ref.: code is from Mark Amery @ https://stackoverflow.com/a/39501288
-def creation_date(path_to_file):
+def get_creation_date(path_to_file):
     """
     Try to get the date that a file was created, falling back to when it was
     last modified if that isn't possible.
