@@ -14,14 +14,14 @@ from utilities.logging_wrapper import LoggingWrapper
 
 class SaveWebpages:
     # `logger` can be a `dict` or a `LoggingWrapper` instance
-    def __init__(self, main_cfg, logger=None):
+    def __init__(self, main_cfg, logger):
         self.main_cfg = main_cfg
         if isinstance(logger, dict):
-            sb = LoggingBoilerplate(__name__,
+            lb = LoggingBoilerplate(__name__,
                                     __file__,
                                     os.getcwd(),
                                     logger)
-            self.logger = sb.get_logger()
+            self.logger = lb.get_logger()
         else:
             # Sanity check on `logger`
             assert isinstance(logger, LoggingWrapper), \

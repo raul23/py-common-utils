@@ -9,7 +9,7 @@ from .logging_wrapper import LoggingWrapper
 
 class LoggingBoilerplate:
     # `logging_cfg` can either be the path to the logging configuration file
-    # or the logging `dict`
+    # (i.e. a string) or the logging `dict`
     def __init__(self, module_name, module_file, cwd, logging_cfg,
                  use_default_colors=False, use_pycharm_colors=False):
         self.module_name = module_name
@@ -24,7 +24,7 @@ class LoggingBoilerplate:
             logging_opts = logging_cfg['logging_options']
             self.use_default_colors = logging_opts['use_default_colors']
             self.use_pycharm_colors = logging_opts['use_pycharm_colors']
-        # Get the loggers
+        # Get the console and file loggers
         c_logger, f_logger = self._get_loggers()
         # Init the logging wrapper
         self.lw = LoggingWrapper(
@@ -34,6 +34,10 @@ class LoggingBoilerplate:
         if self.lw.use_pycharm_colors:
             self.lw.info("The colors of the logging messages are those used "
                          "for the Pycharm Terminal")
+        # Add the console and file loggers to the logging config file if they
+        # are not there yet
+        if isinstance(logging_cfg, dict):
+            self._add_loggers([c_logger, f_logger], logging_cfg)
         # Setup loggers from YAML logging configuration file or dict
         self.logging_cfg_dict = self._setup_loggers_from_cfg(logging_cfg)
         if isinstance(logging_cfg, str):
@@ -50,6 +54,17 @@ class LoggingBoilerplate:
                     }
             }
             self._update_logging_cfg_dict(logging_options)
+
+    # Add loggers to logging config dict
+    @staticmethod
+    def _add_loggers(new_loggers, logging_cfg):
+        for new_logger in new_loggers:
+            for old_logger_name in logging_cfg['loggers'].keys():
+                if new_logger.name[-2:] == old_logger_name[-2:]:
+                    value = logging_cfg['loggers'][old_logger_name]
+                    # del logging_cfg['loggers'][old_logger_name]
+                    logging_cfg['loggers'][new_logger.name] = value
+                    break
 
     # Init the console and file loggers
     def _get_loggers(self):
@@ -124,8 +139,7 @@ class LoggingBoilerplate:
         options_keys_set = set(options.keys())
         result_set = cfg_keys_set.intersection(options_keys_set)
         if result_set:
-            # TODO: raise a custom Exception that could be caught in
-            # run_data_analysis.py
+            # TODO: raise a custom Exception
             self.lw.debug("The logging options' keys are not unique")
             raise SystemExit("Program will exit.")
         else:
