@@ -7,6 +7,8 @@ Extended summary
 import os
 import sqlite3
 import time
+# Custom modules
+from utilities.exceptions.sql import SQLSanityCheckError
 
 
 def connect_db(db_path, autocommit=False):
@@ -71,4 +73,28 @@ def create_db(overwrite, db_filepath, schema_filepath):
             else:
                 print("Database created!")
     else:
-        print("Database '{}' already exists!".format(args.database))
+        print("Database '{}' already exists!".format(db_filepath))
+
+
+def sql_sanity_check(sql, val):
+        """
+
+        Parameters
+        ----------
+        sql : str
+            Description
+        val : tuple of str
+            Description
+
+        Raises
+        ------
+
+        """
+        if type(val) is not tuple:
+            raise SQLSanityCheckError(
+                "[TypeError] The values for the SQL expression are not of "
+                "`tuple` type")
+        if len(val) != sql.count('?'):
+            raise SQLSanityCheckError(
+                "[AssertionError] Wrong number of values ({}) in the SQL "
+                "expression '{}'".format(len(val), sql))
