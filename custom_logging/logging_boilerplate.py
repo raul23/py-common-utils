@@ -1,13 +1,38 @@
+"""Module summary
+
+Extended summary
+
+"""
+
 import logging
 import os
 # Third-party modules
 import ipdb
-# Own modules
+# Custom modules
 from utilities.genutils import setup_logging
 from .logging_wrapper import LoggingWrapper
 
 
 class LoggingBoilerplate:
+    """
+
+    Parameters
+    ----------
+    module_name : str
+        Description
+    module_file : str
+        Description
+    cwd : str
+        Description
+    logging_cfg : str or dict
+        Description
+    use_default_colors : bool
+        Description
+    use_pycharm_colors : bool
+        Description
+
+    """
+
     # `logging_cfg` can either be the path to the logging configuration file
     # (i.e. a string) or the logging `dict`
     def __init__(self, module_name, module_file, cwd, logging_cfg,
@@ -58,6 +83,16 @@ class LoggingBoilerplate:
     # Add loggers to logging config dict
     @staticmethod
     def _add_loggers(new_loggers, logging_cfg):
+        """
+
+        Parameters
+        ----------
+        new_loggers : list of logger
+            Description
+        logging_cfg : dict
+            Description
+
+        """
         for new_logger in new_loggers:
             for old_logger_name in logging_cfg['loggers'].keys():
                 if new_logger.name[-2:] == old_logger_name[-2:]:
@@ -68,6 +103,12 @@ class LoggingBoilerplate:
 
     # Init the console and file loggers
     def _get_loggers(self):
+        """
+
+        Returns
+        -------
+
+        """
         if self.module_name == '__main__':
             # When it is run as a script
             package_name = os.path.basename(self.cwd)
@@ -105,6 +146,16 @@ class LoggingBoilerplate:
     # `logging_cfg` is the absolute path of the logging configuration file
     # or a logging `dict`
     def _setup_loggers_from_cfg(self, logging_cfg):
+        """
+
+        Parameters
+        ----------
+        logging_cfg
+
+        Returns
+        -------
+
+        """
         # TODO: not needed anymore
         # logging_cfg = os.path.realpath(logging_cfg)
         # Setup loggers from YAML logging configuration file or logging `dict`
@@ -132,6 +183,13 @@ class LoggingBoilerplate:
             return logging_cfg_dict
 
     def _update_logging_cfg_dict(self, options):
+        """
+
+        Parameters
+        ----------
+        options
+
+        """
         self.lw.debug(
             "Updating the logging config dict with logging options: "
             "{}".format(options))
@@ -146,10 +204,23 @@ class LoggingBoilerplate:
             self.logging_cfg_dict.update(options)
 
     def get_logger(self):
+        """
+
+        Returns
+        -------
+
+        """
         return self.lw
 
     @staticmethod
     def remove_handlers(logger):
+        """
+
+        Parameters
+        ----------
+        logger
+
+        """
         for h in logger.handlers:
             logger.removeHandler(h)
 
@@ -158,6 +229,17 @@ class LoggingBoilerplate:
     def setup_logger(logger, logger_level=logging.DEBUG,
                      handler_level=logging.DEBUG, handler=logging.StreamHandler(),
                      handler_format='%(name)-30s: %(levelname)-8s %(message)s'):
+        """
+
+        Parameters
+        ----------
+        logger
+        logger_level
+        handler_level
+        handler
+        handler_format
+
+        """
         handler.setLevel(handler_level)
         formatter = logging.Formatter(handler_format)
         handler.setFormatter(formatter)

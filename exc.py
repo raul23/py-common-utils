@@ -1,3 +1,10 @@
+"""Script summary
+
+Extended summary
+
+"""
+
+
 # TODO: only `OverwriteFileError` should be here
 class EmptyQueryResultSetError(Exception):
     """Raised when a SQL query returns an empty result set, i.e. no rows."""

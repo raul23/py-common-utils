@@ -1,3 +1,9 @@
+"""Module summary
+
+Extended module summary
+
+"""
+
 from datetime import datetime
 import os
 import requests
@@ -5,12 +11,19 @@ import sys
 import time
 # Third-party modules
 import ipdb
-# Own modules
+# Custom modules
 import utilities.exc as exc
 from utilities.genutils import read_file, get_local_datetime, get_logger, write_file
 
 
 class SaveWebpages:
+    """
+
+    Parameters
+    ----------
+    main_cfg
+    logger
+    """
     # `logger` can be a `dict` or a `LoggingWrapper` instance
     def __init__(self, main_cfg, logger):
         self.main_cfg = main_cfg
@@ -25,6 +38,19 @@ class SaveWebpages:
         self.last_request_time = -sys.float_info.max
 
     def load_cache_webpage(self, filename):
+        """
+
+        Parameters
+        ----------
+        filename
+
+        Raises
+        ------
+
+        Returns
+        -------
+
+        """
         try:
             self.logger.debug(
                 "Reading the cached HTML file '{}'".format(filename))
@@ -42,6 +68,21 @@ class SaveWebpages:
             return html, webpage_accessed
 
     def save_webpage(self, filename, url, overwrite_webpages=True):
+        """
+
+        Parameters
+        ----------
+        filename
+        url
+        overwrite_webpages
+
+        Raises
+        ------
+
+        Returns
+        -------
+
+        """
         if os.path.isfile(filename) and not overwrite_webpages:
             html, webpage_accessed = self.load_cache_webpage(filename)
         else:
@@ -69,6 +110,19 @@ class SaveWebpages:
         return html, webpage_accessed
 
     def _get_webpage(self, url):
+        """
+
+        Parameters
+        ----------
+        url
+
+        Raises
+        ------
+
+        Returns
+        -------
+
+        """
         current_delay = time.time() - self.last_request_time
         diff_between_delays = \
             current_delay - self.main_cfg['delay_between_requests']
@@ -80,6 +134,7 @@ class SaveWebpages:
         try:
             self.logger.debug("Sending HTTP request ...")
             self.last_request_time = time.time()
+            # TODO: remove ipdb
             ipdb.set_trace()
             req = self.req_session.get(
                 url,

@@ -1,3 +1,20 @@
+"""Module summary
+
+Extended summary
+
+Attributes
+----------
+log_levels : list of str
+    Description
+color_levels_template : dict
+    Description
+default_color_levels : dict
+    Description
+pycharm_color_levels : dict
+    Description
+
+"""
+
 log_levels = ['debug', 'info', 'warning', 'error', 'exception', 'critical']
 
 color_levels_template = {
@@ -31,6 +48,18 @@ pycharm_color_levels = {
 
 
 class LoggingWrapper:
+    """
+
+    Parameters
+    ----------
+    c_logger
+    f_logger
+    use_default_colors
+    use_pycharm_colors
+    color_levels
+
+    """
+
     # TODO: add option to change `color_levels` from the logging config file
     # Right now, we only have two sets of color levels to choose from:
     # `default_color_levels` and `pycharm_color_levels`
@@ -50,6 +79,14 @@ class LoggingWrapper:
 
     # `msg` can either be a string or an Exception object (e.g. TypeError)
     def _call_loggers(self, msg, level):
+        """
+
+        Parameters
+        ----------
+        msg : str
+        level : str
+
+        """
         # If `msg` is an Exception, process the Exception to build the error
         # message
         msg = self._get_error_msg(msg) if isinstance(msg, Exception) else msg
@@ -65,32 +102,92 @@ class LoggingWrapper:
 
     @staticmethod
     def _get_error_msg(exc):
+        """
+
+        Parameters
+        ----------
+        exc
+
+        Returns
+        -------
+
+        """
         error_msg = '[{}] {}'.format(exc.__class__.__name__, exc.__str__())
         return error_msg
 
     # Color the logging message
     # ref.: https://stackoverflow.com/a/45924203
     def _set_color(self, msg, level):
+        """
+
+        Parameters
+        ----------
+        msg
+        level
+
+        """
         color = self.color_levels[level]
         return color_levels_template[level].format(color, msg)
 
     # Logging methods
     def debug(self, msg):
+        """
+
+        Parameters
+        ----------
+        msg
+
+        """
         self._call_loggers(msg, 'debug')
 
     def info(self, msg):
+        """
+
+        Parameters
+        ----------
+        msg
+
+        """
         self._call_loggers(msg, 'info')
 
     def warning(self, msg):
+        """
+
+        Parameters
+        ----------
+        msg
+
+        """
         self._call_loggers(msg, 'warning')
 
     # Note for both `error()` and `exception()`:
     # msg can be either a string or an 'Exception` object
     def error(self, msg):
+        """
+
+        Parameters
+        ----------
+        msg
+
+        """
         self._call_loggers(msg, 'error')
 
     def exception(self, msg):
+        """
+
+        Parameters
+        ----------
+        msg
+
+        """
         self._call_loggers(msg, 'exception')
 
     def critical(self, msg):
+        """
+
+        Parameters
+        ----------
+        msg
+
+        """
         self._call_loggers(msg, 'critical')

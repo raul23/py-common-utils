@@ -1,9 +1,25 @@
+"""Module summary
+
+Extended module summary
+
+"""
+
 import argparse
-# Own modules
+# Custom modules
 from utilities.custom_logging.logging_boilerplate import LoggingBoilerplate
 
 
 class ScriptBoilerplate:
+    """
+
+    Parameters
+    ----------
+    module_name
+    module_file
+    cwd
+    parser_desc
+    parser_formatter_class
+    """
     # TODO: add configuration filenames/short and long names options in
     # `__init__()`
     def __init__(self, module_name, module_file, cwd, parser_desc,
@@ -21,6 +37,9 @@ class ScriptBoilerplate:
         self.logging_cfg_dict = None
 
     def _add_init_arguments(self):
+        """
+
+        """
         self.parser.add_argument(
             "-l", "--logging_cfg", default="logging_cfg.yaml",
             help="Path to the YAML logging configuration file.")
@@ -42,13 +61,29 @@ class ScriptBoilerplate:
                  "for standard Unix Terminal.")
 
     def add_argument(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        kwargs
+
+
+        """
         self.parser.add_argument(**kwargs)
 
     def get_logger(self):
+        """
+
+        Returns
+        -------
+
+        """
         return self.lb.get_logger()
 
     def parse_args(self):
-        # Process command-line arguments
+        """Parse command-line arguments
+
+        """
         self.args = self.parser.parse_args()
         self.lb = LoggingBoilerplate(
             module_name=self.module_name,

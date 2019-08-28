@@ -1,3 +1,9 @@
+"""Module summary
+
+Extended module summary
+
+"""
+
 import os
 # Third-party modules
 import ipdb
@@ -8,7 +14,7 @@ import numpy as np
 import plotly
 from plotly.graph_objs import Scatter, Layout
 from scipy.spatial import ConvexHull
-# Own modules
+# Custom modules
 from .genutils import init_variable, load_json, write_file
 
 
@@ -25,6 +31,27 @@ def draw_barh_chart(x,
                     display_graph=True,
                     save_graph=True,
                     fname="barh_chart.png"):
+    """
+
+    Parameters
+    ----------
+    x
+    y
+    title
+    xlabel
+    add_text_right_bar
+    color
+    fig_width
+    fig_height
+    grid_which
+    display_graph
+    save_graph
+    fname
+
+    Returns
+    -------
+
+    """
     # Sanity check on the input arrays
     assert isinstance(x, type(np.array([]))), "wrong type on input array 'x'"
     assert isinstance(y, type(np.array([]))), "wrong type on input array 'y'"
@@ -130,6 +157,31 @@ def draw_histogram(data,
                    display_graph=True,
                    save_graph=True,
                    fname="barh_chart.png"):
+    """
+
+    Parameters
+    ----------
+    data
+    bins
+    xlabel
+    ylabel
+    title
+    grid_which
+    color
+    xaxis_major_mutiplelocator
+    xaxis_minor_mutiplelocator
+    yaxis_major_mutiplelocator
+    yaxis_minor_mutiplelocator
+    fig_width
+    fig_height
+    display_graph
+    save_graph
+    fname
+
+    Returns
+    -------
+
+    """
     # TODO: `xaxis_minor_mutiplelocator` not used
     # Sanity check on the input array
     assert isinstance(data, type(np.array([]))), \
@@ -162,6 +214,17 @@ def draw_histogram(data,
 # TODO: check the code and improve it
 # ref.: https://stackoverflow.com/a/42685102
 def draw_us_states_names_on_map(basemap, us_states_filepath):
+    """
+
+    Parameters
+    ----------
+    basemap
+    us_states_filepath
+
+    Returns
+    -------
+
+    """
     us_states = load_json(us_states_filepath)
     printed_names = []
     mi_index = 0
@@ -212,8 +275,42 @@ def draw_map_usa(addresses_data,
                  display_graph=True,
                  save_graph=True,
                  fname="usa_map.png"):
+    """
+
+    Parameters
+    ----------
+    addresses_data
+    shape_filepath
+    us_states_filepath
+    title
+    fig_width
+    fig_height
+    annotate_addresses
+    annotation_cfg
+    basemap_cfg
+    draw_meridians
+    draw_parallels
+    map_coords_cfg
+    display_graph
+    save_graph
+    fname
+
+    Returns
+    -------
+
+    """
 
     def get_markersize(**kwargs):
+        """
+
+        Parameters
+        ----------
+        kwargs
+
+        Returns
+        -------
+
+        """
         count = kwargs['count']
         marker_scale = kwargs['marker_scale']
         return int(np.sqrt(count)) * marker_scale
@@ -274,10 +371,46 @@ def draw_map_world(addresses_data,
                    save_graph=True,
                    fname="world_map.png"):
     """
-    def get_markersize(**kwargs):
-        return kwargs['marker_scale']
+
+    Parameters
+    ----------
+    addresses_data
+    title
+    fig_width
+    fig_height
+    annotate_addresses
+    annotation_cfg
+    basemap_cfg
+    map_coords_cfg
+    draw_coastlines
+    draw_countries
+    draw_map_boundary
+    draw_meridians
+    draw_parallels
+    draw_states
+    fill_continents
+    display_graph
+    save_graph
+    fname
+
+    Returns
+    -------
+
     """
+
+    # def get_markersize(**kwargs):
+    #    return kwargs['marker_scale']
     def get_markersize(**kwargs):
+        """
+
+        Parameters
+        ----------
+        kwargs
+
+        Returns
+        -------
+
+        """
         count = kwargs['count']
         marker_scale = kwargs['marker_scale']
         return int(np.sqrt(count)) * marker_scale
@@ -335,6 +468,21 @@ def draw_map_world(addresses_data,
 
 def draw_pie_chart(values, labels, title, display_graph=True, save_graph=True,
                    fname="pie_chart.png"):
+    """
+
+    Parameters
+    ----------
+    values
+    labels
+    title
+    display_graph
+    save_graph
+    fname
+
+    Returns
+    -------
+
+    """
     # Sanity check on the input arrays
     assert isinstance(values, type(np.array([]))), \
         "Wrong type on input array 'values'"
@@ -360,6 +508,21 @@ def draw_scatter_plot(x,
                       scatter_cfg=None,
                       layout_cfg=None,
                       plot_cfg=None):
+    """
+
+    Parameters
+    ----------
+    x
+    y
+    text
+    scatter_cfg
+    layout_cfg
+    plot_cfg
+
+    Returns
+    -------
+
+    """
     assert isinstance(x, type(np.array([]))), "wrong type on input array 'x'"
     assert isinstance(y, type(np.array([]))), "wrong type on input array 'y'"
     assert isinstance(text, type(np.array([]))), "wrong type on input array 'text'"
@@ -393,6 +556,21 @@ def draw_scatter_plot(x,
 def mark_map_coords(basemap, addresses_data, get_markersize,
                     annotate_addresses=None, annotation_cfg=None,
                     map_coords_cfg=None):
+    """
+
+    Parameters
+    ----------
+    basemap
+    addresses_data
+    get_markersize
+    annotate_addresses
+    annotation_cfg
+    map_coords_cfg
+
+    Returns
+    -------
+
+    """
     # Init variables
     annotate_addresses = init_variable(annotate_addresses, [])
     annotation_cfg = init_variable(annotation_cfg, {})

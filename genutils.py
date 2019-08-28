@@ -1,3 +1,9 @@
+"""Module summary
+
+Extended module summary
+
+"""
+
 import codecs
 from datetime import datetime
 import json
@@ -14,23 +20,45 @@ import sqlite3
 import pytz
 import tzlocal
 import yaml
-# Own modules
+# Custom modules
 from .exc import OverwriteFileError
 from utilities.custom_logging.logging_wrapper import LoggingWrapper
 
 
 def add_plural(v, plural_end="s", singular_end=""):
+    """
+
+    Parameters
+    ----------
+    v
+    plural_end : str, optional
+    singular_end : str, optional
+
+    Returns
+    -------
+
+    """
     return plural_end if v > 1 else singular_end
 
 
 def connect_db(db_path, autocommit=False):
-    """
-    Creates a database connection to the SQLite database specified by the
-    `db_path`
+    """Create a database connection to a SQLite database
 
-    :param db_path: path to database file
-    :param autocommit: TODO
-    :return: sqlite3.Connection object  or None
+    Parameters
+    ----------
+    db_path : str
+        Absolute path to database file
+    autocommit : bool
+        Description
+
+    Raises
+    ------
+    sqlite3.Error
+
+    Returns
+    -------
+    sqlite3.Connection object
+
     """
     try:
         if autocommit:
@@ -44,12 +72,33 @@ def connect_db(db_path, autocommit=False):
 
 # Useful for building SQL expressions
 def convert_list_to_str(list_):
+    """
+
+    Parameters
+    ----------
+    list_
+
+    Returns
+    -------
+
+    """
     str_ = ", ".join(
         map(lambda a: "'{}'".format(a), list_))
     return str_
 
 
 def create_directory(dirpath):
+    """
+
+    Parameters
+    ----------
+    dirpath : str
+        Absolute path to directory
+
+    Returns
+    -------
+
+    """
     if os.path.isdir(dirpath):
         raise ResourceWarning(
             "The directory '{}' already exists!".format(dirpath))
@@ -60,6 +109,17 @@ def create_directory(dirpath):
 
 
 def create_directory_prompt(dirpath):
+    """
+
+    Parameters
+    ----------
+    dirpath : str
+        Absolute path to directory
+
+    Returns
+    -------
+
+    """
     if not os.path.isdir(dirpath):
         print("[ERROR] The directory '{}' doesn't exist".format(dirpath))
         print("Do you want to create the directory {}?".format(dirpath))
@@ -82,6 +142,19 @@ def create_directory_prompt(dirpath):
 
 
 def create_timestamped_directory(new_fname, parent_dirpath):
+    """
+
+    Parameters
+    ----------
+    new_fname : str
+        Description
+    parent_dirpath : str
+        Description
+
+    Returns
+    -------
+
+    """
     timestamped = datetime.now().strftime('%Y%m%d-%H%M%S-{fname}')
     new_dirpath = os.path.join(
         parent_dirpath, timestamped.format(fname=new_fname))
@@ -96,13 +169,23 @@ def create_timestamped_directory(new_fname, parent_dirpath):
 # Cross-platform code for getting file creation of a file
 # ref.: code is from Mark Amery @ https://stackoverflow.com/a/39501288
 def get_creation_date(path_to_file):
-    """
+    """Get creation date of a file
+
     Try to get the date that a file was created, falling back to when it was
     last modified if that isn't possible.
     See http://stackoverflow.com/a/39501288/1709587 for explanation.
 
     If modification date is needed, use os.path.getmtime(path) which is
     cross-platform supported.
+
+    Parameters
+    ----------
+    path_to_file : str
+        Description
+
+    Returns
+    -------
+
     """
     if platform.system() == 'Windows':
         return os.path.getctime(path_to_file)
@@ -118,6 +201,23 @@ def get_creation_date(path_to_file):
 
 def dump_json(filepath, data, encoding='utf8', sort_keys=True,
               ensure_ascii=False):
+    """
+
+    Parameters
+    ----------
+    filepath
+    data
+    encoding
+    sort_keys
+    ensure_ascii
+
+    Raises
+    ------
+
+    Returns
+    -------
+
+    """
     try:
         with codecs.open(filepath, 'w', encoding) as f:
             f.write(json.dumps(data, sort_keys=sort_keys,
@@ -127,12 +227,21 @@ def dump_json(filepath, data, encoding='utf8', sort_keys=True,
 
 
 def dump_pickle(filepath, data):
-    """
-    Dumps a pickle file on disk and returns TODO: writeme
+    """Dump a pickle file on disk
 
-    :param filepath: absolute path to the pickle file where data will be written
-    :param data: data to be saved on disk
-    :return: TODO: writeme
+    Parameters
+    ----------
+    filepath: str
+        Absolute path to the pickle file where data will be written
+    data:
+        Data to be saved on disk
+
+    Raises
+    ------
+
+    Returns
+    -------
+
     """
     try:
         with open(filepath, 'wb') as f:
@@ -141,8 +250,13 @@ def dump_pickle(filepath, data):
         raise FileNotFoundError(e)
 
 
-# Returns a `datetime` from the local time zone
 def get_local_datetime():
+    """Get the date and time based on the system's time zone
+
+    Returns
+    -------
+
+    """
     # Get the local timezone name
     tz = pytz.timezone(tzlocal.get_localzone().zone)
     # Get the time in the system's time zone
@@ -156,8 +270,16 @@ def get_local_time(utc_time=None):
     The local time zone is returned as a string with format
     YYYY-MM-DD HH:MM:SS-HH:MM
 
-    :param utc_time: object of type `time.struct_time`
-    :return local_time: string representing the local time
+    Parameters
+    ----------
+    utc_time: time.struct_time
+        Description
+
+    Returns
+    -------
+    local_time: str
+        Description
+
     """
     # Get the local timezone name
     tz = pytz.timezone(tzlocal.get_localzone().zone)
@@ -180,6 +302,22 @@ def get_local_time(utc_time=None):
 
 
 def get_logger(module_name, module_file, cwd, logger):
+    """
+
+    Parameters
+    ----------
+    module_name
+    module_file
+    cwd
+    logger
+
+    Raises
+    ------
+
+    Returns
+    -------
+
+    """
     if isinstance(logger, dict):
         from utilities.custom_logging.logging_boilerplate import LoggingBoilerplate
         lb = LoggingBoilerplate(module_name,
@@ -197,6 +335,17 @@ def get_logger(module_name, module_file, cwd, logger):
 
 
 def init_variable(v, default):
+    """
+
+    Parameters
+    ----------
+    v
+    default
+
+    Returns
+    -------
+
+    """
     if v is None:
         return default
     else:
@@ -204,6 +353,20 @@ def init_variable(v, default):
 
 
 def load_json(path, encoding='utf8'):
+    """
+
+    Parameters
+    ----------
+    path
+    encoding : str, optional
+
+    Raises
+    ------
+
+    Returns
+    -------
+
+    """
     try:
         with codecs.open(path, 'r', encoding) as f:
             data = json.load(f)
@@ -218,8 +381,18 @@ def load_pickle(filepath):
     Opens a pickle file and returns its contents or raises FileNotFoundError if
     file not found.
 
-    :param filepath: path to the pickle file
-    :return: content of the pickle file
+    Parameters
+    ----------
+    filepath:
+        Absolute path to the pickle file
+
+    Raises
+    ------
+
+    Returns
+    -------
+    data : content of the pickle file
+
     """
     try:
         with open(filepath, 'rb') as f:
@@ -231,6 +404,19 @@ def load_pickle(filepath):
 
 
 def load_yaml(f):
+    """
+
+    Parameters
+    ----------
+    f
+
+    Raises
+    ------
+
+    Returns
+    -------
+
+    """
     try:
         # IMPORTANT: I got a YAMLLoadWarning when calling `yaml.load()` without
         # `Loader=...` [deprecated], as the default Loader is unsafe.
@@ -242,6 +428,19 @@ def load_yaml(f):
 
 
 def read_file(filepath):
+    """
+
+    Parameters
+    ----------
+    filepath
+
+    Raises
+    ------
+
+    Returns
+    -------
+
+    """
     try:
         with open(filepath, 'r') as f:
             return f.read()
@@ -250,6 +449,19 @@ def read_file(filepath):
 
 
 def read_yaml_config(config_path):
+    """
+
+    Parameters
+    ----------
+    config_path
+
+    Raises
+    ------
+
+    Returns
+    -------
+
+    """
     try:
         with open(config_path, 'r') as f:
             return load_yaml(f)
@@ -259,6 +471,22 @@ def read_yaml_config(config_path):
 
 # Setup logging from YAML configuration file or logging `dict`
 def setup_logging(logging_config, add_datetime=False):
+    """Setup logging from YAML configuration file or logging `dict`
+
+    Parameters
+    ----------
+    logging_config : str or dict
+        The YAML configuration file or the logging dict
+    add_datetime : bool
+        Description
+
+    Raises
+    ------
+
+    Returns
+    -------
+
+    """
     try:
         if isinstance(logging_config, str):
             # Read YAML configuration file
@@ -285,6 +513,21 @@ def setup_logging(logging_config, add_datetime=False):
 
 
 def write_file(filepath, data, overwrite_file=True):
+    """
+
+    Parameters
+    ----------
+    filepath
+    data
+    overwrite_file
+
+    Raises
+    ------
+
+    Returns
+    -------
+
+    """
     try:
         if os.path.isfile(filepath) and not overwrite_file:
             raise OverwriteFileError("File '{}' already exists and `overwrite` "

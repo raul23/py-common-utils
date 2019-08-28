@@ -1,3 +1,9 @@
+"""Module summary
+
+Extended summary
+
+"""
+
 import argparse
 import os
 import sqlite3
@@ -5,6 +11,15 @@ import time
 
 
 def create_db(overwrite, db_filepath, schema_filepath):
+    """
+
+    Parameters
+    ----------
+    overwrite : bool
+    db_filepath : str
+    schema_filepath : str
+
+    """
     # NOTE: if you need to suppress printing, check the following links
     # - https://bit.ly/2QKRFPX
     # - https://bit.ly/2HmTIa4
