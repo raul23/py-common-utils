@@ -33,7 +33,6 @@ class SaveWebpages:
                                  __file__,
                                  os.getcwd(),
                                  logger)
-        self.conn = None
         # Establish a session to be used for the GET requests
         self.req_session = requests.Session()
         self.headers = self.main_cfg['headers']
