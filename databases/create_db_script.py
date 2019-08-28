@@ -6,6 +6,9 @@ Extended summary
 
 import argparse
 # Custom modules
+# NOTE: `from .dbutils import create_db` not working when running the script
+# with `python create_db_script.py -o -d music.sqlite -s music.sql`
+# See https://stackoverflow.com/a/41817024
 from dbutils import create_db
 
 
