@@ -1,6 +1,6 @@
 import argparse
 # Own modules
-from .logging_boilerplate import LoggingBoilerplate
+from utilities.custom_logging.logging_boilerplate import LoggingBoilerplate
 
 
 class ScriptBoilerplate:

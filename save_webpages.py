@@ -7,26 +7,17 @@ import time
 import ipdb
 # Own modules
 import utilities.exc as exc
-from utilities.genutils import read_file, get_local_datetime, write_file
-from utilities.logging_boilerplate import LoggingBoilerplate
-from utilities.logging_wrapper import LoggingWrapper
+from utilities.genutils import read_file, get_local_datetime, get_logger, write_file
 
 
 class SaveWebpages:
     # `logger` can be a `dict` or a `LoggingWrapper` instance
     def __init__(self, main_cfg, logger):
         self.main_cfg = main_cfg
-        if isinstance(logger, dict):
-            lb = LoggingBoilerplate(__name__,
-                                    __file__,
-                                    os.getcwd(),
-                                    logger)
-            self.logger = lb.get_logger()
-        else:
-            # Sanity check on `logger`
-            assert isinstance(logger, LoggingWrapper), \
-                "`logger` must be of type `LoggingWrapper`"
-            self.logger = logger
+        self.logger = get_logger(__name__,
+                                 __file__,
+                                 os.getcwd(),
+                                 logger)
         self.conn = None
         # Establish a session to be used for the GET requests
         self.req_session = requests.Session()
@@ -50,7 +41,6 @@ class SaveWebpages:
                 datetime.fromtimestamp(os.path.getmtime(filename))
             return html, webpage_accessed
 
-    # TODO: used also in dev-jobs-insights
     def save_webpage(self, filename, url, overwrite_webpages=True):
         if os.path.isfile(filename) and not overwrite_webpages:
             html, webpage_accessed = self.load_cache_webpage(filename)

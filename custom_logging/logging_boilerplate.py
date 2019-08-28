@@ -3,7 +3,7 @@ import os
 # Third-party modules
 import ipdb
 # Own modules
-from .genutils import setup_logging
+from utilities.genutils import setup_logging
 from .logging_wrapper import LoggingWrapper
 
 

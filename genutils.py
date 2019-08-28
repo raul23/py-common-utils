@@ -16,6 +16,7 @@ import tzlocal
 import yaml
 # Own modules
 from .exc import OverwriteFileError
+from utilities.custom_logging.logging_wrapper import LoggingWrapper
 
 
 def add_plural(v, plural_end="s", singular_end=""):
@@ -176,6 +177,23 @@ def get_local_time(utc_time=None):
     # ISO format is YYYY-MM-DDTHH:MM:SS-HH:MM
     local_time = local_time.isoformat().replace("T", " ")
     return local_time
+
+
+def get_logger(module_name, module_file, cwd, logger):
+    if isinstance(logger, dict):
+        from utilities.custom_logging.logging_boilerplate import LoggingBoilerplate
+        lb = LoggingBoilerplate(module_name,
+                                module_file,
+                                cwd,
+                                logger)
+        return lb.get_logger()
+    else:
+        # Sanity check on `logger`
+        if isinstance(logger, LoggingWrapper):
+            return logger
+        else:
+            # TODO: test error
+            raise TypeError("`logger` must be of type `LoggingWrapper`")
 
 
 def init_variable(v, default):
