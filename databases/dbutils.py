@@ -4,10 +4,38 @@ Extended summary
 
 """
 
-import argparse
 import os
 import sqlite3
 import time
+
+
+def connect_db(db_path, autocommit=False):
+    """Create a database connection to a SQLite database
+
+    Parameters
+    ----------
+    db_path : str
+        Absolute path to database file
+    autocommit : bool
+        Description
+
+    Raises
+    ------
+    sqlite3.Error
+
+    Returns
+    -------
+    sqlite3.Connection object
+
+    """
+    try:
+        if autocommit:
+            conn = sqlite3.connect(db_path, isolation_level=None)
+        else:
+            conn = sqlite3.connect(db_path)
+        return conn
+    except sqlite3.Error as e:
+        raise sqlite3.Error(e)
 
 
 def create_db(overwrite, db_filepath, schema_filepath):
@@ -44,20 +72,3 @@ def create_db(overwrite, db_filepath, schema_filepath):
                 print("Database created!")
     else:
         print("Database '{}' already exists!".format(args.database))
-
-
-if __name__ == '__main__':
-    # Setup argument parser
-    parser = argparse.ArgumentParser(
-        description="Create SQLite database")
-    parser.add_argument("-o", action="store_true", dest="overwrite",
-                        default=False,
-                        help="Overwrite the database file")
-    parser.add_argument("-d", "--database", default="database.sqlite",
-                        help="Path to the SQLite database file")
-    parser.add_argument("-s", "--schema", required=True,
-                        help="Path to the schema file")
-    # Process command-line arguments
-    args = parser.parse_args()
-    # Create database
-    create_db(args.overwrite, args.database, args.schema)

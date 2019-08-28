@@ -7,13 +7,11 @@ Extended module summary
 import codecs
 from datetime import datetime
 import json
-import logging.config
 import os
 import pathlib
 import platform
 import pickle
 # TODO: cPickle for Python 2?
-import sqlite3
 # Third-party modules
 # TODO: check that if it is right to only load modules from third-party when
 # needed
@@ -21,8 +19,7 @@ import pytz
 import tzlocal
 import yaml
 # Custom modules
-from .exc import OverwriteFileError
-from utilities.custom_logging.logging_wrapper import LoggingWrapper
+from utilities.exceptions.files import OverwriteFileError
 
 
 def add_plural(v, plural_end="s", singular_end=""):
@@ -39,35 +36,6 @@ def add_plural(v, plural_end="s", singular_end=""):
 
     """
     return plural_end if v > 1 else singular_end
-
-
-def connect_db(db_path, autocommit=False):
-    """Create a database connection to a SQLite database
-
-    Parameters
-    ----------
-    db_path : str
-        Absolute path to database file
-    autocommit : bool
-        Description
-
-    Raises
-    ------
-    sqlite3.Error
-
-    Returns
-    -------
-    sqlite3.Connection object
-
-    """
-    try:
-        if autocommit:
-            conn = sqlite3.connect(db_path, isolation_level=None)
-        else:
-            conn = sqlite3.connect(db_path)
-        return conn
-    except sqlite3.Error as e:
-        raise sqlite3.Error(e)
 
 
 # Useful for building SQL expressions
@@ -97,6 +65,9 @@ def create_directory(dirpath):
 
     Returns
     -------
+
+    Raises
+    ------
 
     """
     if os.path.isdir(dirpath):
@@ -153,6 +124,9 @@ def create_timestamped_directory(new_fname, parent_dirpath):
 
     Returns
     -------
+
+    Raises
+    ------
 
     """
     timestamped = datetime.now().strftime('%Y%m%d-%H%M%S-{fname}')
@@ -211,11 +185,11 @@ def dump_json(filepath, data, encoding='utf8', sort_keys=True,
     sort_keys
     ensure_ascii
 
-    Raises
-    ------
-
     Returns
     -------
+
+    Raises
+    ------
 
     """
     try:
@@ -236,11 +210,11 @@ def dump_pickle(filepath, data):
     data:
         Data to be saved on disk
 
-    Raises
-    ------
-
     Returns
     -------
+
+    Raises
+    ------
 
     """
     try:
@@ -301,39 +275,6 @@ def get_local_time(utc_time=None):
     return local_time
 
 
-def get_logger(module_name, module_file, cwd, logger):
-    """
-
-    Parameters
-    ----------
-    module_name
-    module_file
-    cwd
-    logger
-
-    Raises
-    ------
-
-    Returns
-    -------
-
-    """
-    if isinstance(logger, dict):
-        from utilities.custom_logging.logging_boilerplate import LoggingBoilerplate
-        lb = LoggingBoilerplate(module_name,
-                                module_file,
-                                cwd,
-                                logger)
-        return lb.get_logger()
-    else:
-        # Sanity check on `logger`
-        if isinstance(logger, LoggingWrapper):
-            return logger
-        else:
-            # TODO: test error
-            raise TypeError("`logger` must be of type `LoggingWrapper`")
-
-
 def init_variable(v, default):
     """
 
@@ -360,11 +301,11 @@ def load_json(path, encoding='utf8'):
     path
     encoding : str, optional
 
-    Raises
-    ------
-
     Returns
     -------
+
+    Raises
+    ------
 
     """
     try:
@@ -386,12 +327,12 @@ def load_pickle(filepath):
     filepath:
         Absolute path to the pickle file
 
-    Raises
-    ------
-
     Returns
     -------
     data : content of the pickle file
+
+    Raises
+    ------
 
     """
     try:
@@ -410,11 +351,11 @@ def load_yaml(f):
     ----------
     f
 
-    Raises
-    ------
-
     Returns
     -------
+
+    Raises
+    ------
 
     """
     try:
@@ -434,11 +375,11 @@ def read_file(filepath):
     ----------
     filepath
 
-    Raises
-    ------
-
     Returns
     -------
+
+    Raises
+    ------
 
     """
     try:
@@ -448,68 +389,25 @@ def read_file(filepath):
         raise OSError(e)
 
 
-def read_yaml_config(config_path):
+def read_yaml(filepath):
     """
 
     Parameters
     ----------
-    config_path
-
-    Raises
-    ------
+    filepath
 
     Returns
     -------
 
+    Raises
+    ------
+
     """
     try:
-        with open(config_path, 'r') as f:
+        with open(filepath, 'r') as f:
             return load_yaml(f)
     except (OSError, yaml.YAMLError) as e:
         raise OSError(e)
-
-
-# Setup logging from YAML configuration file or logging `dict`
-def setup_logging(logging_config, add_datetime=False):
-    """Setup logging from YAML configuration file or logging `dict`
-
-    Parameters
-    ----------
-    logging_config : str or dict
-        The YAML configuration file or the logging dict
-    add_datetime : bool
-        Description
-
-    Raises
-    ------
-
-    Returns
-    -------
-
-    """
-    try:
-        if isinstance(logging_config, str):
-            # Read YAML configuration file
-            config_dict = read_yaml_config(logging_config)
-        else:
-            config_dict = logging_config
-        if add_datetime:
-            # Add the datetime to the beginning of the log filename
-            # ref.: https://stackoverflow.com/a/45447081
-            filename = config_dict['handlers']['file']['filename']
-            new_filename = '{:%Y-%m-%d-%H-%M-%S}-{}'.format(
-                datetime.now(), filename)
-            config_dict['handlers']['file']['filename'] = new_filename
-        # Update the logging config dict with new values from `config_dict`
-        logging.config.dictConfig(config_dict)
-    except OSError as e:
-        raise OSError(e)
-    except KeyError as e:
-        raise KeyError(e)
-    except ValueError as e:
-        raise ValueError(e)
-    else:
-        return config_dict
 
 
 def write_file(filepath, data, overwrite_file=True):
@@ -524,14 +422,12 @@ def write_file(filepath, data, overwrite_file=True):
     Raises
     ------
 
-    Returns
-    -------
-
     """
     try:
         if os.path.isfile(filepath) and not overwrite_file:
-            raise OverwriteFileError("File '{}' already exists and `overwrite` "
-                                     "is False".format(filepath))
+            raise OverwriteFileError(
+                "File '{}' already exists and `overwrite` is False".format(
+                    filepath))
         else:
             with open(filepath, 'w') as f:
                 f.write(data)

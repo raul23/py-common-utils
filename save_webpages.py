@@ -12,8 +12,10 @@ import time
 # Third-party modules
 import ipdb
 # Custom modules
-import utilities.exc as exc
-from utilities.genutils import read_file, get_local_datetime, get_logger, write_file
+import utilities.exceptions.files as files_exc
+import utilities.exceptions.connection as connec_exc
+from utilities.genutils import read_file, get_local_datetime, write_file
+from utilities.logging.logutils import get_logger
 
 
 class SaveWebpages:
@@ -91,9 +93,9 @@ class SaveWebpages:
                 # Get the datetime the webpage was retrieved
                 webpage_accessed = get_local_datetime()
                 html = self._get_webpage(url)
-            except (OSError, exc.HTTP404Error) as e:
+            except (OSError, connec_exc.HTTP404Error) as e:
                 # from `_get_webpage()`
-                raise exc.WebPageNotFoundError(e)
+                raise connec_exc.WebPageNotFoundError(e)
             else:
                 self.logger.debug("Webpage retrieved!")
             # Write webpage locally
@@ -101,9 +103,8 @@ class SaveWebpages:
                 self.logger.debug(
                     "Saving webpage to '{}'".format(filename))
                 write_file(filename, html, overwrite_webpages)
-            except (OSError, exc.OverwriteFileError) as e:
-                # from `write_file()`
-                raise exc.WebPageSavingError(e)
+            except (OSError, files_exc.OverwriteFileError) as e:
+                raise files_exc.WebPageSavingError(e)
             else:
                 self.logger.debug("The webpage is saved in '{}'. URL is "
                                   "'{}'".format(filename, url))
@@ -145,7 +146,7 @@ class SaveWebpages:
             raise OSError(e)
         else:
             if req.status_code == 404:
-                raise exc.WebPageNotFoundError(
+                raise connec_exc.WebPageNotFoundError(
                     "404 - PAGE NOT FOUND. The URL '{}' returned a 404 status "
                     "code.".format(url))
         return html

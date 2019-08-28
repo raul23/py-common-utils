@@ -6,7 +6,7 @@ Extended module summary
 
 import argparse
 # Custom modules
-from utilities.custom_logging.logging_boilerplate import LoggingBoilerplate
+from utilities.logging.logging_boilerplate import LoggingBoilerplate
 
 
 class ScriptBoilerplate:
