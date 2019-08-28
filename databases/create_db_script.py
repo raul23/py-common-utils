@@ -6,7 +6,7 @@ Extended summary
 
 import argparse
 # Custom modules
-from .dbutils import create_db
+from dbutils import create_db
 
 
 if __name__ == '__main__':
