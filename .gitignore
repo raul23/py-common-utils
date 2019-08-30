@@ -105,3 +105,6 @@ ENV/
 
 # Test directory
 sandbox/
+
+# SQlite files
+*.sqlite
