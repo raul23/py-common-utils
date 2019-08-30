@@ -9,7 +9,8 @@ import os
 # Third-party modules
 import ipdb
 # Custom modules
-from .logutils import setup_logging
+from .logutils import get_logger_name, setup_console_logger, \
+    setup_logging_from_cfg
 from .logging_wrapper import LoggingWrapper
 
 
@@ -109,42 +110,33 @@ class LoggingBoilerplate:
         -------
 
         """
-        if self.module_name == '__main__':
-            # When it is run as a script
-            package_name = os.path.basename(self.cwd)
-            module_name = os.path.splitext(self.module_file)[0]
-        else:
-            # When it is imported as a module
-            if '.' in self.module_name:
-                package_name, module_name = self.module_name.split('.')
-            else:
-                package_name = os.path.basename(self.cwd)
-                module_name = self.module_name
-        # TODO: I could create one logger that logs into the console and a
+        logger_name = get_logger_name(
+            self.module_name, self.module_file, self.cwd)
+        # TODO: I could create one logger that can log into the console and a
         # file. But since the console's log messages can be colored, the file's
         # log messages will have color information. I could remove the file
         # handler every time I log into the console, and then add it again when
         # it is time to log into the file. Or there is a better solution.
         c_logger = logging.getLogger(
-            '{}.{}.c'.format(package_name, module_name))
+            '{}.c'.format(logger_name))
         f_logger = logging.getLogger(
-            '{}.{}.f'.format(package_name, module_name))
+            '{}.f'.format(logger_name))
         # Clear the two loggers from any handlers
         self.remove_handlers(c_logger)
         self.remove_handlers(f_logger)
         # Setup console logger WITHOUT configuration file
-        # IMPORTANT: the file logger will not be setup yet, i.e. no handler
-        # added. The file logger will be setup later on from the YAML
+        # IMPORTANT: the file logger will not be setup completely yet, i.e. no
+        # handler added. The file logger will be setup later on from the YAML
         # configuration file
-        # To remove duplicated logging messages: propagate set to False
+        # To remove duplicated logging messages: set `propagate` to False
         # ref.: https://stackoverflow.com/a/44426266
         c_logger.propagate = False
         f_logger.propagate = False
-        self.setup_logger(c_logger)
+        setup_console_logger(c_logger)
         return c_logger, f_logger
 
     # `logging_cfg` is the absolute path of the logging configuration file
-    # or a logging `dict`
+    # or a logging ``dict``
     def _setup_loggers_from_cfg(self, logging_cfg):
         """
 
@@ -171,7 +163,7 @@ class LoggingBoilerplate:
                 add_datetime = False
                 self.lw.info(
                     "Setting up logging from a dictionary")
-            logging_cfg_dict = setup_logging(logging_cfg, add_datetime=add_datetime)
+            logging_cfg_dict = setup_logging_from_cfg(logging_cfg, add_datetime=add_datetime)
         except (KeyError, OSError, ValueError) as e:
             # TODO: write the traceback with one line, see https://bit.ly/2DkH63E
             self.lw.critical(e)
@@ -223,25 +215,3 @@ class LoggingBoilerplate:
         """
         for h in logger.handlers:
             logger.removeHandler(h)
-
-    @staticmethod
-    # Setup logger without the logging configuration
-    def setup_logger(logger, logger_level=logging.DEBUG,
-                     handler_level=logging.DEBUG, handler=logging.StreamHandler(),
-                     handler_format='%(name)-30s: %(levelname)-8s %(message)s'):
-        """
-
-        Parameters
-        ----------
-        logger
-        logger_level
-        handler_level
-        handler
-        handler_format
-
-        """
-        handler.setLevel(handler_level)
-        formatter = logging.Formatter(handler_format)
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logger_level)
