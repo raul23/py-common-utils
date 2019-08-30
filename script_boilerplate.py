@@ -14,11 +14,17 @@ class ScriptBoilerplate:
 
     Parameters
     ----------
-    module_name
-    module_file
-    cwd
-    parser_desc
-    parser_formatter_class
+    module_name :
+        Description
+    module_file :
+        Description
+    cwd :
+        Description
+    parser_desc :
+        Description
+    parser_formatter_class :
+        Description
+
     """
     # TODO: add configuration filenames/short and long names options in
     # `__init__()`
@@ -60,16 +66,20 @@ class ScriptBoilerplate:
             help="Add colors to log messages. These are the default colors used "
                  "for standard Unix Terminal.")
 
-    def add_argument(self, **kwargs):
-        """
+    def add_argument(self, *args, **kwargs):
+        """Add a command-line argument to the program.
+
+        Positional and optional arguments can be passed to 
 
         Parameters
         ----------
-        kwargs
-
+        *args :
+            Description
+        **kwargs :
+            Description
 
         """
-        self.parser.add_argument(**kwargs)
+        self.parser.add_argument(*args, **kwargs)
 
     def get_logger(self):
         """
@@ -81,7 +91,7 @@ class ScriptBoilerplate:
         return self.lb.get_logger()
 
     def parse_args(self):
-        """Parse command-line arguments
+        """Parse command-line arguments.
 
         """
         self.args = self.parser.parse_args()
