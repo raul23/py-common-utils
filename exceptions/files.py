@@ -1,6 +1,6 @@
-"""Script summary
+"""Module summary
 
-Extended summary
+Extended module summary
 
 """
 

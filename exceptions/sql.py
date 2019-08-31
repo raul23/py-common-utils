@@ -1,6 +1,6 @@
-"""Script summary
+"""Module summary
 
-Extended summary
+Extended module summary
 
 """
 
@@ -11,4 +11,5 @@ class EmptyQueryResultSetError(Exception):
 
 class SQLSanityCheckError(Exception):
     """Raised when the sanity check on a SQL query fails: e.g. the query's
-    values are not of `tuple` or wrong number of values in the SQL query."""
+    values are not of `tuple` type or wrong number of values in the SQL
+    query."""

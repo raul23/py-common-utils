@@ -1,3 +1,8 @@
+"""Module summary
+
+Extended module summary
+
+"""
 from datetime import datetime
 import logging.config
 import os
@@ -18,6 +23,8 @@ def get_logger(module_name, module_file, cwd, logger=None):
 
     Returns
     -------
+    logger : LoggingWrapper
+        Description
 
     Raises
     ------
@@ -46,6 +53,18 @@ def get_logger(module_name, module_file, cwd, logger=None):
 
 
 def get_logger_name(module_name, module_file, cwd):
+    """
+
+    Parameters
+    ----------
+    module_name
+    module_file
+    cwd
+
+    Returns
+    -------
+
+    """
     if module_name == '__main__':
         # When the Python file (where the calling to this function is made) is
         # run as a script

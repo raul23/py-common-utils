@@ -1,6 +1,8 @@
-"""Module summary
+"""Script for creating a SQLite database.
 
-Extended summary
+A schema file is needed for creating the database. If an existing SQLite
+database will be overwritten, the user is given 5 seconds to stop the script
+before the database is overwritten.
 
 """
 
