@@ -1,6 +1,6 @@
-"""Module summary
+"""Module that defines exceptions related to SQL database problems.
 
-Extended module summary
+These are all the exceptions that are raised when querying a SQL database.
 
 """
 
