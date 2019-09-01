@@ -1,4 +1,4 @@
-"""Module that defines any database-related functions.
+"""Module that defines database-related functions.
 
 """
 
