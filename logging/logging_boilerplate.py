@@ -132,7 +132,7 @@ class LoggingBoilerplate:
         # ref.: https://stackoverflow.com/a/44426266
         c_logger.propagate = False
         f_logger.propagate = False
-        setup_console_logger(c_logger)
+        setup_console_logger(logger=c_logger)
         return c_logger, f_logger
 
     # `logging_cfg` is the absolute path of the logging configuration file
