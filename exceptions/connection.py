@@ -1,6 +1,7 @@
-"""Module summary
+"""Module that defines exceptions related to connection problems.
 
-Extended module summary
+These are all the exceptions that are raised when querying a server for a
+resource.
 
 """
 
