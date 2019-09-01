@@ -1,6 +1,6 @@
-"""Module summary
+"""Module that defines exceptions related to files problems.
 
-Extended module summary
+These are all the exceptions that are raised when reading or writing files.
 
 """
 
