@@ -57,7 +57,7 @@ class ScriptBoilerplate:
             action='store_true',
             default=False,
             help="Use colors for the logging messages as specified for the "
-                 "Pycharm Terminal. By default, we use colors for the logging "
+                 "PyCharm Terminal. By default, we use colors for the logging "
                  "messages as defined for the standard Unix Terminal.")
         self.parser.add_argument(
             "-u", "--use_default_colors",
