@@ -8,7 +8,7 @@ import logging
 # Third-party modules
 import ipdb
 # Custom modules
-from .logutils import get_logger_name, setup_console_logger, \
+from .logutils import get_logger_name, setup_basic_console_logger, \
     setup_logging_from_cfg
 from .logging_wrapper import LoggingWrapper
 
@@ -78,7 +78,7 @@ class LoggingBoilerplate:
             self._add_loggers([c_logger, f_logger], logging_cfg)
         # Setup loggers from YAML logging configuration file or dict
         self.logging_cfg_dict = self._setup_loggers_from_cfg(logging_cfg)
-        if isinstance(logging_cfg, str) and False:
+        if isinstance(logging_cfg, str):
             # Update the dict `config` with logging options necessary for
             # setting up the logging mechanism in the other custom modules
             # NOTE: `logging_cfg_filepath` is not used in this module
@@ -118,10 +118,26 @@ class LoggingBoilerplate:
     def _get_loggers(self):
         """Get console and file loggers.
 
-        Init the console and file loggers
+        It initializes a basic console logger and a nonfunctional file logger
+        that will eventually both be completely setup by a logging config
+        dictionary.
+
+        The console logger is the only setup here that can log something since
+        the file logger doesn't have any handler.
 
         Returns
         -------
+        c_logger : logging.Logger
+            Basic console logger.
+        f_logger : logging.Logger
+            Nonfunctional file logger that doesn't have any handler yet.
+
+        Notes
+        -----
+        Only the basic console logger is capable of logging something since the
+        file logger doesn't have any handler yet. We need to wait to read the
+        logging configuration dictionary where the log filename is defined so
+        the file logger knows where to save the logs. Patience.
 
         """
         logger_name = get_logger_name(
@@ -141,7 +157,7 @@ class LoggingBoilerplate:
         # ref.: https://stackoverflow.com/a/44426266
         c_logger.propagate = False
         f_logger.propagate = False
-        setup_console_logger(logger=c_logger)
+        setup_basic_console_logger(logger=c_logger)
         return c_logger, f_logger
 
     def _setup_loggers_from_cfg(self, logging_cfg):
@@ -216,29 +232,30 @@ class LoggingBoilerplate:
             return logging_cfg_dict
 
     def _update_logging_cfg_dict(self, options):
-        """Update the logging config dictionary with new options.
+        """Update the logging config dictionary with new logging options.
 
         It updates the logging config dictionary with logging options necessary
         for setting up the logging mechanism in other custom modules.
 
         Parameters
         ----------
-        options :
+        options : dict
+            The new logging options that will be added to the logging
+            configuration dictionary.
 
         Raises
         ------
         SystemExit
-            Raised if the new logging options' keys are not unique.
-
+            Raised if the new logging options' keys are not unique compared to
+            the logging config dictionary.
 
         """
         self.lw.debug(
             "Updating the logging config dict with logging options: "
             "{}".format(options))
-        cfg_keys_set = set(self.logging_cfg_dict.keys())
-        options_keys_set = set(options.keys())
-        result_set = cfg_keys_set.intersection(options_keys_set)
-        if result_set:
+        duplicates = [k for k in self.logging_cfg_dict.keys()
+                      if k in options.keys()]
+        if duplicates:
             # TODO: raise a custom Exception
             self.lw.debug("The logging options' keys are not unique")
             raise SystemExit("Program will exit.")
