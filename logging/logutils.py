@@ -205,10 +205,10 @@ def setup_logging_from_cfg(logging_config, add_datetime=False):
     """Setup logging from a YAML configuration file or logging ``dict``.
 
     Loggers can be setup through a YAML logging configuration file which
-    define the loggers, their handlers, and the formatters (how log messages
+    defines the loggers, their handlers, and the formatters (how log messages
     get displayed).
 
-    Also, a date and time can be added to the beginning of the log' filename.
+    Also, a date and time can be added to the beginning of the log filename.
     Hence, each re-run of the script doesn't overwrite the previous log file.
 
     Parameters
