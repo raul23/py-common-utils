@@ -126,11 +126,6 @@ class LoggingBoilerplate:
         """
         logger_name = get_logger_name(
             self.module_name, self.module_file, self.cwd)
-        # TODO: I could create one logger that can log into the console and a
-        # file. But since the console's log messages can be colored, the file's
-        # log messages will have color information. I could remove the file
-        # handler every time I log into the console, and then add it again when
-        # it is time to log into the file. Or there is a better solution.
         c_logger = logging.getLogger(
             '{}.c'.format(logger_name))
         f_logger = logging.getLogger(
