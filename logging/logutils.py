@@ -46,12 +46,12 @@ def get_logger(module_name, module_file, cwd, logger=None):
     Notes
     -----
     The reason that we process the case when `logger` is already a logger of
-    type ``LoggingWrapper`` is that the main script's logger can be shared
-    throughout all modules, and therefore every call to this function will
-    return the same logger.
+    type ``LoggingWrapper`` is that the main script's logger could be shared
+    throughout all custom modules, and therefore every call to this function
+    will return the same shared logger.
 
     ``LoggingWrapper`` defines a logger that can log to console and file at the
-    same time.
+    "same time".
 
     """
     if logger is None:
