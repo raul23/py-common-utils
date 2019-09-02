@@ -1,6 +1,13 @@
-"""Module summary
+"""Module that configures a logger for logging to console and file on disk.
 
-Extended summary
+Each module that needs a unique logger can use ``LoggingBoilerplate`` for
+setting up a logger that can log to console and file on disk, at the "same
+time". To so, it makes use of the ``LoggingWrapper`` class which defines the
+API for accessing the particular logger that can log to console and file.
+
+The module's logger is unique in the sense that it has its own unique name
+based on the module's name, even if the module is actually a script (its
+module name is ``'__main__'``).
 
 """
 
@@ -36,6 +43,15 @@ class LoggingBoilerplate:
         (the default value is False which might imply that no color will be
         added to the log messages or that the user is working in a Unix
         terminal).
+
+    Notes
+    -----
+    Here are the two cases for the logging configuration file's type:
+    1. if `logging_cfg` is a file path then it implies that the module
+    requesting the logger is run as a script.
+    2. if `logging_cfg` is a ``dict``, then it means that the module
+    requesting the logger was imported and the ``dict`` is coming from the
+    main script.
 
     """
 
@@ -92,19 +108,22 @@ class LoggingBoilerplate:
             }
             self._update_logging_cfg_dict(logging_options)
 
-    # Add loggers to logging config dict
     @staticmethod
     def _add_loggers(new_loggers, logging_cfg):
         """Add loggers to a logging config dictionary.
 
-        TODO: only if the loggers are not already there
+        Each new logger is configured based on an existing logger of the same
+        type, i.e. a new console logger will have the same logging options (
+        level, class, and formatter) as an existing console logger.
 
         Parameters
         ----------
         new_loggers : list of logging.Logger
-            Description
+            List of new loggers to be added to the logging configuration
+            ``dict``.
         logging_cfg : dict
-            Description
+            The logging configuration ``dict`` that will be updated with the
+            new loggers.
 
         """
         for new_logger in new_loggers:
@@ -152,7 +171,7 @@ class LoggingBoilerplate:
         # Setup console logger WITHOUT configuration file
         # IMPORTANT: the file logger will not be setup completely yet, i.e. no
         # handler added. The file logger will be setup later on from the YAML
-        # configuration file
+        # configuration file.
         # To remove duplicated logging messages: set `propagate` to False
         # ref.: https://stackoverflow.com/a/44426266
         c_logger.propagate = False
@@ -211,7 +230,6 @@ class LoggingBoilerplate:
                     "Setting up logging from the YAML configuration file "
                     "'{}'".format(logging_cfg))
             else:
-                ipdb.set_trace()
                 # Case: custom modules (other than the main script) are setting
                 # up their logging
                 add_datetime = False
@@ -263,12 +281,21 @@ class LoggingBoilerplate:
             self.logging_cfg_dict.update(options)
 
     def get_logger(self):
-        """Get the logger.
+        """Get a logger for logging to console and file on disk.
+
+        It returns a logger that is actually a wrapper around a console and
+        file loggers, i.e. with only this logger you can write to console and
+        file at the "same time".
 
         Returns
         -------
         lw: logging_wrapper.LoggingWrapper
+            Logger that can log to console and file at the "same time".
 
+        See Also
+        --------
+        LoggingWrapper : class that implements the API that allows you to log
+                         to a console and file at the "same time".
 
         """
         return self.lw
