@@ -81,6 +81,9 @@ def get_logger_name(module_name, module_file, cwd):
     1.  the module's current working directory and its filename or
     2.  the module's name.
 
+    Also, the logger's name ends with '.c' (for a console logger) or '.f' (for
+    a file logger), e.g. `script.run_scraper.c` and `script.run_scraper.f`.
+
     The returned logger's name can then be used to setup a logger.
 
     Parameters
@@ -102,6 +105,15 @@ def get_logger_name(module_name, module_file, cwd):
     If the module is read from script, then `module_name` will be equal to
     ``'__main__'`` [1]. In that case, the module's working directory and its
     filename will be used to build the logger's name.
+
+    The reason for differentiating the console and file loggers in the way
+    their names end (.c for console loggers and .f for file loggers) is to
+    be able to setup a new logger with the same logging options as an existing
+    logger of the same type. For example, a new file logger will have the same
+    logging options (level, class, filename, mode, formatter) as an existing
+    file logger. See ``logging_boilerplate._add_loggers`` where we are adding
+    new loggers and configuring them with the same logging options as existing
+    loggers of the same corresponding type.
 
     References
     ----------
