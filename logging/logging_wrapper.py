@@ -88,9 +88,10 @@ class LoggingWrapper:
         the log messages or that the user is working in a PyCharm terminal).
 
     use_pycharm_colors : bool, optional
-        Whether to use the colors when working in a PyCharm terminal (the
-        default value is False which might imply that no color will be added to
-        the log messages or that the user is working in a Unix terminal).
+        Whether to add color to log messages when working in a PyCharm terminal
+        (the default value is False which might imply that no color will be
+        added to the log messages or that the user is working in a Unix
+        terminal).
 
     color_levels : dict, optional
         The dictionary that defines the colors for the different log level (the
