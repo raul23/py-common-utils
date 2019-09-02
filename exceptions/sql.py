@@ -1,6 +1,6 @@
 """Module that defines exceptions related to SQL database problems.
 
-These are all the exceptions that are raised when querying a SQL database.
+These are the exceptions that are raised when querying a SQL database.
 
 """
 

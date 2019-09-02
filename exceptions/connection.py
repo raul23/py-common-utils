@@ -1,7 +1,6 @@
 """Module that defines exceptions related to connection problems.
 
-These are all the exceptions that are raised when querying a server for a
-resource.
+These are the exceptions that are raised when querying a server for a resource.
 
 """
 

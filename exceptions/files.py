@@ -1,6 +1,6 @@
 """Module that defines exceptions related to files problems.
 
-These are all the exceptions that are raised when reading or writing files.
+These are the exceptions that are raised when reading or writing files.
 
 """
 
