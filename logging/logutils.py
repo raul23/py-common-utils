@@ -36,7 +36,8 @@ def get_logger(module_name, module_file, cwd, logger=None):
     Returns
     -------
     logger : LoggingWrapper
-        A logger that can log to console and file at the same time.
+        A wrapper around ``logging.Logger`` that allows you to add color to log
+        messages.
 
     Raises
     ------
@@ -50,15 +51,12 @@ def get_logger(module_name, module_file, cwd, logger=None):
     throughout all custom modules, and therefore every call to this function
     will return the same shared logger.
 
-    ``LoggingWrapper`` defines a logger that can log to console and file at the
-    "same time".
-
     """
     if logger is None:
         logger_name = get_logger_name(module_name, module_file, cwd)
         logger = setup_basic_console_logger(logger_name=logger_name)
         return logger
-    elif isinstance(logger, dict):
+    elif isinstance(logger, dict) or isinstance(logger, str):
         from utilities.logging.logging_boilerplate import LoggingBoilerplate
         lb = LoggingBoilerplate(module_name,
                                 module_file,
@@ -146,12 +144,15 @@ def get_logger_name(module_name, module_file, cwd):
 
 def setup_basic_console_logger(
         logger=None,
-        logger_name="console_logger"):
+        logger_name="console_logger",
+        logger_level=logging.DEBUG,
+        handler_level=logging.DEBUG,
+        handler_format='%(name)-30s: %(levelname)-8s %(message)s'):
     """Setup a basic console logger without a logging configuration file or
     dictionary.
 
-    A basic **console** logger is setup with debug logging level and whose
-    output format consists of its name, log level, and message.
+    A basic **console** logger is setup by default with debug logging level and
+    whose output format consists of its name, log level, and message.
 
     Parameters
     ----------
@@ -161,6 +162,20 @@ def setup_basic_console_logger(
         config ``dict``).
     logger_name : str, optional
         Logger's unique name (the default value is `console_logger`).
+    logger_level : int, optional
+        Logger's log level that filters out logs whose levels are inferior (the
+        default value is ``DEBUG`` which implies that no logs will be ignored
+        by the logger).
+    handler_level : int, optional
+        Handler's log level that filters out logs whose levels are inferior,
+        e.g. a log handler with the INFO level will not handle DEBUG logs [1] (
+        the default value is DEBUG which implie that no logs will be ignored by
+        the logger's handler).
+    handler_format : str, optional
+        Adds context information to a log (the default value is
+        ``'%(name)-30s: %(levelname)-8s %(message)s'`` which implies that each
+        log record will consist of the logger's name, its log level, and the
+        log's message).
 
     Returns
     -------
@@ -177,17 +192,11 @@ def setup_basic_console_logger(
     A logging.StreamHandler() (i.e. console handler) is added to the logger's
     handlers.
 
-    A handler's log level filters out logs whose levels are inferior, e.g. a
-    log handler with the INFO level will not handle DEBUG logs [1].
-
     References
     ----------
     .. [1] `Python Logging: An In-Depth Tutorial <https://www.toptal.com/python/in-depth-python-logging/>`
 
     """
-    logger_level = logging.DEBUG
-    handler_level = logging.DEBUG
-    handler_format = '%(name)-30s: %(levelname)-8s %(message)s'
     if logger is None:
         logger = logging.getLogger(logger_name)
         # To remove duplicated logging messages: set `propagate` to False
