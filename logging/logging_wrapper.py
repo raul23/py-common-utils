@@ -123,7 +123,7 @@ class LoggingWrapper:
     def _call_logger(self, msg, level):
         """Call the logger by adding color to the messages.
 
-        This method calls the logger' logging methods to write a message with
+        This method calls the logger's logging methods to write a message with
         color (if specified).
 
         Only the console handler gets its message colored, not the file handler.
