@@ -67,7 +67,7 @@ def create_db(overwrite, db_filepath, schema_filepath, logging_cfg=None):
         Path to the SQLite database.
     schema_filepath : str
         Path to the schema file.
-    logging_cfg : dict, optional
+    logging_cfg : dict or LoggingWrapper, optional
         Configuration ``dict`` to setup the logger (the default is None, which
         implies that the console logger will have to be created from scratch,
         i.e. with default values).
@@ -80,6 +80,7 @@ def create_db(overwrite, db_filepath, schema_filepath, logging_cfg=None):
 
     """
     # Setup logging
+    # TODO: check if you can setup logging in __init__?
     logger = get_logger(__name__, __file__, os.getcwd(), logging_cfg)
     db_exists = os.path.exists(db_filepath)
 
