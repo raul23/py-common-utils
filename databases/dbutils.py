@@ -91,7 +91,7 @@ def create_db(overwrite, db_filepath, schema_filepath, logging_cfg=None):
         os.remove(db_filepath)
 
     if not db_exists or overwrite:
-        logger.info("Creating database {}".format(db_filepath))
+        logger.info("Creating database '{}'".format(db_filepath))
         with sqlite3.connect(db_filepath) as conn:
             try:
                 with open(schema_filepath, 'rt') as f:
