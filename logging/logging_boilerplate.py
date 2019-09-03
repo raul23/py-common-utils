@@ -104,10 +104,6 @@ class LoggingBoilerplate:
             self._add_logger(logger, logging_cfg)
         # Setup the logger from a YAML logging configuration file or dict
         self.logging_cfg_dict = self._setup_loggers_from_cfg(logging_cfg)
-        if self.logger.use_pycharm_colors:
-            self.logger.debug(
-                "The colors of the logging messages are those used for the "
-                "PyCharm terminal")
         if isinstance(logging_cfg, str):
             # Update the dict `config` with logging options necessary for
             # setting up the logging mechanism in the other custom modules
@@ -142,7 +138,7 @@ class LoggingBoilerplate:
             if new_logger.name in logging_cfg['loggers'].keys():
                 self.logger.warning(
                     "The logger '{}' will not be added because it is already "
-                    "in the logging configuration ``dict``".format(
+                    "in the logging configuration dict".format(
                         new_logger.name))
             else:
                 existing_logger_values = list(logging_cfg['loggers'].values())[0]
