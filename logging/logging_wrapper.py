@@ -37,8 +37,6 @@ the module name or the level name).
 """
 
 import logging
-# Custom modules
-import utilities.exceptions.log as log_exc
 
 
 log_levels = ['debug', 'info', 'warning', 'error', 'exception', 'critical']
