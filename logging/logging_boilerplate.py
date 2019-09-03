@@ -1,6 +1,6 @@
 """Module that configures a logger for logging to console and file on disk.
 
-Each module that needs a unique logger can use ``LoggingBoilerplate`` for
+Any module that needs a unique logger can use ``LoggingBoilerplate`` for
 setting up a logger that can log to console and file on disk, at the "same
 time". To so, it makes use of the ``LoggingWrapper`` class which defines the
 API for accessing the particular logger that can log to console and file.
@@ -10,7 +10,6 @@ based on the module's name, even if the module is actually a script (its
 module name is ``'__main__'``).
 
 """
-
 import logging
 # Third-party modules
 import ipdb
@@ -18,10 +17,11 @@ import ipdb
 from .logutils import get_logger_name, setup_basic_console_logger, \
     setup_logging_from_cfg
 from .logging_wrapper import LoggingWrapper
+import utilities.exceptions.log as log_exc
 
 
 class LoggingBoilerplate:
-    """
+    """TODO
 
     Parameters
     ----------
@@ -75,25 +75,39 @@ class LoggingBoilerplate:
                 raise KeyError(
                     "[{}] The logging configuration dict was not previously "
                     "updated with `logging_options`".format(module_name))
-        # Get the console and file loggers
-        c_logger, f_logger = self._get_loggers()
+        # Get a very basic console logger
+        # NOTE: the logger will eventually be completely setup by a logging
+        # config dictionary. In the meantime, we need a simple console logger
+        # to log messages.
+        logger_name = get_logger_name(
+            self.module_name, self.module_file, self.cwd)
+        if logger_name in logging.root.manager.loggerDict.keys():
+            logger = logging.getLogger(logger_name)
+        else:
+            logger = setup_basic_console_logger(
+                logger_name=logger_name,
+                logger_level=logging.INFO,
+                handler_level=logging.INFO)
         # Init the logging wrapper
-        self.lw = LoggingWrapper(
-            c_logger,
-            f_logger,
+        self.logger = LoggingWrapper(
+            logger,
             self.use_default_colors,
             self.use_pycharm_colors)
-        if self.lw.use_colors:
-            self.lw.info("The log messages will be colored")
-        if self.lw.use_pycharm_colors:
-            self.lw.info("The colors of the logging messages are those used "
-                         "for the PyCharm terminal")
-        # Add the console and file loggers to the logging config ``dict`` if
-        # they are not there yet
+        if self.logger.use_colors:
+            self.logger.debug("The log messages will be colored")
+        if self.logger.use_pycharm_colors:
+            self.logger.debug(
+                "The colors of the logging messages are those used for the "
+                "PyCharm terminal")
+        # Add the logger to the logging config ``dict``
         if isinstance(logging_cfg, dict):
-            self._add_loggers([c_logger, f_logger], logging_cfg)
-        # Setup loggers from YAML logging configuration file or dict
+            self._add_logger(logger, logging_cfg)
+        # Setup the logger from a YAML logging configuration file or dict
         self.logging_cfg_dict = self._setup_loggers_from_cfg(logging_cfg)
+        if self.logger.use_pycharm_colors:
+            self.logger.debug(
+                "The colors of the logging messages are those used for the "
+                "PyCharm terminal")
         if isinstance(logging_cfg, str):
             # Update the dict `config` with logging options necessary for
             # setting up the logging mechanism in the other custom modules
@@ -108,76 +122,36 @@ class LoggingBoilerplate:
             }
             self._update_logging_cfg_dict(logging_options)
 
-    @staticmethod
-    def _add_loggers(new_loggers, logging_cfg):
-        """Add loggers to a logging config dictionary.
+    def _add_logger(self, new_logger, logging_cfg):
+        """Add a logger to a logging config dictionary.
 
-        Each new logger is configured based on an existing logger of the same
-        type, i.e. a new console logger will have the same logging options (
-        level, class, and formatter) as an existing console logger.
+        The new logger is configured based on an existing logger, i.e. the new
+        console logger will have the same logging options (e.g. level, class,
+        and formatter) as the existing logger.
 
         Parameters
         ----------
-        new_loggers : list of logging.Logger
-            List of new loggers to be added to the logging configuration
-            ``dict``.
+        new_logger : logging.Logger
+            The new logger to be added to the logging configuration ``dict``.
         logging_cfg : dict
             The logging configuration ``dict`` that will be updated with the
-            new loggers.
+            new logger.
 
         """
-        for new_logger in new_loggers:
-            for old_logger_name in logging_cfg['loggers'].keys():
-                if new_logger.name[-2:] == old_logger_name[-2:]:
-                    value = logging_cfg['loggers'][old_logger_name]
-                    # del logging_cfg['loggers'][old_logger_name]
-                    logging_cfg['loggers'][new_logger.name] = value
-                    break
-
-    def _get_loggers(self):
-        """Get console and file loggers.
-
-        It initializes a basic console logger and a nonfunctional file logger
-        that will eventually both be completely setup by a logging config
-        dictionary.
-
-        The console logger is the only setup here that can log something since
-        the file logger doesn't have any handler.
-
-        Returns
-        -------
-        c_logger : logging.Logger
-            Basic console logger.
-        f_logger : logging.Logger
-            Nonfunctional file logger that doesn't have any handler yet.
-
-        Notes
-        -----
-        Only the basic console logger is capable of logging something since the
-        file logger doesn't have any handler yet. We need to wait to read the
-        logging configuration dictionary where the log filename is defined so
-        the file logger knows where to save the logs. Patience.
-
-        """
-        logger_name = get_logger_name(
-            self.module_name, self.module_file, self.cwd)
-        c_logger = logging.getLogger(
-            '{}.c'.format(logger_name))
-        f_logger = logging.getLogger(
-            '{}.f'.format(logger_name))
-        # Clear the two loggers from any handlers
-        self.remove_all_handlers(c_logger)
-        self.remove_all_handlers(f_logger)
-        # Setup console logger WITHOUT configuration file
-        # IMPORTANT: the file logger will not be setup completely yet, i.e. no
-        # handler added. The file logger will be setup later on from the YAML
-        # configuration file.
-        # To remove duplicated logging messages: set `propagate` to False
-        # ref.: https://stackoverflow.com/a/44426266
-        c_logger.propagate = False
-        f_logger.propagate = False
-        setup_basic_console_logger(logger=c_logger)
-        return c_logger, f_logger
+        try:
+            if new_logger.name in logging_cfg['loggers'].keys():
+                self.logger.warning(
+                    "The logger '{}' will not be added because it is already "
+                    "in the logging configuration ``dict``".format(
+                        new_logger.name))
+            else:
+                existing_logger_values = list(logging_cfg['loggers'].values())[0]
+                logging_cfg['loggers'][new_logger.name] = existing_logger_values
+        except (KeyError, IndexError) as e:
+            self.logger.error(e)
+            raise log_exc.AddLoggerError(
+                "The new logger couldn't be added to the logging configuration "
+                "``dict``")
 
     def _setup_loggers_from_cfg(self, logging_cfg):
         """Setup console and file loggers from a YAML configuration file or
@@ -226,27 +200,27 @@ class LoggingBoilerplate:
                 # Add datetime at the beginning of the log filename
                 # e.g. 2018-09-21-23-24-15-debug.log
                 add_datetime = True
-                self.lw.info(
+                self.logger.info(
                     "Setting up logging from the YAML configuration file "
                     "'{}'".format(logging_cfg))
             else:
                 # Case: custom modules (other than the main script) are setting
                 # up their logging
                 add_datetime = False
-                self.lw.info(
+                self.logger.info(
                     "Setting up logging from a dictionary")
             logging_cfg_dict = setup_logging_from_cfg(logging_cfg,
                                                       add_datetime=add_datetime)
         except (KeyError, OSError, ValueError) as e:
             # TODO: write the traceback with one line, see
             # https://bit.ly/2DkH63E
-            self.lw.critical(e)
+            self.logger.critical(e)
             # TODO: sys.exit(1)?
             # TODO: raise a custom Exception that could be caught within the
             # script
             raise SystemExit("Logging could not be setup. Program will exit.")
         else:
-            self.lw.debug("Logging setup completed")
+            self.logger.debug("Logging setup completed")
             return logging_cfg_dict
 
     def _update_logging_cfg_dict(self, options):
@@ -268,37 +242,36 @@ class LoggingBoilerplate:
             the logging config dictionary.
 
         """
-        self.lw.debug(
+        self.logger.debug(
             "Updating the logging config dict with logging options: "
             "{}".format(options))
         duplicates = [k for k in self.logging_cfg_dict.keys()
                       if k in options.keys()]
         if duplicates:
             # TODO: raise a custom Exception
-            self.lw.debug("The logging options' keys are not unique")
+            self.logger.debug("The logging options' keys are not unique")
             raise SystemExit("Program will exit.")
         else:
             self.logging_cfg_dict.update(options)
 
     def get_logger(self):
-        """Get a logger for logging to console and file on disk.
+        """Get a logger for logging to console and/or file on disk.
 
-        It returns a logger that is actually a wrapper around a console and
-        file loggers, i.e. with only this logger you can write to console and
-        file at the "same time".
+        It returns a logger that is actually a wrapper around logging.Logger,
+        which allows you to add color to log messages.
 
         Returns
         -------
         lw: logging_wrapper.LoggingWrapper
-            Logger that can log to console and file at the "same time".
+            Logger that can log to console and/or file on disk.
 
         See Also
         --------
-        LoggingWrapper : class that implements the API that allows you to log
-                         to a console and file at the "same time".
+        LoggingWrapper : class that implements the API that allows you to add
+                         color to log messages.
 
         """
-        return self.lw
+        return self.logger
 
     @staticmethod
     def remove_all_handlers(logger):
