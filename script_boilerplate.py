@@ -24,7 +24,7 @@ You are now ready to go! You can use `logger` in the rest of your script:
 Note that `logger` is of type ``LoggingWrapper`` and is defined in
 `logging_wrapper.py <https://github.com/raul23/utilities/blob/master/logging/logging_wrapper.py>`_
 
-The reason for wrapping ``logging.Logger`` is that we added color to logs.
+The reason for wrapping ``logging.Logger`` is that we add color to logs.
 
 """
 
@@ -34,7 +34,8 @@ from utilities.logging.logging_boilerplate import LoggingBoilerplate
 
 
 class ScriptBoilerplate:
-    """
+    """Class that parses arguments from the command-line and setups logging for
+    the script.
 
     Parameters
     ----------
@@ -83,8 +84,12 @@ class ScriptBoilerplate:
         -----
         The reason for treating separately the two different types of terminal
         is that the PyCharm terminal will display color levels differently than
-        the standard Unix terminal. See `logging_wrapper.py` (in the module
+        the standard Unix terminal. See `logging_wrapper.py` [1] (in the module
         description) for more info about adding color to log messages.
+
+        References
+        ----------
+        .. [1] `logging_wrapper.py <https://github.com/raul23/utilities/blob/master/logging/logging_wrapper.py>`_.
 
         """
         self.parser.add_argument(
