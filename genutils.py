@@ -373,13 +373,19 @@ def read_file(filepath):
 
     Parameters
     ----------
-    filepath
+    filepath : str
+        Description
 
     Returns
     -------
+    str
+        Description
 
     Raises
     ------
+    OSError
+        Raised if an error occurs while reading the file, e.g. the file doesn't
+        exist.
 
     """
     try:
@@ -401,6 +407,8 @@ def read_yaml(filepath):
 
     Raises
     ------
+    OSError
+        Description
 
     """
     try:
@@ -421,6 +429,10 @@ def write_file(filepath, data, overwrite_file=True):
 
     Raises
     ------
+    OSError
+        Description
+    OverwriteFileError
+        Description
 
     """
     try:
