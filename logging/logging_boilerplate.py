@@ -21,28 +21,28 @@ import utilities.exceptions.log as log_exc
 
 
 class LoggingBoilerplate:
-    """TODO
+    """TODO: add description
 
     Parameters
     ----------
     module_name : str
         Name of the module, e.g. ``'utilities.databases.dbutils'``
     module_file : str
-        Module's filename, e.g. run_scraper.py
+        Module's filename, e.g. `run_scraper.py`
     cwd : str
-        Module's current working directory, e.g. .../lyrics-scraper/script
+        Module's current working directory, e.g. `.../lyrics-scraper/script`
     logging_cfg : str or dict
         The logger can be setup through a logging configuration file that can
         be given either as a file path (``str``) or a dictionary (``dict``).
-    use_default_colors : bool, optional
-        Whether to use the default colors when working in a Unix terminal (the
-        default value is False which might imply that no color will be added to
-        the log messages or that the user is working in a PyCharm terminal).
-    use_pycharm_colors : bool, optional
-        Whether to add color to log messages when working in a PyCharm terminal
-        (the default value is False which might imply that no color will be
-        added to the log messages or that the user is working in a Unix
-        terminal).
+    color_logs : str, {None, 'standard', 'pycharm'}, optional
+        Whether to use the colors of working in a Unix terminal or a PyCharm
+        terminal (the default value is None which implies that no color will be
+        added to the log messages).
+
+        The reason for treating separately the two different types of terminal
+        is that the PyCharm terminal will display color levels differently than
+        the standard Unix terminal. See `logging_wrapper.py` for more info on
+        how the colors are added to log messages.
 
     Notes
     -----
@@ -56,21 +56,21 @@ class LoggingBoilerplate:
     """
 
     def __init__(self, module_name, module_file, cwd, logging_cfg,
-                 use_default_colors=False, use_pycharm_colors=False):
+                 color_logs=None):
         self.module_name = module_name
         self.module_file = module_file
         self.cwd = cwd
         if isinstance(logging_cfg, str):
-            self.use_default_colors = use_default_colors
-            self.use_pycharm_colors = use_pycharm_colors
+            # Calling module (__main__) imported as a script
+            self.color_logs = color_logs
         else:
+            # Calling module imported as a module
             # Sanity check on `logging_cfg`
             assert isinstance(logging_cfg, dict), \
-                "`logging_cfg` must be a `dict`"
+                "`logging_cfg` must be a ``dict``"
             try:
                 logging_opts = logging_cfg['logging_options']
-                self.use_default_colors = logging_opts['use_default_colors']
-                self.use_pycharm_colors = logging_opts['use_pycharm_colors']
+                self.color_logs = logging_opts['color_logs']
             except KeyError:
                 raise KeyError(
                     "[{}] The logging configuration dict was not previously "
@@ -91,11 +91,10 @@ class LoggingBoilerplate:
         # Init the logging wrapper
         self.logger = LoggingWrapper(
             logger,
-            self.use_default_colors,
-            self.use_pycharm_colors)
-        if self.logger.use_colors:
+            self.color_logs)
+        if self.logger.color_logs:
             self.logger.debug("The log messages will be colored")
-        if self.logger.use_pycharm_colors:
+        if self.logger.color_logs == "p":
             self.logger.debug(
                 "The colors of the logging messages are those used for the "
                 "PyCharm terminal")
@@ -112,8 +111,7 @@ class LoggingBoilerplate:
                 'logging_options':
                     {
                         'logging_cfg_filepath': logging_cfg,
-                        'use_default_colors': use_default_colors,
-                        'use_pycharm_colors': use_pycharm_colors
+                        'color_logs': color_logs
                     }
             }
             self._update_logging_cfg_dict(logging_options)
@@ -208,12 +206,10 @@ class LoggingBoilerplate:
             logging_cfg_dict = setup_logging_from_cfg(logging_cfg,
                                                       add_datetime=add_datetime)
         except (KeyError, OSError, ValueError) as e:
-            # TODO: write the traceback with one line, see
-            # https://bit.ly/2DkH63E
+            # TODO: write the traceback with one line, see https://bit.ly/2DkH63E
             self.logger.critical(e)
             # TODO: sys.exit(1)?
-            # TODO: raise a custom Exception that could be caught within the
-            # script
+            # TODO: raise a custom Exception that could be caught within the script
             raise SystemExit("Logging could not be setup. Program will exit.")
         else:
             self.logger.debug("Logging setup completed")
@@ -244,7 +240,7 @@ class LoggingBoilerplate:
         duplicates = [k for k in self.logging_cfg_dict.keys()
                       if k in options.keys()]
         if duplicates:
-            # TODO: raise a custom Exception
+            # TODO: raise a custom exception?
             self.logger.debug("The logging options' keys are not unique")
             raise SystemExit("Program will exit.")
         else:
