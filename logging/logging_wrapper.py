@@ -85,15 +85,10 @@ class LoggingWrapper:
     ----------
     logger : logging.Logger
         A logger for logging to console and/or file.
-    use_default_colors : bool, optional
-        Whether to use the default colors when working in a Unix terminal (the
-        default value is False which might imply that no color will be added to
-        the log messages or that the user is working in a PyCharm terminal).
-    use_pycharm_colors : bool, optional
-        Whether to add color to log messages when working in a PyCharm terminal
-        (the default value is False which might imply that no color will be
-        added to the log messages or that the user is working in a Unix
-        terminal).
+    color_logs : str, {None, 'u', 'p'}, optional
+        Whether to add color to log messages if working in a Unix terminal ['u']
+        or a PyCharm terminal ['p'] (the default value is None which implies
+        that no color will be added to the log messages).
     color_levels : dict, optional
         The dictionary that defines the colors for the different log levels (the
         default value is `default_color_levels` which implies that the colors
@@ -101,21 +96,26 @@ class LoggingWrapper:
 
     """
 
-    def __init__(self, logger, use_default_colors=False,
-                 use_pycharm_colors=False, color_levels=default_color_levels):
+    def __init__(self, logger, color_logs=None,
+                 color_levels=default_color_levels):
         # TODO: add option to change `color_levels` from the logging config file.
         # Right now, we only have two sets of color levels to choose from:
         # `default_color_levels` and `pycharm_color_levels`
+        # TODO: raise Exceptions
+        assert color_logs in [None, 'u', 'p']
+        assert isinstance(color_levels, dict)
+        assert list(color_levels.keys()).sort() == log_levels.sort()
         self.logger = logger
-        self.use_default_colors = use_default_colors
-        self.use_pycharm_colors = use_pycharm_colors
-        self.color_levels = color_levels
-        if self.use_pycharm_colors:
+        self.color_logs = color_logs
+        # Use the correct color levels for the type of terminal
+        if self.color_logs == "u":
+            # Standard Unix terminal
+            self.color_levels = default_color_levels
+        elif self.color_logs == "p":
+            # PyCharm terminal
             self.color_levels = pycharm_color_levels
-        if self.use_default_colors or self.use_pycharm_colors:
-            self.use_colors = True
         else:
-            self.use_colors = False
+            self.color_levels = color_levels
         self._removed_handlers = []
 
     def _call_logger(self, msg, level):
@@ -146,7 +146,7 @@ class LoggingWrapper:
         logger_method = self.logger.__getattribute__(level)
         # Only the console handler gets colored messages. The file handler don't.
         # Get the log message with color code for the console handler
-        c_msg = self._set_color(msg, level) if self.use_colors else msg
+        c_msg = self._set_color(msg, level) if self.color_logs else msg
         # Disable the other non-console handlers when logging in the console.
         # Hence, the color code will not appear in the log file.
         # Remove non-console handlers from the logger
@@ -271,8 +271,7 @@ class LoggingWrapper:
 
         References
         ----------
-        TODO: add link for coloring log messages,https://stackoverflow.com/a/45924203
-
+        TODO: add link for coloring log messages, https://stackoverflow.com/a/45924203
 
         """
         color = self.color_levels[level]
