@@ -2,10 +2,17 @@
 
 The helpful functions defined here are those that don't relate to databases and
 logging since these types of functions are already defined in the ``databases``
-and ``logging`` packages.
+[1] and ``logging`` [2] packages.
 
 You will find such functions as for loading a YAML file, writing to a file on
 disk, and getting the local time based on the local time zone.
+
+References
+----------
+.. [1] `databases package
+    <https://github.com/raul23/utilities/tree/master/databases>`_.
+.. [2] `logging package
+    <https://github.com/raul23/utilities/tree/master/logging>`_.
 
 """
 
