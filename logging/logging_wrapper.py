@@ -214,7 +214,7 @@ class LoggingWrapper:
             # TODO: test this case
             raise SystemExit(
                 "[logging_wrapper._remove_handlers()] The parameter "
-                "`handlers_to_keep` value '{}' is not supported.".format(
+                "handlers_to_keep value '{}' is not supported.".format(
                     handlers_to_keep))
         self._removed_handlers = []
         for h in self.logger.handlers:
