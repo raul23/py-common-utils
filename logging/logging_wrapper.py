@@ -271,7 +271,8 @@ class LoggingWrapper:
 
         References
         ----------
-        TODO: add link for coloring log messages, https://stackoverflow.com/a/45924203
+        TODO: add link for coloring log messages,
+        https://stackoverflow.com/a/45924203
 
         """
         color = self.color_levels[level]

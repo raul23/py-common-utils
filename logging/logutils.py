@@ -115,7 +115,8 @@ def get_logger_name(module_name, module_file, cwd):
 
     References
     ----------
-    .. [1] `__main__ — Top-level script environment <https://docs.python.org/3/library/__main__.html/>`
+    .. [1] `__main__ — Top-level script environment
+    <https://docs.python.org/3/library/__main__.html/>`
 
     """
     if module_name == '__main__':
@@ -194,7 +195,8 @@ def setup_basic_console_logger(
 
     References
     ----------
-    .. [1] `Python Logging: An In-Depth Tutorial <https://www.toptal.com/python/in-depth-python-logging/>`
+    .. [1] `Python Logging: An In-Depth Tutorial
+    <https://www.toptal.com/python/in-depth-python-logging/>`
 
     """
     if logger is None:
@@ -255,7 +257,8 @@ def setup_logging_from_cfg(logging_config, add_datetime=False):
     Notes
     -----
     For an example of a YAML logging configuration file, check
-    `Configuring Logging <https://docs.python.org/3/howto/logging.html#configuring-logging>`_.
+    `Configuring Logging
+    <https://docs.python.org/3/howto/logging.html#configuring-logging>`_.
 
     """
     try:

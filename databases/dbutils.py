@@ -37,8 +37,10 @@ def connect_db(db_path, autocommit=False):
 
     References
     ----------
-    .. [1] `7.0 Transaction Control At The SQL Level <https://www.sqlite.org/lockingv3.html/>`_.
-    .. [2] `Controlling Transactions <https://docs.python.org/3/library/sqlite3.html#controlling-transactions/>`_.
+    .. [1] `7.0 Transaction Control At The SQL Level
+    <https://www.sqlite.org/lockingv3.html/>`_.
+    .. [2] `Controlling Transactions
+    <https://docs.python.org/3/library/sqlite3.html#controlling-transactions/>`_.
 
     """
     try:

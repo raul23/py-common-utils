@@ -33,7 +33,8 @@ class SaveWebpages:
     main_cfg : dict
         Configuration ``dict`` that contains the necessary options for
         configuring HTTP requests. For more information about these options,
-        check the content of this `configuration file <https://github.com/raul23/lyrics-scraper/blob/master/database/music.sql/>`_.
+        check the content of this
+        `configuration file <https://bit.ly/2lGbeOw/>`_.
     logger : dict or LoggingWrapper
         The logger can be setup through a logging configuration ``dict``. If a
         logger of type ``LoggingWrapper`` is passed, it implies that a logger

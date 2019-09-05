@@ -22,7 +22,7 @@ You are now ready to go! You can use `logger` in the rest of your script:
 >>> logger.info("Testing")
 
 Note that `logger` is of type ``LoggingWrapper`` and is defined in
-`logging_wrapper.py <https://github.com/raul23/utilities/blob/master/logging/logging_wrapper.py>`_
+`logging_wrapper.py <https://bit.ly/2kuU1HO>`_
 
 The reason for wrapping ``logging.Logger`` is that we add color to logs.
 
@@ -54,8 +54,10 @@ class ScriptBoilerplate:
 
     References
     ----------
-    .. [1] `ArgumentParser objects <https://docs.python.org/2/library/argparse.html#argumentparser-objects>`_.
-    .. [2] `formatter_class <https://docs.python.org/2/library/argparse.html#formatter-class>`_.
+    .. [1] `ArgumentParser objects
+    <https://docs.python.org/2/library/argparse.html#argumentparser-objects>`_.
+    .. [2] `formatter_class
+    <https://docs.python.org/2/library/argparse.html#formatter-class>`_.
 
     """
     def __init__(self, module_name, module_file, cwd, script_desc,
@@ -89,7 +91,7 @@ class ScriptBoilerplate:
 
         References
         ----------
-        .. [1] `logging_wrapper.py <https://github.com/raul23/utilities/blob/master/logging/logging_wrapper.py>`_.
+        .. [1] `logging_wrapper.py <https://bit.ly/2kuU1HO>`_.
 
         """
         self.parser.add_argument(
@@ -137,7 +139,7 @@ class ScriptBoilerplate:
 
         References
         ----------
-        .. [1] `The add_argument() method <https://docs.python.org/2/library/argparse.html#the-add-argument-method>`_.
+        .. [1] `The add_argument() method <https://bit.ly/2m288os>`_.
 
         """
         self.parser.add_argument(*args, **kwargs)
