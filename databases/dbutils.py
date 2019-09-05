@@ -137,7 +137,7 @@ def sql_sanity_check(sql, values):
         if type(values) is not tuple:
             raise SQLSanityCheckError(
                 "[TypeError] The values for the SQL expression are not of "
-                "`tuple` type")
+                "tuple type")
         if len(values) != sql.count('?'):
             raise SQLSanityCheckError(
                 "[AssertionError] Wrong number of values ({}) in the SQL "
