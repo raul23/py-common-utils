@@ -1,6 +1,11 @@
-"""Module summary
+"""Module that defines many general and useful functions.
 
-Extended module summary
+The helpful functions defined here are those that don't relate to databases and
+logging since these types of functions are already defined in the ``databases``
+and ``logging`` packages.
+
+You will find such functions as for loading a YAML file, writing to a file on
+disk, and getting the local time based on the local time zone.
 
 """
 
@@ -22,98 +27,121 @@ import yaml
 from utilities.exceptions.files import OverwriteFileError
 
 
-def add_plural(v, plural_end="s", singular_end=""):
-    """
+def add_plural_ending(list_, plural_end="s", singular_end=""):
+    """Add plural ending if there are many values in a list.
+
+    If more than one item is found in the list, the function returns by
+    default 's'. If not, then the empty string is returned.
 
     Parameters
     ----------
-    v
+    list_ : list
+        The list that will be checked if a plural or singular ending will be
+        returned.
     plural_end : str, optional
+        The plural ending (the default value is 's' which implies that 's' will
+        be returned in the case that the list contains more than one item).
     singular_end : str, optional
+        The singular ending (the default value is '' which implies that nothing
+        will be returned in the case that the list contains less than 2 items).
 
     Returns
     -------
+    str
+        "s" if more than one item is found in the list, "" (empty string)
+        otherwise.
+
+    Examples
+    --------
+    >>> cars = ["corvette", "ferrari"]
+    >>> print("I have {} car{}".format(len(cars), add_plural_ending(cars)))
+    I have 2 cars
+
+    >>> pharmacies = ["PharmaOne", "PharmaTwo"]
+    >>> print("I went to {} pharmac{}".format(
+    ... len(pharmacies),
+    ... add_plural_ending(pharmacies, "ies", "y")))
+    I went to 2 pharmacies
+
+    >>> pharmacies = ["PharmaOne"]
+    >>> print("I went to {} pharmac{}".format(
+    ... len(pharmacies),
+    ... add_plural_ending(pharmacies, "ies", "y")))
+    I went to 1 pharmacy
 
     """
-    return plural_end if v > 1 else singular_end
+    return plural_end if len(list_) > 1 else singular_end
 
 
-# Useful for building SQL expressions
 def convert_list_to_str(list_):
-    """
+    """Convert a list of strings into a single string.
 
     Parameters
     ----------
-    list_
+    list_ : list of str
+        List of strings to be converted into a single string.
 
     Returns
     -------
+    str_ : str
+        The converted string.
+
+    Examples
+    --------
+    >>> list_ = ['CA', 'FR', 'US']
+    >>> convert_list_to_str(list_)
+    "'CA', 'FR', 'US'"
+
+    This function can be useful for building the WHERE condition in SQL
+    expressions:
+    >>> list_countries = ['CA', 'FR', 'US']
+    >>> str_countries = convert_list_to_str(list_countries)
+    >>> "SELECT * FROM table WHERE country IN ({})".format(str_countries)
+    "SELECT * FROM table WHERE country IN ('CA', 'FR', 'US')"
 
     """
-    str_ = ", ".join(
-        map(lambda a: "'{}'".format(a), list_))
+    str_ = ", ".join(map(lambda a: "'{}'".format(a), list_))
     return str_
 
 
 def create_directory(dirpath):
-    """
+    """Create a directory if it doesn't already exist.
 
     Parameters
     ----------
     dirpath : str
-        Absolute path to directory
-
-    Returns
-    -------
+        Path to directory to be created.
 
     Raises
     ------
+    FileExistsError
+        Raised if the directory already exists.
+    PermissionError
+        Raised if trying to run an operation without the adequate access rights
+        - for example filesystem permissions [1].
+
+        Also, on Windows, the ``PermissionError`` can occur if you try to open a
+        directory as a file. Though, the error is more accurate in Linux:
+        "[Errno 21] Is a directory" [2].
+
+    References
+    ----------
+    .. [1] `exception PermissionError <https://docs.python.org/3/library/exceptions.html#PermissionError>`_.
+    .. [2] `PermissionError Errno 13 Permission denied <https://stackoverflow.com/a/50759281>`_.
 
     """
-    if os.path.isdir(dirpath):
-        raise ResourceWarning(
-            "The directory '{}' already exists!".format(dirpath))
     try:
-        pathlib.Path(dirpath).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(dirpath).mkdir(parents=True, exist_ok=False)
+    except FileExistsError as e:
+        raise FileExistsError(e)
     except PermissionError as e:
         raise PermissionError(e)
 
 
-def create_directory_prompt(dirpath):
-    """
-
-    Parameters
-    ----------
-    dirpath : str
-        Absolute path to directory
-
-    Returns
-    -------
-
-    """
-    if not os.path.isdir(dirpath):
-        print("[ERROR] The directory '{}' doesn't exist".format(dirpath))
-        print("Do you want to create the directory {}?".format(dirpath))
-        answer = input("Y/N: ").strip().lower().startswith("y")
-        if answer:
-            print("[INFO] The directory '{}' will be created".format(dirpath))
-            # NOTE: only works on Python 3.4+ (however Python3.4 pathlib is
-            # missing the `exist_ok` option
-            # see https://stackoverflow.com/a/14364249 for different methods of
-            # creating directories in Python 2.7+, 3.2+, 3.5+
-            pathlib.Path(dirpath).mkdir(parents=True, exist_ok=True)
-            return 0
-        else:
-            print("[WARNING] The directory '{}' will not be created".format(
-                dirpath))
-            return 1
-    else:
-        print("[INFO] Good! The directory '{}' exists".format(dirpath))
-        return 0
-
-
 def create_timestamped_directory(new_fname, parent_dirpath):
-    """
+    """Create a timestamped directory.
+
+    If the directory already exists, it is overwritten.
 
     Parameters
     ----------
@@ -124,9 +152,13 @@ def create_timestamped_directory(new_fname, parent_dirpath):
 
     Returns
     -------
+    new_dirpath : str
+        Description
 
     Raises
     ------
+    PermissionError
+        Raised if
 
     """
     timestamped = datetime.now().strftime('%Y%m%d-%H%M%S-{fname}')
