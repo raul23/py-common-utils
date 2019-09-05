@@ -69,7 +69,7 @@ def get_logger(module_name, module_file, cwd, logger=None):
             return logger
         else:
             # TODO: test error
-            raise TypeError("`logger` must be of type ``LoggingWrapper``")
+            raise TypeError("logger must be of type LoggingWrapper")
 
 
 def get_logger_name(module_name, module_file, cwd):
