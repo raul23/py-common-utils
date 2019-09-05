@@ -15,7 +15,7 @@ import ipdb
 # Custom modules
 import utilities.exceptions.files as files_exc
 import utilities.exceptions.connection as connec_exc
-from utilities.genutils import read_file, get_local_datetime, write_file
+from utilities.genutils import read_file, write_file
 from utilities.logging.logutils import get_logger
 
 
@@ -71,8 +71,8 @@ class SaveWebpages:
         Raises
         ------
         OSError
-            Raised if an error occurs while reading the cached HTML document,
-            e.g. the file doesn't exist.
+            Raised if an I/O related error occurs while reading the cached HTML
+            document, e.g. the file doesn't exist.
 
         Returns
         -------
@@ -99,7 +99,7 @@ class SaveWebpages:
                 datetime.fromtimestamp(os.path.getmtime(filepath))
             return html, webpage_accessed
 
-    def save_webpage(self, filename, url, overwrite_webpages=True):
+    def save_webpage(self, filepath, url, overwrite_webpages=True):
         """Save a webpage on disk.
 
         First, the webpage is checked if it's already cached. If it's found in
@@ -128,8 +128,8 @@ class SaveWebpages:
             Raised if an existing file is being overwritten and the flag to
             allow to overwrite is disabled.
         OSError
-            Raised if an error occurs while writing the webpage on disk, e.g.
-            the file doesn't exist.
+            Raised if an I/O related error occurs while writing the webpage on
+            disk, e.g. the file doesn't exist.
 
         Returns
         -------
@@ -141,20 +141,24 @@ class SaveWebpages:
 
         """
         try:
-            if os.path.isfile(filename) and not overwrite_webpages:
-                html, webpage_accessed = self.load_cached_webpage(filename)
+            if os.path.isfile(filepath) and not overwrite_webpages:
+                html, webpage_accessed = self.load_cached_webpage(filepath)
             else:
                 # Retrieve webpage and the datetime the webpage was first
                 # accessed
-                webpage_accessed = get_local_datetime()
                 html = self._get_webpage(url)
                 self.logger.debug("Webpage retrieved!")
                 # Write webpage locally
                 self.logger.debug(
-                    "Saving webpage to '{}'".format(filename))
-                write_file(filename, html, overwrite_webpages)
+                    "Saving webpage to '{}'".format(filepath))
+                write_file(filepath, html, overwrite_webpages)
+                # Get the file's modified as the datetime the webpage was
+                # originally accessed
+                # TODO: test modification datetime
+                webpage_accessed = \
+                    datetime.fromtimestamp(os.path.getmtime(filepath))
                 self.logger.debug("The webpage is saved in '{}'. URL is "
-                                  "'{}'".format(filename, url))
+                                  "'{}'".format(filepath, url))
         except (connec_exc.HTTP404Error,
                 files_exc.OverwriteFileError,
                 OSError) as e:
