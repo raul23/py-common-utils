@@ -138,65 +138,91 @@ def create_directory(dirpath):
         raise PermissionError(e)
 
 
-def create_timestamped_directory(new_fname, parent_dirpath):
-    """Create a timestamped directory.
+def create_timestamped_directory(parent_dirpath, new_dirname=""):
+    """Create a timestamped directory if it doesn't already exist.
 
-    If the directory already exists, it is overwritten.
+    The timestamp is added to the beginning of the directory name, e.g.
+    `/Users/test/20190905-122929-documents`.
 
     Parameters
     ----------
-    new_fname : str
-        Description
     parent_dirpath : str
-        Description
+        Path to the parent directory.
+
+    new_dirname : str, optional
+        Name of the directory to be created (the default value is "" which
+        implies that only the timestamp will be added as the name of the
+        directory).
 
     Returns
     -------
     new_dirpath : str
-        Description
+        Path to the newly created directory.
 
     Raises
     ------
+    FileExistsError
+        Raised if the directory already exists.
     PermissionError
-        Raised if
+        Raised if trying to run an operation without the adequate access rights.
 
     """
-    timestamped = datetime.now().strftime('%Y%m%d-%H%M%S-{fname}')
+    new_dirname = "-{}".format(new_dirname) if new_dirname else new_dirname
+    timestamped = datetime.now().strftime('%Y%m%d-%H%M%S{dirname}')
     new_dirpath = os.path.join(
-        parent_dirpath, timestamped.format(fname=new_fname))
+        parent_dirpath, timestamped.format(dirname=new_dirname))
     try:
-        pathlib.Path(new_dirpath).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(new_dirpath).mkdir(parents=True, exist_ok=False)
+    except FileExistsError as e:
+        raise FileExistsError(e)
     except PermissionError as e:
         raise PermissionError(e)
     else:
         return new_dirpath
 
 
-# Cross-platform code for getting file creation of a file
-# ref.: code is from Mark Amery @ https://stackoverflow.com/a/39501288
-def get_creation_date(path_to_file):
-    """Get creation date of a file
+def get_creation_date(filepath):
+    """Get creation date of a file.
 
     Try to get the date that a file was created, falling back to when it was
-    last modified if that isn't possible.
-    See http://stackoverflow.com/a/39501288/1709587 for explanation.
+    last modified if that isn't possible [1].
 
-    If modification date is needed, use os.path.getmtime(path) which is
+    If modification date is needed, use `os.path.getmtime(path)` which is
     cross-platform supported.
 
     Parameters
     ----------
-    path_to_file : str
-        Description
+    filepath : str
+        Path to file whose creation date will be returned.
 
     Returns
     -------
+    float
+        Time of creation in seconds.
+
+    Notes
+    -----
+    Code is from StackOverflow's user Mark Amery [1].
+
+
+    References
+    ----------
+    .. [1] `How to get file creation & modification date/times in Python? StackOverflow <http://stackoverflow.com/a/39501288/1709587>`_.
+
+    Examples
+    --------
+    >>> from datetime import datetime
+    >>> creation = get_creation_date("/Users/test/directory")
+    >>> creation
+    1567701693.0
+    >>> str(datetime.fromtimestamp(creation))
+    '2019-09-05 12:41:33'
 
     """
     if platform.system() == 'Windows':
-        return os.path.getctime(path_to_file)
+        return os.path.getctime(filepath)
     else:
-        stat = os.stat(path_to_file)
+        stat = os.stat(filepath)
         try:
             return stat.st_birthtime
         except AttributeError:
@@ -205,23 +231,44 @@ def get_creation_date(path_to_file):
             return stat.st_mtime
 
 
-def dump_json(filepath, data, encoding='utf8', sort_keys=True,
+def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
               ensure_ascii=False):
-    """
+    """Write data to a JSON file.
+
+    The data is first serialized to a JSON formatted ``str`` and then saved
+    to disk.
 
     Parameters
     ----------
-    filepath
-    data
-    encoding
-    sort_keys
-    ensure_ascii
+    filepath : str
+        Path to the JSON file where the data will be saved.
 
-    Returns
-    -------
+    data
+        Data to be written to the JSON file.
+
+    encoding : str, optional
+        Encoding to be used for opening the JSON file.
+
+    sort_keys : bool, optional
+        If *sort_keys* is true, then the output of dictionaries will be sorted
+        by key (the default value is True) [1].
+
+    ensure_ascii : bool, optional
+        If `ensure_ascii` is false, then the return value can contain
+        non-ASCII characters if they appear in strings contained in ``data``.
+        Otherwise, all such characters are escaped in JSON strings [2] (the
+        default value is False).
 
     Raises
     ------
+    OSError
+        Raised if any I/O related occurs while writing the data to disk, e.g.
+        the file doesn't exist.
+
+    References
+    ----------
+    .. [1] ``json.dumps`` docstring description.
+    .. [2] ``json.dumps`` docstring description.
 
     """
     try:
@@ -233,34 +280,43 @@ def dump_json(filepath, data, encoding='utf8', sort_keys=True,
 
 
 def dump_pickle(filepath, data):
-    """Dump a pickle file on disk
+    """Write data to a pickle file.
 
     Parameters
     ----------
     filepath: str
-        Absolute path to the pickle file where data will be written
+        Path to the pickle file where data will be written.
     data:
-        Data to be saved on disk
-
-    Returns
-    -------
+        Data to be saved on disk.
 
     Raises
     ------
+    OSError
+        Raised if any I/O related occurs while writing the data to disk, e.g.
+        the file doesn't exist.
 
     """
     try:
         with open(filepath, 'wb') as f:
             pickle.dump(data, f)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(e)
+    except OSError as e:
+        raise OSError(e)
 
 
 def get_local_datetime():
-    """Get the date and time based on the system's time zone
+    """Get the date and time based on the system's time zone.
 
     Returns
     -------
+    datetime.datetime
+        The date and time in the system's time zone.
+
+    Examples
+    --------
+    >>> datetime_with_tz = get_local_datetime()
+    datetime.datetime(2019, 9, 5, 13, 34, 0, 678836, tzinfo=<DstTzInfo 'US/Eastern' EDT-1 day, 20:00:00 DST>)
+    >>> str(datetime_with_tz)
+    '2019-09-05 13:34:18.898435-04:00'
 
     """
     # Get the local timezone name
@@ -330,7 +386,7 @@ def load_json(path, encoding='utf8'):
 
     Parameters
     ----------
-    path
+    path : str
     encoding : str, optional
 
     Returns
@@ -350,18 +406,19 @@ def load_json(path, encoding='utf8'):
 
 
 def load_pickle(filepath):
-    """
-    Opens a pickle file and returns its contents or raises FileNotFoundError if
-    file not found.
+    """Open a pickle file.
+
+    The function opens a pickle file and returns its content.
 
     Parameters
     ----------
     filepath:
-        Absolute path to the pickle file
+        Path to the pickle file
 
     Returns
     -------
-    data : content of the pickle file
+    data
+        Content of the pickle file.
 
     Raises
     ------
