@@ -314,6 +314,7 @@ def get_local_datetime():
     Examples
     --------
     >>> datetime_with_tz = get_local_datetime()
+    >>> datetime_with_tz
     datetime.datetime(2019, 9, 5, 13, 34, 0, 678836, tzinfo=<DstTzInfo 'US/Eastern' EDT-1 day, 20:00:00 DST>)
     >>> str(datetime_with_tz)
     '2019-09-05 13:34:18.898435-04:00'
