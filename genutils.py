@@ -104,6 +104,64 @@ def convert_list_to_str(list_):
     return str_
 
 
+def convert_utctime_to_local_tz(utc_time=None):
+    """Convert a given UTC time into the local time zone.
+
+    If a UTC time is given, it is converted to the local time zone. If
+    `utc_time` is None, then the the current time based on the local time zone
+    is returned.
+
+    The date and time is returned as a string with format
+    YYYY-MM-DD HH:MM:SS-HH:MM
+
+    Parameters
+    ----------
+    utc_time: time.struct_time
+        The UTC time to be converted in the local time zone (the default value
+        is None which implies that the current time will be retrieved and
+        converted into the local time zone).
+
+    Returns
+    -------
+    local_time: str
+        The UTC time converted into the local time zone with the format
+        YYYY-MM-DD HH:MM:SS-HH:MM
+
+    See Also
+    --------
+    get_current_local_datetime : only returns the current time based on the
+                                 local time zone.
+
+    Examples
+    --------
+    >>> import time
+    >>> utc_time = time.gmtime()
+    >>> convert_utctime_to_local_tz(utc_time)
+    '2019-09-05 18:17:59-04:00'
+
+    """
+    # Get the local timezone name
+    tz = pytz.timezone(tzlocal.get_localzone().zone)
+    if utc_time:
+        # Convert ``time.struct_time`` into ``datetime``
+        # Only the date and time up to seconds, e.g. (2019, 9, 5, 22, 12, 33)
+        utc_time = datetime(*utc_time[:6])
+        # Convert time zone unaware ``datetime`` object into aware timezone
+        # ``datetime`` object
+        utc_time = utc_time.replace(tzinfo=pytz.UTC)
+        # Convert the UTC time into the local time zone
+        local_time = utc_time.astimezone(tz)
+    else:
+        # Get the time in the system's time zone
+        local_time = datetime.now(tz)
+        # Remove microseconds
+        local_time = local_time.replace(microsecond=0)
+    # Use date format: YYYY-MM-DD HH:MM:SS-HH:MM
+    # ISO format is YYYY-MM-DDTHH:MM:SS-HH:MM
+    local_time = local_time.isoformat().replace("T", " ")
+    return local_time
+
+
 def create_directory(dirpath):
     """Create a directory if it doesn't already exist.
 
@@ -306,17 +364,22 @@ def dump_pickle(filepath, data):
         raise OSError(e)
 
 
-def get_local_datetime():
-    """Get the date and time based on the system's time zone.
+def get_current_local_datetime():
+    """Get the current date and time based on the system's time zone.
 
     Returns
     -------
     datetime.datetime
         The date and time in the system's time zone.
 
+    See Also
+    --------
+    convert_utctime_to_local_tz : converts a UTC time based on the system's
+                                  time zone.
+
     Examples
     --------
-    >>> datetime_with_tz = get_local_datetime()
+    >>> datetime_with_tz = get_current_local_datetime()
     >>> datetime_with_tz
     datetime.datetime(2019, 9, 5, 13, 34, 0, 678836, tzinfo=<DstTzInfo
     'US/Eastern' EDT-1 day, 20:00:00 DST>)
@@ -330,82 +393,66 @@ def get_local_datetime():
     return datetime.now(tz)
 
 
-def get_local_time(utc_time=None):
-    """
-    If a UTC time is given, it is converted to the local time zone. If
-    `utc_time` is None, then the local time zone is simply returned.
-    The local time zone is returned as a string with format
-    YYYY-MM-DD HH:MM:SS-HH:MM
+def init_variable(default, value=None):
+    """Get initial value for a variable.
+
+    If the value of the variable is None, the default value is returned.
+    Otherwise, the value given is returned.
 
     Parameters
     ----------
-    utc_time: time.struct_time
-        Description
-
-    Returns
-    -------
-    local_time: str
-        Description
-
-    """
-    # Get the local timezone name
-    tz = pytz.timezone(tzlocal.get_localzone().zone)
-    if utc_time:
-        # Convert time.struct_time into datetime
-        utc_time = datetime(*utc_time[:6])
-        # Convert naive object (time zone unaware) into aware object
-        utc_time = utc_time.replace(tzinfo=pytz.UTC)
-        # Convert the UTC time into the local time zone
-        local_time = utc_time.astimezone(tz)
-    else:
-        # Get the time in the system's time zone
-        local_time = datetime.now(tz)
-        # Remove microseconds
-        local_time = local_time.replace(microsecond=0)
-    # Use date format: YYYY-MM-DD HH:MM:SS-HH:MM
-    # ISO format is YYYY-MM-DDTHH:MM:SS-HH:MM
-    local_time = local_time.isoformat().replace("T", " ")
-    return local_time
-
-
-def init_variable(v, default):
-    """
-
-    Parameters
-    ----------
-    v
     default
+        The default value to be returned if `value` is None.
+    value
+        The value to be returned if `value` is not None.
 
     Returns
     -------
+    int or float
+
+
+    Examples
+    --------
+    >>> var = 'a'
+    >>> init_variable('d', var)
+    'a'
+    >>> var = None
+    >>> init_variable(10, var)
+    10
 
     """
-    if v is None:
+    if value is None:
         return default
     else:
-        return v
+        return value
 
 
-def load_json(path, encoding='utf8'):
-    """
+def load_json(filepath, encoding='utf8'):
+    """Load JSON data from a file on disk.
 
     Parameters
     ----------
-    path : str
+    filepath : str
+        Path to the JSON file which will be read.
     encoding : str, optional
+        Encoding to be used for opening the JSON file.
 
     Returns
     -------
+    data
+        Data loaded from the JSON file.
 
     Raises
     ------
+    OSError
+        Raise
 
     """
     try:
-        with codecs.open(path, 'r', encoding) as f:
+        with codecs.open(filepath, 'r', encoding) as f:
             data = json.load(f)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(e)
+    except OSError as e:
+        raise OSError(e)
     else:
         return data
 
@@ -439,47 +486,58 @@ def load_pickle(filepath):
 
 
 def load_yaml(f):
-    """
+    """Load the content of a YAML file.
 
     Parameters
     ----------
     f
+        File stream associated with the file read from disk.
 
     Returns
     -------
+    dict
+        The ``dict`` read from the YAML file.
 
     Raises
     ------
+    yaml.YAMLError
+        Raised if there is any error in the YAML structure of the file.
+
+    Notes
+    -----
+    I got a ``YAMLLoadWarning`` when calling `yaml.load()` without `Loader`, as
+    the default Loader is unsafe. You must specify a loader with the
+    `Loader=` argument. [1]
+
+    References
+    ----------
+    .. [1] `PyYAML yaml.load(input) Deprecation <https://msg.pyyaml.org/load>`_.
 
     """
     try:
-        # IMPORTANT: I got a YAMLLoadWarning when calling `yaml.load()` without
-        # `Loader=...` [deprecated], as the default Loader is unsafe.
-        # Ref.: https://msg.pyyaml.org/load or https://bit.ly/2ZuYSrD
-        # You must specify a loader with the `Loader=` argument
         return yaml.load(f, Loader=yaml.FullLoader)
     except yaml.YAMLError as e:
         raise yaml.YAMLError(e)
 
 
 def read_file(filepath):
-    """
+    """Read a file (in text mode) from disk.
 
     Parameters
     ----------
     filepath : str
-        Description
+        Path to the file to be read from disk.
 
     Returns
     -------
     str
-        Description
+        Content of the file returned as strings.
 
     Raises
     ------
     OSError
-        Raised if an error occurs while reading the file, e.g. the file doesn't
-        exist.
+        Raised if any I/O related error occurs while reading the file, e.g. the
+        file doesn't exist.
 
     """
     try:
@@ -490,19 +548,25 @@ def read_file(filepath):
 
 
 def read_yaml(filepath):
-    """
+    """Read a YAML file.
+
+    Its content is returned which is a ``dict``.
 
     Parameters
     ----------
-    filepath
+    filepath : str
+        Path to the YAML file to be read.
 
     Returns
     -------
+    dict
+        The ``dict`` read from the YAML file.
 
     Raises
     ------
     OSError
-        Description
+        Raised if any I/O related error occurs while reading the file, e.g. the
+        file doesn't exist or an error in the YAML structure of the file.
 
     """
     try:
@@ -513,26 +577,31 @@ def read_yaml(filepath):
 
 
 def write_file(filepath, data, overwrite_file=True):
-    """
+    """Write data (text mode) to a file.
 
     Parameters
     ----------
-    filepath
+    filepath : str
+        Path to the file where the data will be written.
     data
-    overwrite_file
+        Data to be written.
+    overwrite_file : bool, optional
+        Whether the file can be overwritten (the default value is True which
+        implies that the file can be overwritten).
 
     Raises
     ------
     OSError
-        Description
+        Raised if any I/O related error occurs while reading the file, e.g. the
+        file doesn't exist.
     OverwriteFileError
-        Description
+        Raised if an existing file is being overwritten.
 
     """
     try:
         if os.path.isfile(filepath) and not overwrite_file:
             raise OverwriteFileError(
-                "File '{}' already exists and `overwrite` is False".format(
+                "File '{}' already exists and overwrite is False".format(
                     filepath))
         else:
             with open(filepath, 'w') as f:
