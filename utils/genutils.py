@@ -4,8 +4,13 @@ The helpful functions defined here are those that don't relate to databases and
 logging since these types of functions are already defined in the ``databases``
 [1] and ``logging`` [2] packages.
 
-You will find such functions as for loading a YAML file, writing to a file on
-disk, and getting the local time based on the local time zone.
+You will find such functions as loading a YAML file, writing to a file on disk,
+and getting the local time based on the local time zone.
+
+See Also
+--------
+utils.databases.dbutils : module that defines database-related functions.
+utils.logging.logutils : module that defines logging-related functions.
 
 References
 ----------
@@ -32,32 +37,84 @@ import yaml
 from utils.exceptions.files import OverwriteFileError
 
 
-def add_plural_ending(list_, plural_end="s", singular_end=""):
-    """Add plural ending if there are many values in a list.
+def add_default_arguments(parser):
+    """Add default command-line arguments to a script.
 
-    If more than one item is found in the list, the function returns by
-    default 's'. If not, then the empty string is returned.
+    The added default options are:
+    - the path to the YAML logging file
+    - the path to the main YAML config file
+    - an **experimental** option for adding color to log messages
+
+    IMPORTANT: the option `--c` for adding color to log messages is
+    experimental. Thus, use it at your own risk!
 
     Parameters
     ----------
-    list_ : list
-        The list that will be checked if a plural or singular ending will be
-        returned.
+    parser : argparse.ArgumentParser
+        An ArgumentParser object which will be used to add the default
+        arguments and eventually parse the command-line.
+
+    Notes
+    -----
+    The reason for treating separately the two different types of terminal
+    is that the PyCharm terminal will display color levels differently than
+    the standard Unix terminal. See `logging_wrapper.py` [1] (in the module's
+    docstring) for more info about adding color to log messages.
+
+    References
+    ----------
+    .. [1] `logging_wrapper.py <https://bit.ly/2kuU1HO>`_.
+
+    """
+    parser.add_argument(
+        "-l", "--logging_cfg", default="logging_cfg.yaml",
+        help="Path to the YAML logging configuration file.")
+    parser.add_argument(
+        "-m", "--main_cfg", default="main_cfg.yaml",
+        help="Path to the YAML main configuration file.")
+    parser.add_argument(
+        "-c", "--color_logs",
+        const="u",
+        nargs='?',
+        default=None,
+        choices=["u", "p"],
+        help="Add colors to log messages. By default, we use colors as"
+             " defined for the standard Unix Terminal ('u'). If working with"
+             " the PyCharm terminal, use the value 'p' to get better"
+             " colors suited for this type of terminal.")
+
+
+def add_plural_ending(obj, plural_end="s", singular_end=""):
+    """Add plural ending if a number is greater than 1 or there are many
+    values in a list.
+
+    If the number is greater than or more than one item is found in the list,
+    the function returns by default 's'. If not, then the empty string is
+    returned.
+
+    Parameters
+    ----------
+    obj : int, float or list
+        The number or list that will be checked if a plural or singular ending
+        will be returned.
     plural_end : str, optional
         The plural ending (the default value is 's' which implies that 's' will
-        be returned in the case that the list contains more than one item).
+        be returned in the case that the number is greater than 1 or the list
+        contains more than one item).
     singular_end : str, optional
         The singular ending (the default value is '' which implies that nothing
-        will be returned in the case that the list contains less than 2 items).
+        will be returned in the case that the number is greater than 1 or the
+        list contains less than 2 items).
 
     Returns
     -------
     str
-        "s" if more than one item is found in the list, "" (empty string)
-        otherwise.
+        "s" if number greater than 1 or more than one item is found in the list,
+        "" (empty string) otherwise.
 
     Examples
     --------
+    TODO: add examples for number case
     >>> cars = ["corvette", "ferrari"]
     >>> print("I have {} car{}".format(len(cars), add_plural_ending(cars)))
     I have 2 cars
@@ -75,7 +132,12 @@ def add_plural_ending(list_, plural_end="s", singular_end=""):
     I went to 1 pharmacy
 
     """
-    return plural_end if len(list_) > 1 else singular_end
+    if isinstance(obj, list):
+        num = len(obj)
+    else:
+        assert isinstance(obj, int) or isinstance(obj, float)
+        num = obj
+    return plural_end if num > 1 else singular_end
 
 
 def convert_list_to_str(list_):
@@ -300,7 +362,7 @@ def get_creation_date(filepath):
 
 
 def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
-              ensure_ascii=False):
+               ensure_ascii=False):
     """Write data to a JSON file.
 
     The data is first serialized to a JSON formatted ``str`` and then saved
