@@ -1,13 +1,23 @@
 """Module that defines database-related functions.
 
+See Also
+--------
+utils.genutils : module defines many general and useful functions.
+utils.logging.logutils : module that defines logging-related functions.
+
 """
 
+import logging
 import os
 import sqlite3
 import time
+from logging import NullHandler
 # Custom modules
 from utils.exceptions.sql import SQLSanityCheckError
-from utils.logging.logutils import get_logger
+
+
+logging.getLogger(__name__).addHandler(NullHandler())
+logger = logging.getLogger(__name__)
 
 
 def connect_db(db_path, autocommit=False):
@@ -20,8 +30,9 @@ def connect_db(db_path, autocommit=False):
     autocommit : bool, optional
         In autocommit mode, all changes to the database are committed as soon
         as all operations associated with the current database connection
-        complete [1] (the default is False, which implies that statements that
-        modify the database don't take effect immediately [2]).
+        complete [1] (the default valud is False, which implies that statements
+        that modify the database don't take effect immediately [2]. You have to
+        call `commit()` to close the transaction.).
 
     Raises
     ------
@@ -45,15 +56,19 @@ def connect_db(db_path, autocommit=False):
     """
     try:
         if autocommit:
+            # If isolation_level is None, it will leave the underlying sqlite3
+            # library operating in autocommit mode
+            # Ref.: https://bit.ly/2mg5Hie
             conn = sqlite3.connect(db_path, isolation_level=None)
         else:
             conn = sqlite3.connect(db_path)
-        return conn
     except sqlite3.Error as e:
         raise sqlite3.Error(e)
+    else:
+        return conn
 
 
-def create_db(overwrite, db_filepath, schema_filepath, logging_cfg=None):
+def create_db(overwrite_db, db_filepath, schema_filepath, **kwargs):
     """Create a SQLite database.
 
     A schema file is needed for creating the database. If an existing SQLite
@@ -62,17 +77,15 @@ def create_db(overwrite, db_filepath, schema_filepath, logging_cfg=None):
 
     Parameters
     ----------
-    overwrite : bool
-        Whether the database will be overwritten. The user is given 5 seconds
+    overwrite_db : bool
+        Whether the database will be overwritten. The user is given some time
         to stop the script before the database is overwritten.
     db_filepath : str
         Path to the SQLite database.
     schema_filepath : str
         Path to the schema file.
-    logging_cfg : dict or LoggingWrapper, optional
-        Configuration ``dict`` to setup the logger (the default is None, which
-        implies that the console logger will have to be created from scratch,
-        i.e. with default values).
+    **kwargs
+        TODO
 
     Raises
     ------
@@ -81,18 +94,17 @@ def create_db(overwrite, db_filepath, schema_filepath, logging_cfg=None):
         schema file doesn't exist (OSError).
 
     """
-    # Setup logging
-    # TODO: check if you can setup logging in __init__?
-    logger = get_logger(__name__, __file__, os.getcwd(), logging_cfg)
+    db_filepath = os.path.expanduser(db_filepath)
+    schema_filepath = os.path.expanduser(schema_filepath)
     db_exists = os.path.exists(db_filepath)
 
-    if overwrite and db_exists:
+    if overwrite_db and db_exists:
         logger.warning("{} will be overwritten ...".format(db_filepath))
         # Exit program before delay expires or the database is overwritten
         time.sleep(5)
         os.remove(db_filepath)
 
-    if not db_exists or overwrite:
+    if not db_exists or overwrite_db:
         logger.info("Creating database '{}'".format(db_filepath))
         with sqlite3.connect(db_filepath) as conn:
             try:
@@ -108,37 +120,35 @@ def create_db(overwrite, db_filepath, schema_filepath, logging_cfg=None):
 
 
 def sql_sanity_check(sql, values):
-        """Perform sanity checks on an SQL query.
+    """Perform sanity checks on an SQL query.
 
-        Only SQL queries that have values to be added are checked, i.e. INSERT
-        queries.
+    Only SQL queries that have values to be added are checked, i.e. INSERT
+    queries.
 
-        These are the checks performed:
-        * Whether the values are of the ``tuple`` type
-        * Whether the SQL expression contains the right number of values
+    These are the checks performed:
+    * Whether the values are of the ``tuple`` type
+    * Whether the SQL expression contains the right number of values
 
-        Parameters
-        ----------
-        sql : str
-            SQL query to be executed.
-        values : tuple of str
-            The values to be inserted in the database.
+    Parameters
+    ----------
+    sql : str
+        SQL query to be executed.
+    values : tuple of str
+        The values to be inserted in the database.
 
-        Raises
-        ------
-        SQLSanityCheckError
-            Raised when the sanity check on a SQL query fails: e.g. the query's
-            values are not of `tuple` type or wrong number of values in the SQL
-            query.
+    Raises
+    ------
+    SQLSanityCheckError
+        Raised when the sanity check on a SQL query fails: e.g. the query's
+        values are not of `tuple` type or wrong number of values in the SQL
+        query.
 
-            This is a custom exception.
-
-        """
-        if type(values) is not tuple:
-            raise SQLSanityCheckError(
-                "[TypeError] The values for the SQL expression are not of "
-                "tuple type")
-        if len(values) != sql.count('?'):
-            raise SQLSanityCheckError(
-                "[AssertionError] Wrong number of values ({}) in the SQL "
-                "expression '{}'".format(len(values), sql))
+    """
+    if type(values) is not tuple:
+        raise SQLSanityCheckError(
+            "[TypeError] The values for the SQL expression are not of "
+            "tuple type")
+    if len(values) != sql.count('?'):
+        raise SQLSanityCheckError(
+            "[AssertionError] Wrong number of values ({}) in the SQL "
+            "expression '{}'".format(len(values), sql))
