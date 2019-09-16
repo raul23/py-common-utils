@@ -5,5 +5,6 @@ These are the exceptions that are raised when logging.
 """
 
 
-class AddLoggerError(Exception):
-    """Raised if adding a new logger to a logging configuration dictionary."""
+class LoggingWrapperSanityCheckError(Exception):
+    """Raised if the sanity check on one of the ``LoggingWrapper`` parameters
+    fails."""
