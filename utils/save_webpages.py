@@ -5,16 +5,22 @@ such as pictures, might not get rendered when viewed on a browser.
 
 """
 
-from datetime import datetime
+import logging
 import os
-import requests
 import sys
 import time
+from logging import NullHandler
+# Third-party modules
+import requests
 # Custom modules
 import utils.exceptions.files as files_exc
 import utils.exceptions.connection as connec_exc
 from utils.genutils import read_file, write_file
-from utils.databases.dbutils import get_logger
+from utils.logging.logging_wrapper import LoggingWrapper
+
+
+# Setup logging
+logging.getLogger(__name__).addHandler(NullHandler())
 
 
 class SaveWebpages:
@@ -28,36 +34,66 @@ class SaveWebpages:
 
     Parameters
     ----------
-    main_cfg : dict
-        Configuration ``dict`` that contains the necessary options for
-        configuring HTTP requests. For more information about these options,
-        check the content of this
-        `configuration file <https://bit.ly/2lGbeOw/>`_.
-    logger : dict or LoggingWrapper
-        The logger can be setup through a logging configuration ``dict``. If a
-        logger of type ``LoggingWrapper`` is passed, it implies that a logger
-        is already setup.
+    overwrite_webpages : bool, optional
+        Whether a webpage that is saved on disk can be overwritten (the default
+        value is True which implies that the webpages can be overwritten on
+        disk).
+    http_get_timeout : int, optional
+        Timeout when a GET request doesn't receive any response from the server.
+        After the timeout expires, the GET request is dropped (the default
+        value is 5 seconds).
+    headers : dict, optional
+        The information added to the HTTP GET request that a user's browser
+        sends to a Web server containing the details of what the browser wants
+        and will accept back from the server [1] (the default value is defined
+        below).
+
+        Its keys are the request headers' field names like `Accept`, `Cookie`,
+        `User-Agent`, or `Referer` and its values are the associated request
+        headers' field values [2][3].
+
+    Methods
+    -------
+    get_cached_webpage()
+        Load a webpage from disk.
+    save_webpage()
+        Save a webpage on disk.
+    get_webpage()
+        Get the HTMl content of a webpage.
+
+    References
+    ----------
+    .. [1] `HTTP request header <https://bit.ly/2lOMrIv/>`_.
+    .. [2] `List of all HTTP headers (Mozilla) <https://mzl.la/2QuSKev>`_.
+    .. [3] `List of HTTP header fields (Wikipedia) <https://bit.ly/2qMmXbI>`_.
 
     """
 
-    def __init__(self, main_cfg, logger):
-        self.main_cfg = main_cfg
-        self.http_get_timeout = main_cfg['http_get_timeout']
-        self.delay_between_requests = main_cfg['delay_between_requests']
-        self.headers = main_cfg['headers']
-        self.logger = get_logger(__name__,
-                                 __file__,
-                                 os.getcwd(),
-                                 logger)
+    headers = {'User-Agent': "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                             "(KHTML, like Gecko) Chrome/44.0.2403.157 "
+                             "Safari/537.36c",
+               'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,"
+                         "image/webp,*/*;q=0.8"}
+
+    def __init__(self, overwrite_webpages=False, http_get_timeout=5,
+                 delay_between_requests=8, headers=headers):
+        self.overwrite_webpages = overwrite_webpages
+        self.http_get_timeout = http_get_timeout
+        self.delay_between_requests = delay_between_requests
+        self.headers = headers
+        self.logger = logging.getLogger(__name__)
+        # Experimental option: add color to log messages
+        if os.environ.get('COLOR_LOGS'):
+            self.logger = LoggingWrapper(self.logger,
+                                         os.environ.get('COLOR_LOGS'))
         # Establish a session to be used for the GET requests
         self.req_session = requests.Session()
         self.last_request_time = -sys.float_info.max
 
-    def load_cached_webpage(self, filepath):
+    def get_cached_webpage(self, filepath):
         """Load a webpage from disk.
 
-        Load the HTML content of a webpage from disk and also retrieve the date
-        and time the page was first accessed.
+        Load the HTML content of a webpage from disk.
 
         The webpages are cached in order to reduce the number of requests to the
         server.
@@ -77,9 +113,6 @@ class SaveWebpages:
         -------
         html : str
             HTML content of the webpage that is loaded from disk.
-        webpage_accessed : datetime.datetime
-            The date and time the webpage was accessed the first time, e.g.
-            `datetime.datetime(2019, 8, 20, 17, 52, 13)`.
 
         """
         try:
@@ -92,20 +125,19 @@ class SaveWebpages:
             self.logger.debug(
                 "The webpage HTML was successfully loaded from '{}'".format(
                     filepath))
-            # Get the file's modified as the datetime the webpage was
-            # originally accessed
-            webpage_accessed = \
-                datetime.fromtimestamp(os.path.getmtime(filepath))
-            return html, webpage_accessed
+            return html
 
-    def save_webpage(self, filepath, url, overwrite_webpages=True):
+    def save_webpage(self, filepath, url):
         """Save a webpage on disk.
 
         First, the webpage is checked if it's already cached. If it's found in
         cache, then its HTML content is simply returned.
 
-        The webpages are cached in order to reduce the number of requests to the
-        server.
+        If the webpage is not found in cache, then it's retrieved from the
+        server and saved on disk.
+
+        IMPORTANT: the webpage found on cache might also be overwritten if the
+        option `overwrite_webpages` is set to True.
 
         Parameters
         ----------
@@ -113,10 +145,6 @@ class SaveWebpages:
             File path of the webpage that will be saved on disk.
         url : str
             URL to the webpage that will be saved on disk.
-        overwrite_webpages : bool, optional
-            Whether a webpage that is saved on disk can be overwritten (by
-            default the value is True which implies that the webpages can be
-            overwritten on disk).
 
         Raises
         ------
@@ -125,7 +153,7 @@ class SaveWebpages:
             is not found.
         OverwriteFileError
             Raised if an existing file is being overwritten and the flag to
-            allow to overwrite is disabled.
+            overwrite files is disabled.
         OSError
             Raised if an I/O related error occurs while writing the webpage on
             disk, e.g. the file doesn't exist.
@@ -134,28 +162,19 @@ class SaveWebpages:
         -------
         html : str
             HTML content of the webpage that is saved on disk.
-        webpage_accessed : datetime.datetime
-            The date and time the webpage was accessed the first time, e.g.
-            `datetime.datetime(2019, 8, 20, 17, 52, 13)`.
 
         """
         try:
-            if os.path.isfile(filepath) and not overwrite_webpages:
-                html, webpage_accessed = self.load_cached_webpage(filepath)
+            if os.path.isfile(filepath) and not self.overwrite_webpages:
+                html = self.get_cached_webpage(filepath)
             else:
-                # Retrieve webpage and the datetime the webpage was first
-                # accessed
-                html = self._get_webpage(url)
+                # Retrieve webpage
+                html = self.get_webpage(url)
                 self.logger.debug("Webpage retrieved!")
                 # Write webpage locally
                 self.logger.debug(
                     "Saving webpage to '{}'".format(filepath))
-                write_file(filepath, html, overwrite_webpages)
-                # Get the file's modified as the datetime the webpage was
-                # originally accessed
-                # TODO: test modification datetime
-                webpage_accessed = \
-                    datetime.fromtimestamp(os.path.getmtime(filepath))
+                write_file(filepath, html, self.overwrite_webpages)
                 self.logger.debug("The webpage is saved in '{}'. URL is "
                                   "'{}'".format(filepath, url))
         except (connec_exc.HTTP404Error,
@@ -165,9 +184,9 @@ class SaveWebpages:
             # OverwriteFileError  from write_file()
             # OSError from _get_webpage() and write_file()
             raise e
-        return html, webpage_accessed
+        return html
 
-    def _get_webpage(self, url):
+    def get_webpage(self, url):
         """Get the HTMl content of a webpage.
 
         When retrieving the webpage, a certain delay is introduced between HTTP
@@ -215,6 +234,11 @@ class SaveWebpages:
         else:
             if req.status_code == 404:
                 raise connec_exc.HTTP404Error(
-                    "404 - PAGE NOT FOUND. The URL '{}' returned a 404 status "
+                    "404: PAGE NOT FOUND. The URL '{}' returned a 404 status "
                     "code.".format(url))
+            elif req.status_code == 200:
+                self.logger.debug("200: OK. Webpage successfully retrieved!")
+            else:
+                self.logger.debug(
+                    "Request response: status code is {}".format(req.status_code))
         return html
