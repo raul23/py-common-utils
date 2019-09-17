@@ -133,6 +133,12 @@ class LoggingWrapper:
     critical()
         Log a message with the CRITICAL log level
 
+    Raises
+    ------
+    LoggingWrapperSanityCheckError
+        Raised in `__init__()` if the sanity check on one of the
+        ``LoggingWrapper`` parameters fails.
+
     """
 
     def __init__(self, logger, terminal_type=None,
@@ -142,7 +148,7 @@ class LoggingWrapper:
         # default_color_log_levels and pycharm_color_log_levels
         try:
             assert terminal_type in [None, 'u', 'p'], \
-                "{} is not an accepted terminal type".format(terminal_type)
+                "'{}' is not an accepted terminal type".format(terminal_type)
             assert isinstance(color_levels, dict), "color_levels must be a dict"
             assert sorted(list(color_levels.keys())) == sorted(log_levels), \
                 "An unsupported log level detected in {}".format(color_levels.keys())
