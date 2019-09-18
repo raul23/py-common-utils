@@ -28,11 +28,6 @@ import os
 import pathlib
 import platform
 import pickle
-# TODO: cPickle for Python 2?
-# Third-party modules
-# TODO: check if it is right to only load modules from third-party when
-# needed
-import yaml
 # Custom modules
 from utils.exceptions.files import OverwriteFileError
 
@@ -575,6 +570,9 @@ def load_pickle(filepath):
 def load_yaml(f):
     """Load the content of a YAML file.
 
+    The module `yaml` needs to be installed. It can be installed with `pip`:
+        `pip install pyyaml`
+
     Parameters
     ----------
     f
@@ -601,6 +599,7 @@ def load_yaml(f):
     .. [1] `PyYAML yaml.load(input) Deprecation <https://msg.pyyaml.org/load>`_.
 
     """
+    import yaml
     try:
         return yaml.load(f, Loader=yaml.FullLoader)
     except yaml.YAMLError as e:
@@ -639,6 +638,9 @@ def read_yaml(filepath):
 
     Its content is returned which is a ``dict``.
 
+    The module `yaml` needs to be installed. It can be installed with `pip`:
+        `pip install pyyaml`
+
     Parameters
     ----------
     filepath : str
@@ -656,6 +658,7 @@ def read_yaml(filepath):
         file doesn't exist or an error in the YAML structure of the file.
 
     """
+    import yaml
     try:
         with open(filepath, 'r') as f:
             return load_yaml(f)
