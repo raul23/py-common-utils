@@ -30,26 +30,31 @@ import platform
 import pickle
 # TODO: cPickle for Python 2?
 # Third-party modules
-# TODO: check that if it is right to only load modules from third-party when
+# TODO: check if it is right to only load modules from third-party when
 # needed
 import yaml
 # Custom modules
 from utils.exceptions.files import OverwriteFileError
 
 
-def add_default_arguments(parser):
+def add_default_arguments(logging_cfg_path, main_cfg_path, parser):
     """Add default command-line arguments to a script.
 
     The added default options are:
     - the path to the YAML logging file
     - the path to the main YAML config file
-    - an **experimental** option for adding color to log messages
+    - an **experimental** option for adding color to log messages dependin on
+      the terminal type (Unix or PyCharm terminal)
 
     IMPORTANT: the option `--c` for adding color to log messages is
     experimental. Thus, use it at your own risk!
 
     Parameters
     ----------
+    logging_cfg_path : str
+        Path to the logging YAML config file.
+    main_cfg_path : str
+        Path to the main YAML config file.
     parser : argparse.ArgumentParser
         An ArgumentParser object which will be used to add the default
         arguments and eventually parse the command-line.
@@ -67,10 +72,10 @@ def add_default_arguments(parser):
 
     """
     parser.add_argument(
-        "-l", "--logging_cfg", default="logging_cfg.yaml",
+        "-l", "--logging_cfg", default=logging_cfg_path,
         help="Path to the YAML logging configuration file.")
     parser.add_argument(
-        "-m", "--main_cfg", default="main_cfg.yaml",
+        "-m", "--main_cfg", default=main_cfg_path,
         help="Path to the YAML main configuration file.")
     parser.add_argument(
         "-c", "--color_logs",
@@ -175,11 +180,16 @@ def convert_utctime_to_local_tz(utc_time=None):
     """Convert a given UTC time into the local time zone.
 
     If a UTC time is given, it is converted to the local time zone. If
-    `utc_time` is None, then the the current time based on the local time zone
+    `utc_time` is None, then the current time based on the local time zone
     is returned.
 
     The date and time is returned as a string with format
     YYYY-MM-DD HH:MM:SS-HH:MM
+
+    The modules `pytz` and `tzlocal` need to be installed. You can install them
+    with `pip`:
+        `pip install tzlocal`
+    It will also install `pytz`.
 
     Parameters
     ----------
@@ -212,11 +222,11 @@ def convert_utctime_to_local_tz(utc_time=None):
     # Get the local timezone name
     tz = pytz.timezone(tzlocal.get_localzone().zone)
     if utc_time:
-        # Convert ``time.struct_time`` into ``datetime``
+        # Convert time.struct_time into datetime
         # Only the date and time up to seconds, e.g. (2019, 9, 5, 22, 12, 33)
         utc_time = datetime(*utc_time[:6])
         # Convert time zone unaware ``datetime`` object into aware timezone
-        # ``datetime`` object
+        # datetime object
         utc_time = utc_time.replace(tzinfo=pytz.UTC)
         # Convert the UTC time into the local time zone
         local_time = utc_time.astimezone(tz)
@@ -435,6 +445,12 @@ def dump_pickle(filepath, data):
 
 def get_current_local_datetime():
     """Get the current date and time based on the system's time zone.
+
+    The modules `pytz` and `tzlocal` need to be installed. You can install them
+    with `pip`:
+        `pip install tzlocal`
+
+    It will also install `pytz`.
 
     Returns
     -------
