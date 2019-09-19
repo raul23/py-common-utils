@@ -3,7 +3,7 @@
 See Also
 --------
 utils.genutils : module defines many general and useful functions.
-utils.logging.logutils : module that defines logging-related functions.
+utils.log.logutils : module that defines log-related functions.
 
 """
 
