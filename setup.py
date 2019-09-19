@@ -17,5 +17,5 @@ setup(name='utilities',
       author='Raul C.',
       author_email='rchfe23@gmail.com',
       license='MIT',
-      packages=['utils', 'utils/databases', 'utils/exceptions', 'utils/logging'],
+      packages=['utils', 'utils/databases', 'utils/exceptions', 'utils/log'],
       zip_safe=False)
