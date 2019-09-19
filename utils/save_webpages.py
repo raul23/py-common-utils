@@ -16,7 +16,7 @@ import requests
 import utils.exceptions.files as files_exc
 import utils.exceptions.connection as connec_exc
 from utils.genutils import read_file, write_file
-from utils.logging.logging_wrapper import LoggingWrapper
+from utils.log.logging_wrapper import LoggingWrapper
 
 
 # Setup logging
