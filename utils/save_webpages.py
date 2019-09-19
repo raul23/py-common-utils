@@ -63,9 +63,12 @@ class SaveWebpages:
 
     References
     ----------
-    .. [1] `HTTP request header <https://bit.ly/2lOMrIv/>`_.
-    .. [2] `List of all HTTP headers (Mozilla) <https://mzl.la/2QuSKev>`_.
-    .. [3] `List of HTTP header fields (Wikipedia) <https://bit.ly/2qMmXbI>`_.
+    .. [1] `HTTP request header
+    <https://www.webopedia.com/TERM/H/HTTP_request_header.html/>`_.
+    .. [2] `List of all HTTP headers (Mozilla)
+    <https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers>`_.
+    .. [3] `List of HTTP header fields (Wikipedia)
+    <https://en.wikipedia.org/wiki/List_of_HTTP_header_fields>`_.
 
     """
 

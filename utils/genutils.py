@@ -15,9 +15,9 @@ utils.log.logutils : module that defines log-related functions.
 References
 ----------
 .. [1] `databases package
-    <https://github.com/raul23/utilities/tree/master/databases>`_.
+<https://github.com/raul23/utilities/tree/master/utils/databases>`_.
 .. [2] `log package
-    <https://github.com/raul23/utilities/tree/master/log>`_.
+<https://github.com/raul23/utilities/tree/master/utils/log>`_.
 
 """
 
@@ -63,7 +63,7 @@ def add_default_arguments(logging_cfg_path, main_cfg_path, parser):
 
     References
     ----------
-    .. [1] `logging_wrapper.py <https://bit.ly/2kuU1HO>`_.
+    .. [1] `logging_wrapper.py <https://bit.ly/2kQTAYv>`_.
 
     """
     parser.add_argument(

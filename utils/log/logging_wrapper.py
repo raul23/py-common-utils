@@ -298,10 +298,16 @@ class LoggingWrapper:
             The name of the log level associated with log message, e.g. 'debug'
             or 'info'.
 
+        Notes
+        -----
+        The code for adding color to log messages is based on the Stack
+        Overflow user wahwahwah's answer to his own question about getting the
+        current log level in python logging module [1].
+
         References
         ----------
-        TODO: add link for coloring log messages,
-        https://stackoverflow.com/a/45924203
+        .. [1] `How to get the current log level in python logging module
+        https://stackoverflow.com/a/45924203`_.
 
         """
         color = self.color_levels[level]
