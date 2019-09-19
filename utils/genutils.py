@@ -199,6 +199,11 @@ def convert_utctime_to_local_tz(utc_time=None):
         The UTC time converted into the local time zone with the format
         YYYY-MM-DD HH:MM:SS-HH:MM
 
+    Raises
+    ------
+    ImportError
+        Raised if the modules `tzlocal` and `pytz` were not found.
+
     See Also
     --------
     get_current_local_datetime : only returns the current time based on the
@@ -212,28 +217,34 @@ def convert_utctime_to_local_tz(utc_time=None):
     '2019-09-05 18:17:59-04:00'
 
     """
-    import pytz
-    import tzlocal
-    # Get the local timezone name
-    tz = pytz.timezone(tzlocal.get_localzone().zone)
-    if utc_time:
-        # Convert time.struct_time into datetime
-        # Only the date and time up to seconds, e.g. (2019, 9, 5, 22, 12, 33)
-        utc_time = datetime(*utc_time[:6])
-        # Convert time zone unaware ``datetime`` object into aware timezone
-        # datetime object
-        utc_time = utc_time.replace(tzinfo=pytz.UTC)
-        # Convert the UTC time into the local time zone
-        local_time = utc_time.astimezone(tz)
+    try:
+        import pytz
+        import tzlocal
+    except ImportError as e:
+        raise ImportError("tzlocal and pytz not found. You can install them "
+                          "with pip: pip install tzlocal. pytz will be "
+                          "installed along with tzlocal.")
     else:
-        # Get the time in the system's time zone
-        local_time = datetime.now(tz)
-        # Remove microseconds
-        local_time = local_time.replace(microsecond=0)
-    # Use date format: YYYY-MM-DD HH:MM:SS-HH:MM
-    # ISO format is YYYY-MM-DDTHH:MM:SS-HH:MM
-    local_time = local_time.isoformat().replace("T", " ")
-    return local_time
+        # Get the local timezone name
+        tz = pytz.timezone(tzlocal.get_localzone().zone)
+        if utc_time:
+            # Convert time.struct_time into datetime
+            # Only the date and time up to seconds, e.g. (2019, 9, 5, 22, 12, 33)
+            utc_time = datetime(*utc_time[:6])
+            # Convert time zone unaware ``datetime`` object into aware timezone
+            # datetime object
+            utc_time = utc_time.replace(tzinfo=pytz.UTC)
+            # Convert the UTC time into the local time zone
+            local_time = utc_time.astimezone(tz)
+        else:
+            # Get the time in the system's time zone
+            local_time = datetime.now(tz)
+            # Remove microseconds
+            local_time = local_time.replace(microsecond=0)
+        # Use date format: YYYY-MM-DD HH:MM:SS-HH:MM
+        # ISO format is YYYY-MM-DDTHH:MM:SS-HH:MM
+        local_time = local_time.isoformat().replace("T", " ")
+        return local_time
 
 
 def create_directory(dirpath):
@@ -452,6 +463,11 @@ def get_current_local_datetime():
     datetime.datetime
         The date and time in the system's time zone.
 
+    Raises
+    ------
+    ImportError
+        Raised if the modules `tzlocal` and `pytz` were not found.
+
     See Also
     --------
     convert_utctime_to_local_tz : converts a UTC time based on the system's
@@ -467,12 +483,18 @@ def get_current_local_datetime():
     '2019-09-05 13:34:18.898435-04:00'
 
     """
-    import pytz
-    import tzlocal
-    # Get the local timezone name
-    tz = pytz.timezone(tzlocal.get_localzone().zone)
-    # Get the time in the system's time zone
-    return datetime.now(tz)
+    try:
+        import pytz
+        import tzlocal
+    except ImportError as e:
+        raise ImportError("tzlocal and pytz not found. You can install them "
+                          "with pip: pip install tzlocal. pytz will be "
+                          "installed along with tzlocal.")
+    else:
+        # Get the local timezone name
+        tz = pytz.timezone(tzlocal.get_localzone().zone)
+        # Get the time in the system's time zone
+        return datetime.now(tz)
 
 
 def init_variable(default, value=None):
