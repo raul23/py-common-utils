@@ -2,7 +2,7 @@
 
 The helpful functions defined here are those that don't relate to databases and
 logging since these types of functions are already defined in the ``databases``
-[1] and ``logging`` [2] packages.
+[1] and ``log`` [2] packages.
 
 You will find such functions as loading a YAML file, writing to a file on disk,
 and getting the local time based on the local time zone.
@@ -10,14 +10,14 @@ and getting the local time based on the local time zone.
 See Also
 --------
 utils.databases.dbutils : module that defines database-related functions.
-utils.logging.logutils : module that defines logging-related functions.
+utils.log.logutils : module that defines log-related functions.
 
 References
 ----------
 .. [1] `databases package
     <https://github.com/raul23/utilities/tree/master/databases>`_.
-.. [2] `logging package
-    <https://github.com/raul23/utilities/tree/master/logging>`_.
+.. [2] `log package
+    <https://github.com/raul23/utilities/tree/master/log>`_.
 
 """
 
