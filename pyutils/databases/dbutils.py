@@ -1,9 +1,9 @@
-"""Module that defines database-related functions.
+"""Module that defines common database functions.
 
 See Also
 --------
-utils.genutils : module defines many general and useful functions.
-utils.log.logutils : module that defines log-related functions.
+pyutils.genutils : module defines many general and useful functions.
+pyutils.log.logutils : module that defines common logging functions.
 
 """
 
@@ -13,7 +13,7 @@ import sqlite3
 import time
 from logging import NullHandler
 # Custom modules
-from utils.exceptions.sql import SQLSanityCheckError
+from pyutils.exceptions.sql import SQLSanityCheckError
 
 
 logging.getLogger(__name__).addHandler(NullHandler())

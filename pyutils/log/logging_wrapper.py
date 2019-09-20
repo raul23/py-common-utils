@@ -45,8 +45,8 @@ the module name or the level name).
 
 import logging
 # Custom modules
-from utils.log.logutils import get_error_msg
-import utils.exceptions.log as log_exc
+from pyutils.log.logutils import get_error_msg
+import pyutils.exceptions.log as log_exc
 
 log_levels = ['debug', 'info', 'warning', 'error', 'exception', 'critical']
 
@@ -153,7 +153,7 @@ class LoggingWrapper:
             assert sorted(list(color_levels.keys())) == sorted(log_levels), \
                 "An unsupported log level detected in {}".format(color_levels.keys())
         except AssertionError as e:
-            raise log_exc.LoggingWrapperSanityCheckError(e)
+            raise log_exc.LoggingSanityCheckError(e)
         self.logger = logger
         self.handlers = logger.handlers
         self.terminal_type = terminal_type

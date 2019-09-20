@@ -5,6 +5,6 @@ These are the exceptions that are raised when logging.
 """
 
 
-class LoggingWrapperSanityCheckError(Exception):
+class LoggingSanityCheckError(Exception):
     """Raised if the sanity check on one of the ``LoggingWrapper`` parameters
     fails."""

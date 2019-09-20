@@ -13,10 +13,10 @@ from logging import NullHandler
 # Third-party modules
 import requests
 # Custom modules
-import utils.exceptions.files as files_exc
-import utils.exceptions.connection as connec_exc
-from utils.genutils import read_file, write_file
-from utils.log.logging_wrapper import LoggingWrapper
+import pyutils.exceptions.files as files_exc
+import pyutils.exceptions.connection as connec_exc
+from pyutils.genutils import read_file, write_file
+from pyutils.log.logging_wrapper import LoggingWrapper
 
 
 # Setup logging

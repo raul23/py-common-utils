@@ -9,15 +9,15 @@ and getting the local time based on the local time zone.
 
 See Also
 --------
-utils.databases.dbutils : module that defines database-related functions.
-utils.log.logutils : module that defines log-related functions.
+pyutils.databases.dbutils : module that defines database-related functions.
+pyutils.log.logutils : module that defines log-related functions.
 
 References
 ----------
 .. [1] `databases package
-<https://github.com/raul23/utilities/tree/master/utils/databases>`_.
+<https://github.com/raul23/utilities/tree/master/pyutils/databases>`_.
 .. [2] `log package
-<https://github.com/raul23/utilities/tree/master/utils/log>`_.
+<https://github.com/raul23/utilities/tree/master/pyutils/log>`_.
 
 """
 
@@ -29,7 +29,7 @@ import pathlib
 import platform
 import pickle
 # Custom modules
-from utils.exceptions.files import OverwriteFileError
+from pyutils.exceptions.files import OverwriteFileError
 
 
 def add_default_arguments(logging_cfg_path, main_cfg_path, parser):
@@ -283,7 +283,7 @@ def create_directory(dirpath):
         raise PermissionError(e)
 
 
-def create_timestamped_directory(parent_dirpath, new_dirname=""):
+def create_timestamped_dir(parent_dirpath, new_dirname=""):
     """Create a timestamped directory if it doesn't already exist.
 
     The timestamp is added to the beginning of the directory name, e.g.

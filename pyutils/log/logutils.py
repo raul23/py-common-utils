@@ -1,15 +1,15 @@
-"""Module that defines logging-related functions.
+"""Module that defines common logging functions.
 
 See Also
 --------
-utils.databases.dbutils : module that defines database-related functions.
-utils.genutils : defines many general and useful functions.
+pyutils.databases.dbutils : module that defines common database functions.
+pyutils.genutils : defines many general and useful functions.
 
 """
 from datetime import datetime
 import logging.config
 # Custom modules
-from utils.genutils import read_yaml
+from pyutils.genutils import read_yaml
 
 
 def get_error_msg(exc):
@@ -34,7 +34,7 @@ def get_error_msg(exc):
     return error_msg
 
 
-def setup_logging_from_cfg(logging_config):
+def setup_logging(logging_config):
     """Setup logging from a YAML configuration file or logging dictionary.
 
     Loggers can be setup through a YAML logging configuration file or logging
