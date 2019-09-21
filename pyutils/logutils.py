@@ -78,7 +78,7 @@ def setup_logging(logging_config):
 
     References
     ----------
-    .. [1] `GitHub: logging_cfg.yaml <https://bit.ly/2lNMx32/>`_.
+    .. [1] `GitHub: logging_cfg.yaml <https://bit.ly/2m5wjSM/>`_.
 
     """
     try:
