@@ -1,23 +1,19 @@
 """Module that defines many general and useful functions.
 
-The helpful functions defined here are those that don't relate to databases and
-logging since these types of functions are already defined in the ``databases``
-[1] and ``log`` [2] packages.
-
 You will find such functions as loading a YAML file, writing to a file on disk,
-and getting the local time based on the local time zone.
+and getting the local time based on the current time zone.
 
 See Also
 --------
-pyutils.dbutils : module that defines database-related functions.
-pyutils.logutils : module that defines log-related functions.
+pyutils.dbutils : module that defines database-related functions [1].
+pyutils.logutils : module that defines log-related functions [2].
 
 References
 ----------
-.. [1] `databases package
-<https://github.com/raul23/utilities/tree/master/pyutils/scripts>`_.
-.. [2] `log package
-<https://github.com/raul23/utilities/tree/master/pyutils/log>`_.
+.. [1] `dbutils module
+<https://github.com/raul23/py-common-utils/blob/master/pyutils/dbutils.py>`_.
+.. [2] `logutils module
+<https://github.com/raul23/py-common-utils/blob/master/pyutils/logutils.py>`_.
 
 """
 
@@ -63,7 +59,7 @@ def add_default_arguments(logging_cfg_path, main_cfg_path, parser):
 
     References
     ----------
-    .. [1] `logging_wrapper.py <https://bit.ly/2kQTAYv>`_.
+    .. [1] `logging_wrapper.py <https://bit.ly/2kofzpo>`_.
 
     """
     parser.add_argument(
