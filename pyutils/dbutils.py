@@ -2,8 +2,8 @@
 
 See Also
 --------
-pyutils.genutils : module defines many general and useful functions.
-pyutils.log.logutils : module that defines common logging functions.
+pyutils.genutils : module that defines many general and useful functions.
+pyutils.logutils : module that defines common logging functions.
 
 """
 

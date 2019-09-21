@@ -9,13 +9,13 @@ and getting the local time based on the local time zone.
 
 See Also
 --------
-pyutils.databases.dbutils : module that defines database-related functions.
-pyutils.log.logutils : module that defines log-related functions.
+pyutils.dbutils : module that defines database-related functions.
+pyutils.logutils : module that defines log-related functions.
 
 References
 ----------
 .. [1] `databases package
-<https://github.com/raul23/utilities/tree/master/pyutils/databases>`_.
+<https://github.com/raul23/utilities/tree/master/pyutils/scripts>`_.
 .. [2] `log package
 <https://github.com/raul23/utilities/tree/master/pyutils/log>`_.
 
