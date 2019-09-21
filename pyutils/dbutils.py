@@ -39,7 +39,7 @@ def connect_db(db_path, autocommit=False):
     sqlite3.Error
         Raised if any SQLite-related errors occur, e.g. IntegrityError or
         OperationalError, since sqlite3.Error is the class for all exceptions
-        of the module. TODO: add reference
+        of the module.
 
     Returns
     -------
@@ -54,6 +54,7 @@ def connect_db(db_path, autocommit=False):
     <https://docs.python.org/3/library/sqlite3.html#controlling-transactions/>`_.
 
     """
+    # TODO: add reference
     try:
         if autocommit:
             # If isolation_level is None, it will leave the underlying sqlite3
