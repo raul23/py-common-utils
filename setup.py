@@ -16,7 +16,7 @@ with open(os.path.join(dirpath, "README.md")) as f:
     README = f.read()
 
 setup(name='py-common-utils',
-      version='1.0.1',
+      version='1.0',
       description='Library of common Python utilities',
       long_description=README,
       long_description_content_type='text/markdown',
