@@ -84,8 +84,8 @@ def add_plural_ending(obj, plural_end="s", singular_end=""):
     """Add plural ending if a number is greater than 1 or there are many
     values in a list.
 
-    If the number is greater than or more than one item is found in the list,
-    the function returns by default 's'. If not, then the empty string is
+    If the number is greater than one or more than one item is found in the
+    list, the function returns by default 's'. If not, then the empty string is
     returned.
 
     Parameters
@@ -94,23 +94,22 @@ def add_plural_ending(obj, plural_end="s", singular_end=""):
         The number or list that will be checked if a plural or singular ending
         will be returned.
     plural_end : str, optional
-        The plural ending (the default value is 's' which implies that 's' will
+        The plural ending (the default value is "s" which implies that "s'" will
         be returned in the case that the number is greater than 1 or the list
         contains more than one item).
     singular_end : str, optional
-        The singular ending (the default value is '' which implies that nothing
-        will be returned in the case that the number is greater than 1 or the
-        list contains less than 2 items).
+        The singular ending (the default value is "" which implies that an
+        empty string will be returned in the case that the number is 1 or less,
+        or the list contains 1 item).
 
     Returns
     -------
-    str
-        "s" if number greater than 1 or more than one item is found in the list,
-        "" (empty string) otherwise.
+    str : "s" or ""
+        "s" if number is greater than 1 or more than one item is found in the
+        list, "" (empty string) otherwise.
 
     Examples
     --------
-    TODO: add examples for number case
     >>> cars = ["corvette", "ferrari"]
     >>> print("I have {} car{}".format(len(cars), add_plural_ending(cars)))
     I have 2 cars
@@ -128,6 +127,7 @@ def add_plural_ending(obj, plural_end="s", singular_end=""):
     I went to 1 pharmacy
 
     """
+    # TODO: add examples for number case
     if isinstance(obj, list):
         num = len(obj)
     else:
