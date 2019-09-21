@@ -16,7 +16,7 @@ import argparse
 from pyutils.dbutils import create_db
 
 
-if __name__ == '__main__':
+def main():
     # Setup argument parser
     parser = argparse.ArgumentParser(
         description="Create SQLite database")
@@ -31,3 +31,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # Create database
     create_db(args.overwrite, args.database, args.schema)
+
+
+if __name__ == '__main__':
+    main()
