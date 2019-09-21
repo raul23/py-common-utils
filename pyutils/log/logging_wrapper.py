@@ -45,7 +45,7 @@ the module name or the level name).
 
 import logging
 # Custom modules
-from pyutils.log.logutils import get_error_msg
+from pyutils.logutils import get_error_msg
 import pyutils.exceptions.log as log_exc
 
 log_levels = ['debug', 'info', 'warning', 'error', 'exception', 'critical']

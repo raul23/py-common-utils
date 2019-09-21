@@ -108,3 +108,6 @@ sandbox/
 
 # SQlite files
 *.sqlite
+
+# Python files
+graphutils.py
