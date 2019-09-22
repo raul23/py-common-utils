@@ -33,6 +33,6 @@ setup(name='py-common-utils',
       license='MIT',
       packages=find_packages(exclude=['tests']),
       entry_points={
-        'console_scripts': ['create_db=pyutils.scripts.create_db:main']
+        'console_scripts': ['create_sqlite_db=pyutils.scripts.create_db:main']
       },
       zip_safe=False)

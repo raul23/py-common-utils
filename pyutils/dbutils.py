@@ -95,6 +95,7 @@ def create_db(overwrite_db, db_filepath, schema_filepath, **kwargs):
         schema file doesn't exist (OSError).
 
     """
+    # TODO: add verbose option
     db_filepath = os.path.expanduser(db_filepath)
     schema_filepath = os.path.expanduser(schema_filepath)
     db_exists = os.path.exists(db_filepath)

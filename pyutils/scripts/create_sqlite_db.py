@@ -24,6 +24,7 @@ def main():
                         help="Path to the SQLite database file")
     parser.add_argument("-s", "--schema", required=True,
                         help="Path to the schema file")
+    # TODO: add verbose argument
     # Process command-line arguments
     args = parser.parse_args()
     # Create database
