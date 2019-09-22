@@ -32,4 +32,7 @@ setup(name='py-common-utils',
       author_email='rchfe23@gmail.com',
       license='MIT',
       packages=find_packages(exclude=['tests']),
+      entry_points={
+        'console_scripts': ['create_db=pyutils.scripts.create_db:main']
+      },
       zip_safe=False)
