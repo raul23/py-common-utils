@@ -24,6 +24,8 @@ import os
 import pathlib
 import platform
 import pickle
+import shlex
+import subprocess
 # Custom modules
 from pyutils.exceptions.files import OverwriteFileError
 
@@ -136,7 +138,8 @@ def add_plural_ending(obj, plural_end="s", singular_end=""):
     if isinstance(obj, list):
         num = len(obj)
     else:
-        assert isinstance(obj, int) or isinstance(obj, float)
+        assert isinstance(obj, int) or isinstance(obj, float), \
+            "obj must a list, int or float"
         num = obj
     return plural_end if num > 1 else singular_end
 
@@ -185,7 +188,7 @@ def convert_utctime_to_local_tz(utc_time=None):
     The modules `pytz` and `tzlocal` need to be installed. You can install them
     with `pip`:
         `pip install tzlocal`
-    It will also install `pytz`.
+    This will also install `pytz`.
 
     Parameters
     ----------
@@ -203,7 +206,7 @@ def convert_utctime_to_local_tz(utc_time=None):
     Raises
     ------
     ImportError
-        Raised if the modules `tzlocal` and `pytz` were not found.
+        Raised if the modules `tzlocal` and `pytz` are not found.
 
     See Also
     --------
@@ -223,8 +226,8 @@ def convert_utctime_to_local_tz(utc_time=None):
         import tzlocal
     except ImportError as e:
         raise ImportError("tzlocal and pytz not found. You can install them "
-                          "with pip: pip install tzlocal. pytz will be "
-                          "installed along with tzlocal.")
+                          "with: pip install tzlocal. This will also install "
+                          "pytz.")
     else:
         # Get the local timezone name
         tz = pytz.timezone(tzlocal.get_localzone().zone)
@@ -246,6 +249,38 @@ def convert_utctime_to_local_tz(utc_time=None):
         # ISO format is YYYY-MM-DDTHH:MM:SS-HH:MM
         local_time = local_time.isoformat().replace("T", " ")
         return local_time
+
+
+def copy_file(source_filepath, dest_filepath, overwrite_file=True):
+    """Copy the content of one file to another file.
+
+    Parameters
+    ----------
+    source_filepath : str
+        Path to the source file.
+    dest_filepath : str
+        Path to the destination file where the content will be copied.
+    overwrite_file : bool, optional
+        Whether the destination file can be overwritten (the default value is
+        True which implies that the file can be overwritten).
+
+    Raises
+    ------
+    OSError
+        Raised if any I/O related error occurs while reading the file, e.g. the
+        file doesn't exist.
+    OverwriteFileError
+        Raised if an existing file is being overwritten and the flag to overwrite
+        files is disabled.
+
+    """
+    try:
+        data = read_file(source_filepath)
+        write_file(dest_filepath, data, overwrite_file)
+    except OSError as e:
+        raise OSError(e)
+    except OverwriteFileError as e:
+        raise OverwriteFileError(e)
 
 
 def create_directory(dirpath):
@@ -401,9 +436,9 @@ def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
         by key (the default value is True) [1].
 
     ensure_ascii : bool, optional
-        If `ensure_ascii` is false, then the return value can contain
+        If `ensure_ascii` is False, then the return value can contain
         non-ASCII characters if they appear in strings contained in ``data``.
-        Otherwise, all such characters are escaped in JSON strings [2] (the
+        Otherwise, all such characters are escaped in JSON strings [1] (the
         default value is False).
 
     Raises
@@ -414,13 +449,13 @@ def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
 
     References
     ----------
-    .. [1] ``json.dumps`` docstring description.
-    .. [2] ``json.dumps`` docstring description.
+    .. [1] `json.dumps` docstring description.
 
     """
     try:
         with codecs.open(filepath, 'w', encoding) as f:
-            f.write(json.dumps(data, sort_keys=sort_keys,
+            f.write(json.dumps(data,
+                               sort_keys=sort_keys,
                                ensure_ascii=ensure_ascii))
     except OSError as e:
         raise OSError(e)
@@ -450,6 +485,92 @@ def dump_pickle(filepath, data):
         raise OSError(e)
 
 
+def dump_yaml(filepath, data, increase_indent=True, default_flow_style=False, sort_keys=False):
+    """TODO
+
+    Parameters
+    ----------
+    filepath : str
+    data
+    increase_indent : bool, optional
+    default_flow_style : bool, optional
+    sort_keys : bool, optional
+
+    Raises
+    ------
+    ImportError
+        Raised if the module `yaml` is not found.
+
+    """
+    try:
+        import yaml
+    except ImportError as e:
+        raise ImportError("yaml not found. You can install it with: pip "
+                          "install pyyaml")
+
+    class MyDumper(yaml.Dumper):
+        """TODO
+
+        """
+        def increase_indent(self, flow=False, indentless=False):
+            """TODO
+
+            Parameters
+            ----------
+            flow : bool, optional
+            indentless : bool, optional
+
+            Returns
+            -------
+
+            """
+            return super(MyDumper, self).increase_indent(flow, indentless=False)
+
+    with open(filepath, 'w') as f:
+        yaml.dump(data=data,
+                  stream=f,
+                  Dumper=MyDumper if increase_indent else yaml.Dumper,
+                  default_flow_style=False,
+                  sort_keys=sort_keys)
+
+
+def flatten_dict(init_dict, stop_at_level=1):
+    """TODO
+
+    Code from https://stackoverflow.com/a/44216792
+
+    Parameters
+    ----------
+    init_dict
+    stop_at_level : init
+
+    Returns
+    -------
+
+    """
+    global level
+    level = 1
+    assert stop_at_level > 0
+
+    def _flatten_dict(_init_dict):
+        global level
+        res_dict = {}
+        if type(_init_dict) is not dict:
+            return res_dict
+
+        for k, v in _init_dict.items():
+            if type(v) == dict and level <= stop_at_level:
+                level += 1
+                res_dict.update(_flatten_dict(v))
+            else:
+                res_dict[k] = v
+
+        level -= 1
+        return res_dict
+
+    return _flatten_dict(init_dict)
+
+
 def get_current_local_datetime():
     """Get the current date and time based on the system's time zone.
 
@@ -457,7 +578,7 @@ def get_current_local_datetime():
     with `pip`:
         `pip install tzlocal`
 
-    It will also install `pytz`.
+    This will also install `pytz`.
 
     Returns
     -------
@@ -467,7 +588,7 @@ def get_current_local_datetime():
     Raises
     ------
     ImportError
-        Raised if the modules `tzlocal` and `pytz` were not found.
+        Raised if the modules `tzlocal` and `pytz` are not found.
 
     See Also
     --------
@@ -489,8 +610,8 @@ def get_current_local_datetime():
         import tzlocal
     except ImportError as e:
         raise ImportError("tzlocal and pytz not found. You can install them "
-                          "with pip: pip install tzlocal. pytz will be "
-                          "installed along with tzlocal.")
+                          "with: pip install tzlocal. This will also install "
+                          "pytz.")
     else:
         # Get the local timezone name
         tz = pytz.timezone(tzlocal.get_localzone().zone)
@@ -604,10 +725,12 @@ def load_yaml(f):
     Returns
     -------
     dict
-        The ``dict`` read from the YAML file.
+        The dictionary read from the YAML file.
 
     Raises
     ------
+    ImportError
+        Raised if the module `yaml` is not found.
     yaml.YAMLError
         Raised if there is any error in the YAML structure of the file.
 
@@ -622,7 +745,11 @@ def load_yaml(f):
     .. [1] `PyYAML yaml.load(input) Deprecation <https://msg.pyyaml.org/load>`_.
 
     """
-    import yaml
+    try:
+        import yaml
+    except ImportError as e:
+        raise ImportError("yaml not found. You can install it with: pip "
+                          "install pyyaml")
     try:
         return yaml.load(f, Loader=yaml.FullLoader)
     except yaml.YAMLError as e:
@@ -676,17 +803,45 @@ def read_yaml(filepath):
 
     Raises
     ------
+    ImportError
+        Raised if the module `yaml` is not found.
     OSError
         Raised if any I/O related error occurs while reading the file, e.g. the
         file doesn't exist or an error in the YAML structure of the file.
 
     """
-    import yaml
+    try:
+        import yaml
+    except ImportError as e:
+        raise ImportError("yaml not found. You can install it with: pip "
+                          "install pyyaml")
     try:
         with open(filepath, 'r') as f:
             return load_yaml(f)
     except (OSError, yaml.YAMLError) as e:
         raise OSError(e)
+
+
+def run_cmd(cmd):
+    """Run a command.
+
+    Parameters
+    ----------
+    cmd : str
+        Command to be executed.
+
+    Returns
+    -------
+    retcode: int
+        Return code. 0 if success. Otherwise, > 0.
+
+    """
+    try:
+        retcode = subprocess.check_call(shlex.split(cmd))
+    except subprocess.CalledProcessError as e:
+        return e.returncode
+    else:
+        return retcode
 
 
 def write_file(filepath, data, overwrite_file=True):
@@ -708,7 +863,8 @@ def write_file(filepath, data, overwrite_file=True):
         Raised if any I/O related error occurs while reading the file, e.g. the
         file doesn't exist.
     OverwriteFileError
-        Raised if an existing file is being overwritten.
+        Raised if an existing file is being overwritten and the flag to overwrite
+        files is disabled.
 
     """
     try:
