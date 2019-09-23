@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Script for creating a SQLite database.
 
 A schema file is needed for creating the database. If an existing SQLite
