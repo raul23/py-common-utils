@@ -28,17 +28,18 @@ import pickle
 from pyutils.exceptions.files import OverwriteFileError
 
 
-def add_default_arguments(logging_cfg_path, main_cfg_path, parser):
-    """Add default command-line arguments to a script.
+def add_cfg_arguments(logging_cfg_path, main_cfg_path, parser, add_exp_opt=False):
+    """Add config-related arguments to a script.
 
-    The added default options are:
+    The added default command-line arguments are:
     - the path to the YAML logging file
     - the path to the main YAML config file
-    - an **experimental** option for adding color to log messages dependin on
-      the terminal type (Unix or PyCharm terminal)
+    - an **experimental** option for adding color to log messages depending on
+      the terminal type ('u' for Unix or 'p' for PyCharm terminal).
 
     IMPORTANT: the option `--c` for adding color to log messages is
-    experimental. Thus, use it at your own risk!
+    experimental. More testing is needed to make sure it is working as
+    expected.
 
     Parameters
     ----------
@@ -49,6 +50,9 @@ def add_default_arguments(logging_cfg_path, main_cfg_path, parser):
     parser : argparse.ArgumentParser
         An ArgumentParser object which will be used to add the default
         arguments and eventually parse the command-line.
+    add_exp_opt : bool, optional
+        Whether to add the experimental option that adds color to log
+        messages (the default value is False).
 
     Notes
     -----
@@ -68,16 +72,17 @@ def add_default_arguments(logging_cfg_path, main_cfg_path, parser):
     parser.add_argument(
         "-m", "--main_cfg", default=main_cfg_path,
         help="Path to the YAML main configuration file.")
-    parser.add_argument(
-        "-c", "--color_logs",
-        const="u",
-        nargs='?',
-        default=None,
-        choices=["u", "p"],
-        help="Add colors to log messages. By default, we use colors as"
-             " defined for the standard Unix Terminal ('u'). If working with"
-             " the PyCharm terminal, use the value 'p' to get better"
-             " colors suited for this type of terminal.")
+    if add_exp_opt:
+        parser.add_argument(
+            "-c", "--color_logs",
+            const="u",
+            nargs='?',
+            default=None,
+            choices=["u", "p"],
+            help="Add colors to log messages. By default, we use colors as"
+                 " defined for the standard Unix Terminal ('u'). If working with"
+                 " the PyCharm terminal, use the value 'p' to get better"
+                 " colors suited for this type of terminal.")
 
 
 def add_plural_ending(obj, plural_end="s", singular_end=""):
