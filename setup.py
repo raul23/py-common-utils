@@ -30,7 +30,7 @@ setup(name='py-common-utils',
       url='https://github.com/raul23/utilities',
       author='Raul C.',
       author_email='rchfe23@gmail.com',
-      license='MIT',
+      license='GPLv3',
       packages=find_packages(exclude=['tests']),
       entry_points={
         'console_scripts': ['create_sqlite_db=bin.create_sqlite_db:main']
