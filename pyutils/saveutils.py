@@ -13,8 +13,8 @@ from logging import NullHandler
 # Third-party modules
 import requests
 # Custom modules
-import pyutils.exceptions.files as files_exc
 import pyutils.exceptions.connection as connec_exc
+import pyutils.exceptions.files as files_exc
 from pyutils.genutils import read_file, write_file
 from pyutils.log.logging_wrapper import LoggingWrapper
 
