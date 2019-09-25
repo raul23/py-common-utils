@@ -128,7 +128,7 @@ def sql_sanity_check(sql, values):
     queries.
 
     These are the checks performed:
-    * Whether the values are of the ``tuple`` type
+    * Whether the values are of ``tuple`` type
     * Whether the SQL expression contains the right number of values
 
     Parameters

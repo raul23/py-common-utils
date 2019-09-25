@@ -3,7 +3,7 @@
 See Also
 --------
 pyutils.dbutils : module that defines common database functions.
-pyutils.genutils : moduleThat defines many general and useful functions.
+pyutils.genutils : module that defines many general and useful functions.
 
 """
 from datetime import datetime
