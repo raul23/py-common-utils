@@ -1,4 +1,4 @@
-"""Module summary
+"""Module that defines networking-related functions.
 
 Extended module summary
 
