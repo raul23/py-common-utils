@@ -27,12 +27,12 @@ setup(name='py-common-utils',
         'Topic :: Software Development :: Libraries'
       ],
       keywords='python library utilities',
-      url='https://github.com/raul23/utilities',
+      url='https://github.com/raul23/py-common-utils',
       author='Raul C.',
       author_email='rchfe23@gmail.com',
       license='GPLv3',
       packages=find_packages(exclude=['tests']),
       entry_points={
-        'console_scripts': ['create_sqlite_db=bin.create_sqlite_db:main']
+        'console_scripts': ['create_sqlite_db=pyutils.scripts.create_sqlite_db:main']
       },
       zip_safe=False)
