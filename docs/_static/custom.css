@@ -6,6 +6,6 @@ div.sphinxsidebarwrapper h1.logo {
     font-size: 20px;
 }
 
-div.sphinxsidebar a {
+div.sphinxsidebarwrapper h1.logo > a {
     color: #831100;
 }
