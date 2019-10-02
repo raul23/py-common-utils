@@ -1,4 +1,4 @@
-Welcome to LyricsScraping's documentation!
+Welcome to py-common-utils' documentation!
 ==========================================
 
 .. raw:: html
