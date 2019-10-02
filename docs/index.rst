@@ -8,7 +8,7 @@ Welcome to py-common-utils's documentation!
 
 .. raw:: html
 
-   <p align="center"><img src=_static/images/py_common_utils_logo.png"></p>
+   <p align="center"><img src="_static/images/py_common_utils_logo.png"></p>
 
 .. toctree::
    :maxdepth: 2
