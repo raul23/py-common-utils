@@ -1,4 +1,3 @@
 # utilities
 
-Used in various Python projects
-
+Library of common Python utilities
