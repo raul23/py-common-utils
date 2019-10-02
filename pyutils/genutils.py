@@ -142,40 +142,9 @@ def add_plural_ending(obj, plural_end="s", singular_end=""):
         num = len(obj)
     else:
         assert isinstance(obj, int) or isinstance(obj, float), \
-            "obj must a list, int or float"
+            "obj must be a list, int or float"
         num = obj
     return plural_end if num > 1 else singular_end
-
-
-def convert_list_to_str(list_):
-    """Convert a list of strings into a single string.
-
-    Parameters
-    ----------
-    list_ : list of str
-        List of strings to be converted into a single string.
-
-    Returns
-    -------
-    str_ : str
-        The converted string.
-
-    Examples
-    --------
-    >>> list_ = ['CA', 'FR', 'US']
-    >>> convert_list_to_str(list_)
-    "'CA', 'FR', 'US'"
-
-    This function can be useful for building the WHERE condition in SQL
-    expressions:
-    >>> list_countries = ['CA', 'FR', 'US']
-    >>> str_countries = convert_list_to_str(list_countries)
-    >>> "SELECT * FROM table WHERE country IN ({})".format(str_countries)
-    "SELECT * FROM table WHERE country IN ('CA', 'FR', 'US')"
-
-    """
-    str_ = ", ".join(map(lambda a: "'{}'".format(a), list_))
-    return str_
 
 
 def convert_utctime_to_local_tz(utc_time=None):
@@ -646,7 +615,6 @@ def init_variable(default, value=None):
     -------
     int or float
 
-
     Examples
     --------
     >>> var = 'a'
@@ -657,10 +625,37 @@ def init_variable(default, value=None):
     10
 
     """
-    if value is None:
-        return default
-    else:
-        return value
+    return default if value is None else value
+
+
+def list_to_str(list_):
+    """Convert a list of strings into a single string.
+
+    Parameters
+    ----------
+    list_ : list of str
+        List of strings to be converted into a single string.
+
+    Returns
+    -------
+    str_ : str
+        The converted string.
+
+    Examples
+    --------
+    >>> list_ = ['CA', 'FR', 'US']
+    >>> list_to_str(list_)
+    "'CA', 'FR', 'US'"
+
+    This function can be useful for building the WHERE condition in SQL
+    expressions:
+    >>> list_countries = ['CA', 'FR', 'US']
+    >>> str_countries = list_to_str(list_countries)
+    >>> "SELECT * FROM table WHERE country IN ({})".format(str_countries)
+    "SELECT * FROM table WHERE country IN ('CA', 'FR', 'US')"
+
+    """
+    return ", ".join(map(lambda a: "'{}'".format(a), list_))
 
 
 def load_json(filepath, encoding='utf8'):
