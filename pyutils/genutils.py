@@ -32,8 +32,9 @@ import subprocess
 from pyutils.exceptions.files import OverwriteFileError
 
 
+# TODO: remove this function
 def add_cfg_arguments(logging_cfg_path, main_cfg_path, parser, add_exp_opt=False):
-    """Add config-related arguments to a script.
+    """Add config-related arguments to a scripts.
 
     The added default command-line arguments are:
     - the path to the YAML logging file
@@ -276,6 +277,9 @@ def copy_file(source_filepath, dest_filepath, overwrite_file=True):
         files is disabled.
 
     """
+    # TODO: use shutil.copyfile
+    # if os.path.isfile(src_path):
+    #     copyfile(src_path, target_path)
     try:
         data = read_file(source_filepath)
         write_file(dest_filepath, data, overwrite_file)
@@ -548,6 +552,10 @@ def flatten_dict(init_dict, stop_at_level=1):
 
     Returns
     -------
+
+    Examples
+    --------
+    TODO
 
     """
     global level
@@ -825,20 +833,30 @@ def read_yaml(filepath):
 
 
 def run_cmd(cmd):
-    """Run a command.
+    """Run a command with arguments.
+
+    The command is given as a string but the function will split it in order to
+    get a list having the name of the command and its arguments as items.
 
     Parameters
     ----------
     cmd : str
-        Command to be executed.
+        Command to be executed, e.g. `open -a TextEdit text.txt`.
 
     Returns
     -------
     retcode: int
-        Return code. 0 if success. Otherwise, > 0.
+        Return code which is 0 if the command was successfully completed.
+        Otherwise, the return code is non-zero.
+
+    Examples
+    --------
+    TODO
 
     """
     try:
+        # `check_call()` takes as input a list. Thus, the string command must
+        # be split to get the command name and its arguments as items of a list.
         retcode = subprocess.check_call(shlex.split(cmd))
     except subprocess.CalledProcessError as e:
         return e.returncode
