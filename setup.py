@@ -15,8 +15,9 @@ dirpath = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(dirpath, "README.rst")) as f:
     README = f.read()
 
+# TODO: get the version programmatically
 setup(name='py-common-utils',
-      version='1.0',
+      version='0.1',
       description='Library of common Python utilities',
       long_description=README,
       long_description_content_type='text/x-rst',
