@@ -1,5 +1,10 @@
-Welcome to py-common-utils' documentation!
-==========================================
+.. py-common-utils documentation master file, created by
+   sphinx-quickstart on Wed Oct  2 03:08:14 2019.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to py-common-utils's documentation!
+===========================================
 
 .. raw:: html
 
@@ -7,5 +12,14 @@ Welcome to py-common-utils' documentation!
 
 .. toctree::
    :maxdepth: 2
+   :caption:
 
    README
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
