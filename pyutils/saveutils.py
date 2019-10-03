@@ -33,7 +33,7 @@ logging.getLogger(__name__).addHandler(NullHandler())
 class SaveWebpages:
     """A class that saves webpages on disk.
 
-    The HTML content of the webpages are saved on disk. Thus, other resources
+    The HTML content of the webpages is saved on disk. Thus, other resources
     (such as pictures) might not get rendered when viewed on a browser.
 
     When retrieving webpages, a certain delay is introduced between HTTP
