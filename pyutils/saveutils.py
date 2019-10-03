@@ -3,6 +3,13 @@
 Only the HTML content of the webpage is saved on disk, thus the other resources,
 such as pictures, might not get rendered when viewed on a browser.
 
+.. _HTTP request header:
+   https://www.webopedia.com/TERM/H/HTTP_request_header.html
+.. _List of all HTTP headers (Mozilla):
+   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
+.. _List of HTTP header fields (Wikipedia):
+   https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
+
 """
 
 import logging
@@ -39,36 +46,19 @@ class SaveWebpages:
         value is True which implies that the webpages can be overwritten on
         disk).
     http_get_timeout : int, optional
-        Timeout when a GET request doesn't receive any response from the server.
-        After the timeout expires, the GET request is dropped (the default
+        Timeout when a **GET** request doesn't receive any response from the server.
+        After the timeout expires, the **GET** request is dropped (the default
         value is 5 seconds).
     headers : dict, optional
-        The information added to the HTTP GET request that a user's browser
+        The information added to the **HTTP GET** request that a user's browser
         sends to a Web server containing the details of what the browser wants
-        and will accept back from the server [1] (the default value is defined
-        below).
+        and will accept back from the server. See `HTTP request header`_ (the
+        default value is defined in :attr:`~SaveWebpages.headers`).
 
         Its keys are the request headers' field names like `Accept`, `Cookie`,
         `User-Agent`, or `Referer` and its values are the associated request
-        headers' field values [2][3].
-
-    Methods
-    -------
-    get_cached_webpage()
-        Load a webpage from disk.
-    save_webpage()
-        Save a webpage on disk.
-    get_webpage()
-        Get the HTMl content of a webpage.
-
-    References
-    ----------
-    .. [1] `HTTP request header
-    <https://www.webopedia.com/TERM/H/HTTP_request_header.html/>`_.
-    .. [2] `List of all HTTP headers (Mozilla)
-    <https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers>`_.
-    .. [3] `List of HTTP header fields (Wikipedia)
-    <https://en.wikipedia.org/wiki/List_of_HTTP_header_fields>`_.
+        headers' field values. *See* `List of all HTTP headers (Mozilla)`_ *and*
+        `List of HTTP header fields (Wikipedia)`_.
 
     """
 
@@ -77,6 +67,11 @@ class SaveWebpages:
                              "Safari/537.36c",
                'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,"
                          "image/webp,*/*;q=0.8"}
+    """
+    The information added to the **HTTP GET** request that a user's browser 
+    sends to a Web server containing the details of what the browser wants and 
+    will accept back from the server.
+    """
 
     def __init__(self, overwrite_webpages=False, http_get_timeout=5,
                  delay_between_requests=8, headers=headers):
@@ -139,8 +134,8 @@ class SaveWebpages:
         If the webpage is not found in cache, then it's retrieved from the
         server and saved on disk.
 
-        IMPORTANT: the webpage found on cache might also be overwritten if the
-        option `overwrite_webpages` is set to True.
+        **IMPORTANT:** the webpage found on cache might also be overwritten if
+        the option ``overwrite_webpages`` is set to True.
 
         Parameters
         ----------
@@ -205,10 +200,9 @@ class SaveWebpages:
         HTTP404Error
             Raised if the server returns a 404 status code because the webpage
             is not found.
-        RequestException
-            Raised if there is a `requests`-related error, e.g. ConnectionError
-            if the URL is not known. A lot of `requests` error are derived from
-            OSError, e.g. ConnectionError, HTTPError, SSLError
+        requests.RequestException
+            Raised if there is a :mod:`requests`-related error, e.g.
+            :exc:`requests.ConnectionError` if the URL is not known.
 
         Returns
         -------

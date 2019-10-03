@@ -5,17 +5,17 @@ and getting the local time based on the current time zone.
 
 See Also
 --------
-pyutils.dbutils : module that defines database-related functions [1].
-pyutils.logutils : module that defines log-related functions [2].
-pyutils.saveutils : module that defines a class for saving webpages on disk [4].
+dbutils : module that defines database-related functions.
+logutils : module that defines log-related functions.
+saveutils : module that defines a class for saving webpages on disk.
 
-References
-----------
-.. [1] `dbutils module
-<https://github.com/raul23/py-common-utils/blob/master/pyutils/dbutils.py>`_.
-.. [2] `logutils module
-<https://github.com/raul23/py-common-utils/blob/master/pyutils/logutils.py>`_.
-.. [3] `saveutils module TODO: add URL`_.
+
+.. _logging_wrapper.py: https://bit.ly/2kofzpo
+.. _PermissionError Errno 13 Permission denied (stackoverflow):
+   https://stackoverflow.com/a/50759281
+.. _PyYAML yaml.load(input) Deprecation: https://msg.pyyaml.org/load
+.. _Stack Overflow's user Mark Amery:
+   http://stackoverflow.com/a/39501288/1709587
 
 """
 
@@ -37,12 +37,13 @@ def add_cfg_arguments(logging_cfg_path, main_cfg_path, parser, add_exp_opt=False
     """Add config-related arguments to a scripts.
 
     The added default command-line arguments are:
+
     - the path to the YAML logging file
     - the path to the main YAML config file
     - an **experimental** option for adding color to log messages depending on
       the terminal type ('u' for Unix or 'p' for PyCharm terminal).
 
-    IMPORTANT: the option `--c` for adding color to log messages is
+    **IMPORTANT:** the option `--c` for adding color to log messages is
     experimental. More testing is needed to make sure it is working as
     expected.
 
@@ -53,8 +54,8 @@ def add_cfg_arguments(logging_cfg_path, main_cfg_path, parser, add_exp_opt=False
     main_cfg_path : str
         Path to the main YAML config file.
     parser : argparse.ArgumentParser
-        An ArgumentParser object which will be used to add the default
-        arguments and eventually parse the command-line.
+        An :obj:`argparse.ArgumentParser` object which will be used to add the
+        default arguments and eventually parse the command-line.
     add_exp_opt : bool, optional
         Whether to add the experimental option that adds color to log
         messages (the default value is False).
@@ -63,12 +64,8 @@ def add_cfg_arguments(logging_cfg_path, main_cfg_path, parser, add_exp_opt=False
     -----
     The reason for treating separately the two different types of terminal
     is that the PyCharm terminal will display color levels differently than
-    the standard Unix terminal. See `logging_wrapper.py` [1] (in the module's
-    docstring) for more info about adding color to log messages.
-
-    References
-    ----------
-    .. [1] `logging_wrapper.py <https://bit.ly/2kofzpo>`_.
+    the standard Unix terminal. See `logging_wrapper.py`_ for more info about
+    adding color to log messages.
 
     """
     parser.add_argument(
@@ -155,12 +152,14 @@ def convert_utctime_to_local_tz(utc_time=None):
     is returned.
 
     The date and time is returned as a string with format
-    YYYY-MM-DD HH:MM:SS-HH:MM
+    ``YYYY-MM-DD HH:MM:SS-HH:MM``
 
-    The modules `pytz` and `tzlocal` need to be installed. You can install them
-    with `pip`:
-        `pip install tzlocal`
-    This will also install `pytz`.
+    The modules :mod:`pytz` and :mod:`tzlocal` need to be installed. You can
+    install them with ``pip``::
+
+        $ pip install tzlocal
+
+    This will also install :mod:`pytz`.
 
     Parameters
     ----------
@@ -173,12 +172,12 @@ def convert_utctime_to_local_tz(utc_time=None):
     -------
     local_time: str
         The UTC time converted into the local time zone with the format
-        YYYY-MM-DD HH:MM:SS-HH:MM
+        ``YYYY-MM-DD HH:MM:SS-HH:MM``
 
     Raises
     ------
     ImportError
-        Raised if the modules `tzlocal` and `pytz` are not found.
+        Raised if the modules :mod:`tzlocal` and :mod:`pytz` are not found.
 
     See Also
     --------
@@ -272,18 +271,12 @@ def create_directory(dirpath):
         Raised if the directory already exists.
     PermissionError
         Raised if trying to run an operation without the adequate access rights
-        - for example filesystem permissions [1].
+        - for example filesystem permissions (See :exc:`PermissionError`).
 
-        Also, on Windows, the ``PermissionError`` can occur if you try to open a
-        directory as a file. Though, the error is more accurate in Linux:
-        "[Errno 21] Is a directory" [2].
-
-    References
-    ----------
-    .. [1] `exception PermissionError
-    <https://docs.python.org/3/library/exceptions.html#PermissionError>`_.
-    .. [2] `PermissionError Errno 13 Permission denied
-    <https://stackoverflow.com/a/50759281>`_.
+        Also, on Windows, the :exc:`PermissionError` can occur if you try to
+        open a directory as a file. Though, the error is more accurate in Linux:
+        "[Errno 21] Is a directory" (See `PermissionError Errno 13 Permission
+        denied (stackoverflow)`_)
 
     """
     try:
@@ -297,8 +290,9 @@ def create_directory(dirpath):
 def create_timestamped_dir(parent_dirpath, new_dirname=""):
     """Create a timestamped directory if it doesn't already exist.
 
-    The timestamp is added to the beginning of the directory name, e.g.
-    `/Users/test/20190905-122929-documents`.
+    The timestamp is added to the beginning of the directory name, e.g.::
+
+        /Users/test/20190905-122929-documents
 
     Parameters
     ----------
@@ -341,9 +335,9 @@ def get_creation_date(filepath):
     """Get creation date of a file.
 
     Try to get the date that a file was created, falling back to when it was
-    last modified if that isn't possible [1].
+    last modified if that isn't possible.
 
-    If modification date is needed, use `os.path.getmtime(path)` which is
+    If modification date is needed, use :meth:`os.path.getmtime` which is
     cross-platform supported.
 
     Parameters
@@ -356,15 +350,9 @@ def get_creation_date(filepath):
     float
         Time of creation in seconds.
 
-    Notes
-    -----
-    Code is from StackOverflow's user Mark Amery [1].
-
-
     References
     ----------
-    .. [1] `How to get file creation & modification date/times in Python?
-    StackOverflow <http://stackoverflow.com/a/39501288/1709587>`_.
+    Code is from `Stack Overflow's user Mark Amery`_.
 
     Examples
     --------
@@ -392,7 +380,7 @@ def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
                ensure_ascii=False):
     """Write data to a JSON file.
 
-    The data is first serialized to a JSON formatted ``str`` and then saved
+    The data is first serialized to a JSON formatted string and then saved
     to disk.
 
     Parameters
@@ -407,24 +395,21 @@ def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
         Encoding to be used for opening the JSON file.
 
     sort_keys : bool, optional
-        If *sort_keys* is true, then the output of dictionaries will be sorted
-        by key (the default value is True) [1].
+        If ``sort_keys`` is true, then the output of dictionaries will be sorted
+        by key. See the :meth:`json.dumps` docstring description. (the default
+        value is True).
 
     ensure_ascii : bool, optional
-        If `ensure_ascii` is False, then the return value can contain
+        If ``ensure_ascii`` is False, then the return value can contain
         non-ASCII characters if they appear in strings contained in ``data``.
-        Otherwise, all such characters are escaped in JSON strings [1] (the
-        default value is False).
+        Otherwise, all such characters are escaped in JSON strings. See the
+        :meth:`json.dumps` docstring description (the default value is False).
 
     Raises
     ------
     OSError
         Raised if any I/O related occurs while writing the data to disk, e.g.
         the file doesn't exist.
-
-    References
-    ----------
-    .. [1] `json.dumps` docstring description.
 
     """
     try:
@@ -474,7 +459,7 @@ def dump_yaml(filepath, data, increase_indent=True, default_flow_style=False, so
     Raises
     ------
     ImportError
-        Raised if the module `yaml` is not found.
+        Raised if the module :mod:`yaml` is not found.
 
     """
     try:
@@ -553,11 +538,12 @@ def flatten_dict(init_dict, stop_at_level=1):
 def get_current_local_datetime():
     """Get the current date and time based on the system's time zone.
 
-    The modules `pytz` and `tzlocal` need to be installed. You can install them
-    with `pip`:
-        `pip install tzlocal`
+    The modules :mod:`pytz` and :mod:`tzlocal` need to be installed. You can
+    install them with ``pip``::
 
-    This will also install `pytz`.
+        $ pip install tzlocal
+
+    This will also install :mod:`pytz`.
 
     Returns
     -------
@@ -567,7 +553,7 @@ def get_current_local_datetime():
     Raises
     ------
     ImportError
-        Raised if the modules `tzlocal` and `pytz` are not found.
+        Raised if the modules :mod:`tzlocal` and :mod:`pytz` are not found.
 
     See Also
     --------
@@ -607,9 +593,9 @@ def init_variable(default, value=None):
     Parameters
     ----------
     default
-        The default value to be returned if `value` is None.
+        The default value to be returned if ``value`` is None.
     value
-        The value to be returned if `value` is not None.
+        The value to be returned if ``value`` is not None.
 
     Returns
     -------
@@ -646,9 +632,8 @@ def list_to_str(list_):
     >>> list_ = ['CA', 'FR', 'US']
     >>> list_to_str(list_)
     "'CA', 'FR', 'US'"
-
-    This function can be useful for building the WHERE condition in SQL
-    expressions:
+    # This function can be useful for building the WHERE condition in SQL
+    # expressions:
     >>> list_countries = ['CA', 'FR', 'US']
     >>> str_countries = list_to_str(list_countries)
     >>> "SELECT * FROM table WHERE country IN ({})".format(str_countries)
@@ -719,8 +704,10 @@ def load_pickle(filepath):
 def load_yaml(f):
     """Load the content of a YAML file.
 
-    The module `yaml` needs to be installed. It can be installed with `pip`:
-        `pip install pyyaml`
+    The module :mod:`yaml` needs to be installed. It can be installed with
+    ``pip``::
+
+        $ pip install pyyaml
 
     Parameters
     ----------
@@ -735,19 +722,15 @@ def load_yaml(f):
     Raises
     ------
     ImportError
-        Raised if the module `yaml` is not found.
+        Raised if the module :mod:`yaml` is not found.
     yaml.YAMLError
         Raised if there is any error in the YAML structure of the file.
 
     Notes
     -----
-    I got a ``YAMLLoadWarning`` when calling `yaml.load()` without `Loader`, as
-    the default Loader is unsafe. You must specify a loader with the
-    `Loader=` argument. [1]
-
-    References
-    ----------
-    .. [1] `PyYAML yaml.load(input) Deprecation <https://msg.pyyaml.org/load>`_.
+    I got a ``YAMLLoadWarning`` when calling :meth:`yaml.load()` without
+    ``Loader``, as the default Loader is unsafe. You must specify a loader with
+    the ``Loader=`` argument. See `PyYAML yaml.load(input) Deprecation`_.
 
     """
     try:
@@ -791,10 +774,12 @@ def read_file(filepath):
 def read_yaml(filepath):
     """Read a YAML file.
 
-    Its content is returned which is a ``dict``.
+    Its content is returned which is a :obj:`dict`.
 
-    The module `yaml` needs to be installed. It can be installed with `pip`:
-        `pip install pyyaml`
+    The module :mod:`yaml` needs to be installed. It can be installed with
+    ``pip``::
+
+        $ pip install pyyaml
 
     Parameters
     ----------
@@ -804,12 +789,12 @@ def read_yaml(filepath):
     Returns
     -------
     dict
-        The ``dict`` read from the YAML file.
+        The :obj:`dict` read from the YAML file.
 
     Raises
     ------
     ImportError
-        Raised if the module `yaml` is not found.
+        Raised if the module :mod:`yaml` is not found.
     OSError
         Raised if any I/O related error occurs while reading the file, e.g. the
         file doesn't exist or an error in the YAML structure of the file.
@@ -836,7 +821,9 @@ def run_cmd(cmd):
     Parameters
     ----------
     cmd : str
-        Command to be executed, e.g. `open -a TextEdit text.txt`.
+        Command to be executed, e.g. ::
+
+            open -a TextEdit text.txt
 
     Returns
     -------

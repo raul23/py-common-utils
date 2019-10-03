@@ -2,8 +2,8 @@
 
 See Also
 --------
-pyutils.genutils : module that defines many general and useful functions.
-pyutils.logutils : module that defines common logging functions.
+genutils : module that defines many general and useful functions.
+logutils : module that defines common logging functions.
 
 """
 
@@ -30,28 +30,26 @@ def connect_db(db_path, autocommit=False):
     autocommit : bool, optional
         In autocommit mode, all changes to the database are committed as soon
         as all operations associated with the current database connection
-        complete [1] (the default valud is False, which implies that statements
-        that modify the database don't take effect immediately [2]. You have to
-        call `commit()` to close the transaction.).
+        complete [1]_ (the default value is False, which implies that statements
+        that modify the database don't take effect immediately [2]_. You have to
+        call :meth:`~sqlite3.Connection.commit` to close the transaction.).
 
     Raises
     ------
     sqlite3.Error
-        Raised if any SQLite-related errors occur, e.g. IntegrityError or
-        OperationalError, since sqlite3.Error is the class for all exceptions
-        of the module.
+        Raised if any SQLite-related errors occur, e.g. :exc:`IntegrityError` or
+        :exc:`OperationalError`, since :exc:`sqlite3.Error` is the class for all
+        exceptions of the module.
 
     Returns
     -------
     sqlite3.Connection
         Connection object that represents the SQLite database.
 
-    References
-    ----------
     .. [1] `7.0 Transaction Control At The SQL Level
-    <https://www.sqlite.org/lockingv3.html/>`_.
+       <https://www.sqlite.org/lockingv3.html>`_.
     .. [2] `Controlling Transactions
-    <https://docs.python.org/3/library/sqlite3.html#controlling-transactions/>`_.
+       <https://docs.python.org/3/library/sqlite3.html#controlling-transactions>`_.
 
     """
     # TODO: add reference
@@ -124,12 +122,13 @@ def create_db(overwrite_db, db_filepath, schema_filepath, **kwargs):
 def sql_sanity_check(sql, values):
     """Perform sanity checks on an SQL query.
 
-    Only SQL queries that have values to be added are checked, i.e. INSERT
+    Only SQL queries that have values to be added are checked, i.e. `INSERT`
     queries.
 
     These are the checks performed:
-    * Whether the values are of ``tuple`` type
-    * Whether the SQL expression contains the right number of values
+
+    - Whether the values are of :obj:`tuple` type
+    - Whether the SQL expression contains the right number of values
 
     Parameters
     ----------
@@ -142,7 +141,7 @@ def sql_sanity_check(sql, values):
     ------
     SQLSanityCheckError
         Raised when the sanity check on a SQL query fails: e.g. the query's
-        values are not of `tuple` type or wrong number of values in the SQL
+        values are not of :obj:`tuple` type or wrong number of values in the SQL
         query.
 
     """

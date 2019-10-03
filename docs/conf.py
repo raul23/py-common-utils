@@ -29,15 +29,39 @@ release = '0.1'
 
 
 # -- General configuration ---------------------------------------------------
+
+# The master toctree document.
 master_doc = 'index'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    # 'm2r',
+    # 'recommonmark',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.coverage',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode'
+    # 'sphinx_rtd_theme'
 ]
 
+# This value controls the docstrings inheritance. Default is True.
+# Ref.: https://bit.ly/2ofNvGi
+# autodoc_inherit_docstrings = False
+napoleon_google_docstring = False
+# If False, no cross-referencing with Python types
+napoleon_use_param = True
+napoleon_use_ivar = True
+
 source_suffix = '.rst'
+
+# Configuration for intersphinx:
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'requests': ('https://requests.kennethreitz.org/en/latest/', None)
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

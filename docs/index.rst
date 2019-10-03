@@ -15,6 +15,7 @@ Welcome to py-common-utils's documentation!
    :caption: Contents
 
    README
+   api_reference
 
 
 Indices and tables
