@@ -32,126 +32,14 @@ import subprocess
 from pyutils.exceptions.files import OverwriteFileError
 
 
-# TODO: remove this function
-def add_cfg_arguments(logging_cfg_path, main_cfg_path, parser, add_exp_opt=False):
-    """Add config-related arguments to a scripts.
-
-    The added default command-line arguments are:
-
-    - the path to the YAML logging file
-    - the path to the main YAML config file
-    - an **experimental** option for adding color to log messages depending on
-      the terminal type ('u' for Unix or 'p' for PyCharm terminal).
-
-    **IMPORTANT:** the option `--c` for adding color to log messages is
-    experimental. More testing is needed to make sure it is working as
-    expected.
-
-    Parameters
-    ----------
-    logging_cfg_path : str
-        Path to the logging YAML config file.
-    main_cfg_path : str
-        Path to the main YAML config file.
-    parser : argparse.ArgumentParser
-        An :obj:`argparse.ArgumentParser` object which will be used to add the
-        default arguments and eventually parse the command-line.
-    add_exp_opt : bool, optional
-        Whether to add the experimental option that adds color to log
-        messages (the default value is False).
-
-    Notes
-    -----
-    The reason for treating separately the two different types of terminal
-    is that the PyCharm terminal will display color levels differently than
-    the standard Unix terminal. See `logging_wrapper.py`_ for more info about
-    adding color to log messages.
-
-    """
-    parser.add_argument(
-        "-l", "--logging_cfg", default=logging_cfg_path,
-        help="Path to the YAML logging configuration file.")
-    parser.add_argument(
-        "-m", "--main_cfg", default=main_cfg_path,
-        help="Path to the YAML main configuration file.")
-    if add_exp_opt:
-        parser.add_argument(
-            "-c", "--color_logs",
-            const="u",
-            nargs='?',
-            default=None,
-            choices=["u", "p"],
-            help="Add colors to log messages. By default, we use colors as"
-                 " defined for the standard Unix Terminal ('u'). If working with"
-                 " the PyCharm terminal, use the value 'p' to get better"
-                 " colors suited for this type of terminal.")
-
-
-def add_plural_ending(obj, plural_end="s", singular_end=""):
-    """Add plural ending if a number is greater than 1 or there are many
-    values in a list.
-
-    If the number is greater than one or more than one item is found in the
-    list, the function returns by default 's'. If not, then the empty string is
-    returned.
-
-    Parameters
-    ----------
-    obj : int, float or list
-        The number or list that will be checked if a plural or singular ending
-        will be returned.
-    plural_end : str, optional
-        The plural ending (the default value is "s" which implies that "s'" will
-        be returned in the case that the number is greater than 1 or the list
-        contains more than one item).
-    singular_end : str, optional
-        The singular ending (the default value is "" which implies that an
-        empty string will be returned in the case that the number is 1 or less,
-        or the list contains 1 item).
-
-    Returns
-    -------
-    str : "s" or ""
-        "s" if number is greater than 1 or more than one item is found in the
-        list, "" (empty string) otherwise.
-
-    Examples
-    --------
-    >>> cars = ["corvette", "ferrari"]
-    >>> print("I have {} car{}".format(len(cars), add_plural_ending(cars)))
-    I have 2 cars
-
-    >>> pharmacies = ["PharmaOne", "PharmaTwo"]
-    >>> print("I went to {} pharmac{}".format(
-    ... len(pharmacies),
-    ... add_plural_ending(pharmacies, "ies", "y")))
-    I went to 2 pharmacies
-
-    >>> pharmacies = ["PharmaOne"]
-    >>> print("I went to {} pharmac{}".format(
-    ... len(pharmacies),
-    ... add_plural_ending(pharmacies, "ies", "y")))
-    I went to 1 pharmacy
-
-    """
-    # TODO: add examples for number case
-    if isinstance(obj, list):
-        num = len(obj)
-    else:
-        assert isinstance(obj, int) or isinstance(obj, float), \
-            "obj must be a list, int or float"
-        num = obj
-    return plural_end if num > 1 else singular_end
-
-
 def convert_utctime_to_local_tz(utc_time=None):
     """Convert a given UTC time into the local time zone.
 
     If a UTC time is given, it is converted to the local time zone. If
-    `utc_time` is None, then the current time based on the local time zone
+    ``utc_time`` is None, then the current time based on the local time zone
     is returned.
 
-    The date and time is returned as a string with format
+    The date and time are returned as a string with format
     ``YYYY-MM-DD HH:MM:SS-HH:MM``
 
     The modules :mod:`pytz` and :mod:`tzlocal` need to be installed. You can
@@ -220,41 +108,6 @@ def convert_utctime_to_local_tz(utc_time=None):
         # ISO format is YYYY-MM-DDTHH:MM:SS-HH:MM
         local_time = local_time.isoformat().replace("T", " ")
         return local_time
-
-
-def copy_file(source_filepath, dest_filepath, overwrite_file=True):
-    """Copy the content of one file to another file.
-
-    Parameters
-    ----------
-    source_filepath : str
-        Path to the source file.
-    dest_filepath : str
-        Path to the destination file where the content will be copied.
-    overwrite_file : bool, optional
-        Whether the destination file can be overwritten (the default value is
-        True which implies that the file can be overwritten).
-
-    Raises
-    ------
-    OSError
-        Raised if any I/O related error occurs while reading the file, e.g. the
-        file doesn't exist.
-    OverwriteFileError
-        Raised if an existing file is being overwritten and the flag to overwrite
-        files is disabled.
-
-    """
-    # TODO: use shutil.copyfile
-    # if os.path.isfile(src_path):
-    #     copyfile(src_path, target_path)
-    try:
-        data = read_file(source_filepath)
-        write_file(dest_filepath, data, overwrite_file)
-    except OSError as e:
-        raise OSError(e)
-    except OverwriteFileError as e:
-        raise OverwriteFileError(e)
 
 
 def create_directory(dirpath):
@@ -445,96 +298,6 @@ def dump_pickle(filepath, data):
         raise OSError(e)
 
 
-def dump_yaml(filepath, data, increase_indent=True, default_flow_style=False, sort_keys=False):
-    """TODO
-
-    Parameters
-    ----------
-    filepath : str
-    data
-    increase_indent : bool, optional
-    default_flow_style : bool, optional
-    sort_keys : bool, optional
-
-    Raises
-    ------
-    ImportError
-        Raised if the module :mod:`yaml` is not found.
-
-    """
-    try:
-        import yaml
-    except ImportError as e:
-        raise ImportError("yaml not found. You can install it with: pip "
-                          "install pyyaml")
-
-    class MyDumper(yaml.Dumper):
-        """TODO
-
-        """
-        def increase_indent(self, flow=False, indentless=False):
-            """TODO
-
-            Parameters
-            ----------
-            flow : bool, optional
-            indentless : bool, optional
-
-            Returns
-            -------
-
-            """
-            return super(MyDumper, self).increase_indent(flow, indentless=False)
-
-    with open(filepath, 'w') as f:
-        yaml.dump(data=data,
-                  stream=f,
-                  Dumper=MyDumper if increase_indent else yaml.Dumper,
-                  default_flow_style=False,
-                  sort_keys=sort_keys)
-
-
-def flatten_dict(init_dict, stop_at_level=1):
-    """TODO
-
-    Code from https://stackoverflow.com/a/44216792
-
-    Parameters
-    ----------
-    init_dict
-    stop_at_level : init
-
-    Returns
-    -------
-
-    Examples
-    --------
-    TODO
-
-    """
-    global level
-    level = 1
-    assert stop_at_level > 0
-
-    def _flatten_dict(_init_dict):
-        global level
-        res_dict = {}
-        if type(_init_dict) is not dict:
-            return res_dict
-
-        for k, v in _init_dict.items():
-            if type(v) == dict and level <= stop_at_level:
-                level += 1
-                res_dict.update(_flatten_dict(v))
-            else:
-                res_dict[k] = v
-
-        level -= 1
-        return res_dict
-
-    return _flatten_dict(init_dict)
-
-
 def get_current_local_datetime():
     """Get the current date and time based on the system's time zone.
 
@@ -582,65 +345,6 @@ def get_current_local_datetime():
         tz = pytz.timezone(tzlocal.get_localzone().zone)
         # Get the time in the system's time zone
         return datetime.now(tz)
-
-
-def init_variable(default, value=None):
-    """Get initial value for a variable.
-
-    If the value of the variable is None, the default value is returned.
-    Otherwise, the value given is returned.
-
-    Parameters
-    ----------
-    default
-        The default value to be returned if ``value`` is None.
-    value
-        The value to be returned if ``value`` is not None.
-
-    Returns
-    -------
-    int or float
-
-    Examples
-    --------
-    >>> var = 'a'
-    >>> init_variable('d', var)
-    'a'
-    >>> var = None
-    >>> init_variable(10, var)
-    10
-
-    """
-    return default if value is None else value
-
-
-def list_to_str(list_):
-    """Convert a list of strings into a single string.
-
-    Parameters
-    ----------
-    list_ : list of str
-        List of strings to be converted into a single string.
-
-    Returns
-    -------
-    str_ : str
-        The converted string.
-
-    Examples
-    --------
-    >>> list_ = ['CA', 'FR', 'US']
-    >>> list_to_str(list_)
-    "'CA', 'FR', 'US'"
-    # This function can be useful for building the WHERE condition in SQL
-    # expressions:
-    >>> list_countries = ['CA', 'FR', 'US']
-    >>> str_countries = list_to_str(list_countries)
-    >>> "SELECT * FROM table WHERE country IN ({})".format(str_countries)
-    "SELECT * FROM table WHERE country IN ('CA', 'FR', 'US')"
-
-    """
-    return ", ".join(map(lambda a: "'{}'".format(a), list_))
 
 
 def load_json(filepath, encoding='utf8'):
