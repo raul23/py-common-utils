@@ -36,8 +36,8 @@ def convert_utctime_to_local_tz(utc_time=None):
     """Convert a given UTC time into the local time zone.
 
     If a UTC time is given, it is converted to the local time zone. If
-    ``utc_time`` is None, then the current time based on the local time zone
-    is returned.
+    `utc_time` is None, then the current time based on the local time zone is
+    returned.
 
     The date and time are returned as a string with format
     ``YYYY-MM-DD HH:MM:SS-HH:MM``
@@ -66,11 +66,6 @@ def convert_utctime_to_local_tz(utc_time=None):
     ------
     ImportError
         Raised if the modules :mod:`tzlocal` and :mod:`pytz` are not found.
-
-    See Also
-    --------
-    get_current_local_datetime : only returns the current time based on the
-                                 local time zone.
 
     Examples
     --------
@@ -184,51 +179,6 @@ def create_timestamped_dir(parent_dirpath, new_dirname=""):
         return new_dirpath
 
 
-def get_creation_date(filepath):
-    """Get creation date of a file.
-
-    Try to get the date that a file was created, falling back to when it was
-    last modified if that isn't possible.
-
-    If modification date is needed, use :meth:`os.path.getmtime` which is
-    cross-platform supported.
-
-    Parameters
-    ----------
-    filepath : str
-        Path to file whose creation date will be returned.
-
-    Returns
-    -------
-    float
-        Time of creation in seconds.
-
-    References
-    ----------
-    Code is from `Stack Overflow's user Mark Amery`_.
-
-    Examples
-    --------
-    >>> from datetime import datetime
-    >>> creation = get_creation_date("/Users/test/directory")
-    >>> creation
-    1567701693.0
-    >>> str(datetime.fromtimestamp(creation))
-    '2019-09-05 12:41:33'
-
-    """
-    if platform.system() == 'Windows':
-        return os.path.getctime(filepath)
-    else:
-        stat = os.stat(filepath)
-        try:
-            return stat.st_birthtime
-        except AttributeError:
-            # We're probably on Linux. No easy way to get creation dates here,
-            # so we'll settle for when its content was last modified.
-            return stat.st_mtime
-
-
 def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
                ensure_ascii=False):
     """Write data to a JSON file.
@@ -298,53 +248,49 @@ def dump_pickle(filepath, data):
         raise OSError(e)
 
 
-def get_current_local_datetime():
-    """Get the current date and time based on the system's time zone.
+def get_creation_date(filepath):
+    """Get creation date of a file.
 
-    The modules :mod:`pytz` and :mod:`tzlocal` need to be installed. You can
-    install them with ``pip``::
+    Try to get the date that a file was created, falling back to when it was
+    last modified if that isn't possible.
 
-        $ pip install tzlocal
+    If modification date is needed, use :meth:`os.path.getmtime` which is
+    cross-platform supported.
 
-    This will also install :mod:`pytz`.
+    Parameters
+    ----------
+    filepath : str
+        Path to file whose creation date will be returned.
 
     Returns
     -------
-    datetime.datetime
-        The date and time in the system's time zone.
+    float
+        Time of creation in seconds.
 
-    Raises
-    ------
-    ImportError
-        Raised if the modules :mod:`tzlocal` and :mod:`pytz` are not found.
-
-    See Also
-    --------
-    convert_utctime_to_local_tz : converts a UTC time based on the system's
-                                  time zone.
+    References
+    ----------
+    Code is from `Stack Overflow's user Mark Amery`_.
 
     Examples
     --------
-    >>> datetime_with_tz = get_current_local_datetime()
-    >>> datetime_with_tz
-    datetime.datetime(2019, 9, 5, 13, 34, 0, 678836, tzinfo=<DstTzInfo
-    'US/Eastern' EDT-1 day, 20:00:00 DST>)
-    >>> str(datetime_with_tz)
-    '2019-09-05 13:34:18.898435-04:00'
+    >>> from datetime import datetime
+    >>> creation = get_creation_date("/Users/test/directory")
+    >>> creation
+    1567701693.0
+    >>> str(datetime.fromtimestamp(creation))
+    '2019-09-05 12:41:33'
 
     """
-    try:
-        import pytz
-        import tzlocal
-    except ImportError as e:
-        raise ImportError("tzlocal and pytz not found. You can install them "
-                          "with: pip install tzlocal. This will also install "
-                          "pytz.")
+    if platform.system() == 'Windows':
+        return os.path.getctime(filepath)
     else:
-        # Get the local timezone name
-        tz = pytz.timezone(tzlocal.get_localzone().zone)
-        # Get the time in the system's time zone
-        return datetime.now(tz)
+        stat = os.stat(filepath)
+        try:
+            return stat.st_birthtime
+        except AttributeError:
+            # We're probably on Linux. No easy way to get creation dates here,
+            # so we'll settle for when its content was last modified.
+            return stat.st_mtime
 
 
 def load_json(filepath, encoding='utf8'):
