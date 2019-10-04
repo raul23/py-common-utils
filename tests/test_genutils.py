@@ -5,7 +5,7 @@
 import time
 import unittest
 # Custom modules
-from pyutils.genutils import convert_utctime_to_local_tz
+from pyutils.genutils import convert_utctime_to_local_tz, run_cmd
 
 
 class TestFunctions(unittest.TestCase):
@@ -44,6 +44,7 @@ class TestFunctions(unittest.TestCase):
         time_tuple = (2019, 10, 4, 6, 29, 19, 4, 277, 0)
         stime = time.struct_time(time_tuple)
         output = convert_utctime_to_local_tz(stime)
+        # expected is the date and time given in the local time zone
         expected = '2019-10-04 02:29:19-04:00'
         msg = "Returned local datetime {} is different than expected " \
               "{}".format(output, expected)
@@ -137,17 +138,26 @@ class TestFunctions(unittest.TestCase):
         """
         print("\nTesting read_yaml()...")
 
-    def test_run_cmd(self):
-        """Test run_cmd()
+    def test_run_cmd_date(self):
+        """Test run_cmd() with the command ``date``
 
         """
-        print("\nTesting run_cmd()...")
+        print("\nTesting run_cmd(cmd='date')...")
+        self.assertTrue(run_cmd("date") == 0)
+
+    def test_run_cmd_pwd(self):
+        """Test run_cmd() with the command ``pwd``
+
+        """
+        print("\nTesting run_cmd(cmd='pwd')...")
+        self.assertTrue(run_cmd("pwd") == 0)
 
     def test_write_file(self):
         """Test run_cmd()
 
         """
         print("\nTesting write_file()...")
+
 
 
 if __name__ == '__main__':
