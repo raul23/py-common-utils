@@ -1,4 +1,4 @@
-"""Module that defines tests for the module :mod:`~pyutils.genutils`
+"""Module that defines tests for :mod:`~pyutils.genutils`
 
 """
 
