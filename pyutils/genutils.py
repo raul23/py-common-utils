@@ -111,7 +111,7 @@ def create_directory(dirpath):
     Parameters
     ----------
     dirpath : str
-        Path to directory to be created.
+        Path to the directory to be created.
 
     Raises
     ------

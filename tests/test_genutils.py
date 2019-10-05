@@ -2,10 +2,14 @@
 
 """
 
+import os
+from tempfile import TemporaryDirectory
 import time
 import unittest
 # Custom modules
-from pyutils.genutils import convert_utctime_to_local_tz, run_cmd
+from pyutils.genutils import convert_utctime_to_local_tz, create_directory, \
+    run_cmd
+import ipdb
 
 
 class TestFunctions(unittest.TestCase):
@@ -16,7 +20,10 @@ class TestFunctions(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print("Setting up genutils tests...\n")
+        print("Setting up genutils tests...")
+        # Create temporary directory where all the methods can write
+        cls.tmpdir = TemporaryDirectory()
+        print("Temporary directory created: {}".format(cls.tmpdir.name))
 
     @classmethod
     def tearDown(cls):
@@ -24,7 +31,9 @@ class TestFunctions(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        print()
+        print("\n\nCleanup...")
+        cls.tmpdir.cleanup()
+        print("Temporary directory deleted: {}".format(cls.tmpdir.name))
 
     def test_convert_utctime_to_local_tz_case_1(self):
         """Test case 1 for convert_utctime_to_local_tz()
@@ -78,11 +87,19 @@ class TestFunctions(unittest.TestCase):
         regex = r"^\d{4}(-\d{2}){2} (\d{2}:){2}\d{2}-\d{2}:\d{2}$"
         self.assertRegex(output, regex)
 
-    def test_create_directory(self):
-        """Test create_directory()
+    def test_create_directory_dir_exists(self):
+        """Test create_directory() when a directory already exists
+
+        Test the case of creating a directory that already exists on disk. The
+        function :meth:`create_directory` should raise a :exc:`FileExistsError`
+        which is an indication that the test passed.
 
         """
         print("\nTesting create_directory()...")
+        dirpath = os.path.join(self.tmpdir.name, "testdir")
+        with self.assertRaises(FileExistsError):
+            create_directory(dirpath)
+            create_directory(dirpath)
 
     def test_create_timestamped_dir(self):
         """Test create_timestamped_dir()
@@ -157,7 +174,6 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting write_file()...")
-
 
 
 if __name__ == '__main__':
