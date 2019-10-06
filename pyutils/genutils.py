@@ -191,21 +191,24 @@ g
         return new_dirpath
 
 
-def delete_folder_contents(folderpath, remove_files=True, remove_subdirs=True):
-    """Delete the contents of a folder
+def delete_folder_contents(folderpath, remove_subdirs=True):
+    """Delete the contents of a folder.
 
-    The folder won't be removed!
+    The folder itself won't be removed!
 
     The code is from `Stack Overflow's user Nick Stinemates`_.
+
+    By default, this function deletes everything in the folder, including
+    files and subdirectories. However, if subdirectories must not be deleted,
+    then `remove_subdirs` must be set to False.
 
     Parameters
     ----------
     folderpath : str
         Path to the folder whose content will be deleted.
-    remove_files : bool, optional
-        TODO
     remove_subdirs : bool, optional
-        TODO
+        Remove the subdirectories (the default value is True which implies that
+        everything will be deleted from the root folder).
 
     Raises
     ------
@@ -217,7 +220,7 @@ def delete_folder_contents(folderpath, remove_files=True, remove_subdirs=True):
     for filename in os.listdir(folderpath):
         filepath = os.path.join(folderpath, filename)
         try:
-            if remove_files and os.path.isfile(filepath):
+            if os.path.isfile(filepath):
                 os.unlink(filepath)
             elif remove_subdirs and os.path.isdir(filepath):
                 shutil.rmtree(filepath)
