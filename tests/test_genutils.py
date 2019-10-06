@@ -191,6 +191,17 @@ class TestFunctions(unittest.TestCase):
         suffix in its name was actually created on disk by calling
         :meth:`os.path.isdir` on the directory path.
 
+        Notes
+        -----
+        It is trickier to test the case where
+        :meth:`create_create_timestamped_directory` must raise a
+        :exc:`FileExistsError` exception since you can't easily create a
+        timestamped directory that already exists, unless for example you call
+        :meth:`create_create_timestamped_directory` twice very quickly and the
+        second call might rise a :exc:`FileExistsError` exception if it ends up
+        using an already taken timestamped directory name (with the seconds and
+        all).
+
         """
         print("\nTesting create_timestamped_dir()...")
         msg = "The timestamped directory couldn't be created"
@@ -202,25 +213,28 @@ class TestFunctions(unittest.TestCase):
             self.assertTrue(os.path.isdir(dirpath), msg)
             print("The timestamped directory was created")
 
-    @unittest.skip("test_create_timestamped_dir_case_2()")
+    # @unittest.skip("test_create_timestamped_dir_case_2()")
     def test_create_timestamped_dir_case_2(self):
-        """Test create_timestamped_dir() when the timestamped directory already
-        exists.
+        """Test create_timestamped_dir() with no permission to write in a
+        directory.
 
-        Case 2 consists in checking that the function :meth:`create_directory`
-        raises a :exc:`FileExistsError` when we try to create a directory that
-        already exists on disk.
+        Case 2 consists in checking that the function
+        :meth:`create_create_timestamped_directory` raises a
+        :exc:`PermissionError` when we try to create a directory in a directory
+        without the write permission.
 
         """
-        print("\nTesting create_timestamped_dir()...")
-        msg = "The timestamped directory couldn't be created"
-        try:
-            dirpath = create_timestamped_dir(self.sanbox_tmpdir)
-        except (FileExistsError, PermissionError) as e:
-            self.fail("{} : {}".format(msg, e))
-        else:
-            self.assertTrue(os.path.isdir(dirpath), msg)
-            print("The timestamped directory was created")
+        print("\nTesting case 2 of create_timestamped_dir() ...")
+        testdir1_path = os.path.join(self.sanbox_tmpdir, "testdir1")
+        create_directory(testdir1_path)
+        # TODO: Only works on macOS/Linux:
+        os.chmod(testdir1_path, 0o444)
+        with self.assertRaises(PermissionError):
+            testdir2_path = os.path.join(testdir1_path, "testdir2")
+            create_timestamped_dir(testdir2_path)
+        print("Raised a PermissionError exception as expected")
+        # Put back write permission to owner
+        os.chmod(testdir1_path, 0o744)
 
     @unittest.skip("test_dumps_json()")
     def test_dumps_json(self):
