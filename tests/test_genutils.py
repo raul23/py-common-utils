@@ -9,6 +9,7 @@ import unittest
 # Custom modules
 from pyutils.genutils import convert_utctime_to_local_tz, create_directory, \
     delete_folder_contents, run_cmd
+# import ipdb
 
 
 class TestFunctions(unittest.TestCase):
@@ -98,7 +99,7 @@ class TestFunctions(unittest.TestCase):
         # regex already does a good job.
         # E.g. (0[1-9]|1[0-2])-((0[1-9])|([1-2][0-9])|(3[0-1])) matches any
         # MM-DD where the MM can take values in [01-12] and DD in [01-31]
-        regex = r"^\d{4}(-\d{2}){2} (\d{2}:){2}\d{2}-\d{2}:\d{2}$"
+        regex = r"^\d{4}(-\d{2}){2} (\d{2}:){2}\d{2}(-|+)\d{2}:\d{2}$"
         self.assertRegex(output, regex)
 
     def test_create_directory_case_1(self):
