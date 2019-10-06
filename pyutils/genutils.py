@@ -149,7 +149,8 @@ def create_directory(dirpath):
 def create_timestamped_dir(parent_dirpath, suffix=""):
     """Create a timestamped directory if it doesn't already exist.
 
-    The timestamp is added to the beginning of the directory name, e.g.::
+    The timestamp consists in `YYYYMMDD-HHMMSS` and is added to the beginning
+    of the directory name, e.g.::
 
         /Users/test/20190905-122929-documents
 
@@ -175,6 +176,7 @@ def create_timestamped_dir(parent_dirpath, suffix=""):
     PermissionError
         Raised if trying to run an operation without the adequate access rights.
 
+
     """
     new_dirname = "-{}".format(suffix) if suffix else suffix
     timestamped = datetime.now().strftime('%Y%m%d-%H%M%S{dirname}')
@@ -182,10 +184,10 @@ def create_timestamped_dir(parent_dirpath, suffix=""):
         parent_dirpath, timestamped.format(dirname=new_dirname))
     try:
         pathlib.Path(new_dirpath).mkdir(parents=True, exist_ok=False)
-    except FileExistsError as e:
-        raise FileExistsError(e)
-    except PermissionError as e:
-        raise PermissionError(e)
+    except FileExistsError:
+        raise
+    except PermissionError:
+        raise
     else:
         return new_dirpath
 
