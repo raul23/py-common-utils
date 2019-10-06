@@ -9,7 +9,6 @@ import unittest
 # Custom modules
 from pyutils.genutils import convert_utctime_to_local_tz, create_directory, \
     delete_folder_contents, run_cmd
-import ipdb
 
 
 class TestFunctions(unittest.TestCase):
