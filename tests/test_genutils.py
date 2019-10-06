@@ -17,7 +17,7 @@ import unittest
 import tzlocal
 # Custom modules
 from pyutils.genutils import convert_utctime_to_local_tz, create_directory, \
-    create_timestamped_dir, delete_folder_contents, run_cmd
+    create_timestamped_dir, delete_folder_contents, run_cmd, write_file
 
 
 class TestFunctions(unittest.TestCase):
@@ -130,7 +130,7 @@ class TestFunctions(unittest.TestCase):
         self.assertRegex(output, regex)
 
     def test_create_directory_case_1(self):
-        """Test that create_directory() actually created a directory.
+        """Test that create_directory() actually creates a directory.
 
         Case 1 consists in testing that the directory was actually created on
         disk.
@@ -166,25 +166,25 @@ class TestFunctions(unittest.TestCase):
         """Test create_directory() with no permission to write in a directory.
 
         Case 3 consists in checking that the function :meth:`create_directory`
-        raises a :exc:`PermissionError` when we try to create a directory in a
-        directory without the write permission.
+        raises a :exc:`PermissionError` when we try to create a subdirectory in
+        a directory without the write permission.
 
         """
         print("\nTesting case 3 of create_directory() ...")
-        testdir1_path = os.path.join(self.sanbox_tmpdir, "testdir1")
-        create_directory(testdir1_path)
+        test1_dirpath = os.path.join(self.sanbox_tmpdir, "testdir1")
+        create_directory(test1_dirpath)
         # TODO: Only works on macOS/Linux:
-        os.chmod(testdir1_path, 0o444)
+        os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError):
-            testdir2_path = os.path.join(testdir1_path, "testdir2")
-            create_directory(testdir2_path)
+            test2_dirpath = os.path.join(test1_dirpath, "testdir2")
+            create_directory(test2_dirpath)
         print("Raised a PermissionError exception as expected")
         # Put back write permission to owner
-        os.chmod(testdir1_path, 0o744)
+        os.chmod(test1_dirpath, 0o744)
 
     # @unittest.skip("test_create_timestamped_dir_case_1()")
     def test_create_timestamped_dir_case_1(self):
-        """Test that create_timestamped_dir() actually created a timestamped
+        """Test that create_timestamped_dir() actually creates a timestamped
         directory without suffix.
 
         Case 1 consists in testing that the timestamped directory without
@@ -203,7 +203,7 @@ class TestFunctions(unittest.TestCase):
         all).
 
         """
-        print("\nTesting create_timestamped_dir()...")
+        print("\nTesting case 1 of create_timestamped_dir()...")
         msg = "The timestamped directory couldn't be created"
         try:
             dirpath = create_timestamped_dir(self.sanbox_tmpdir)
@@ -220,21 +220,103 @@ class TestFunctions(unittest.TestCase):
 
         Case 2 consists in checking that the function
         :meth:`create_create_timestamped_directory` raises a
-        :exc:`PermissionError` when we try to create a directory in a directory
-        without the write permission.
+        :exc:`PermissionError` when we try to create a subdirectory in a
+        directory without the write permission.
 
         """
         print("\nTesting case 2 of create_timestamped_dir() ...")
-        testdir1_path = os.path.join(self.sanbox_tmpdir, "testdir1")
-        create_directory(testdir1_path)
+        test1_dirpath = os.path.join(self.sanbox_tmpdir, "testdir1")
+        create_directory(test1_dirpath)
         # TODO: Only works on macOS/Linux:
-        os.chmod(testdir1_path, 0o444)
+        os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError):
-            testdir2_path = os.path.join(testdir1_path, "testdir2")
-            create_timestamped_dir(testdir2_path)
+            test2_dirpath = os.path.join(test1_dirpath, "testdir2")
+            create_timestamped_dir(test2_dirpath)
         print("Raised a PermissionError exception as expected")
         # Put back write permission to owner
-        os.chmod(testdir1_path, 0o744)
+        os.chmod(test1_dirpath, 0o744)
+
+    def populate_folder(self, number_subdirs=2, number_files=2):
+        """Populate a folder with text files and subdirectories.
+
+        This function is to be used when testing
+        :meth:`~genutils.delete_folder_contents`, see
+        :meth:`test_delete_folder_contents_case_1` and
+        :meth:`test_delete_folder_contents_case_2`.
+
+        It creates a main test directory with `number_subdirs` subdirectories
+        with each storing `number_files` text files.
+
+        Parameters
+        ----------
+        number_files : int, optional
+            Number of files to create per subdirectory (the default value is 2).
+        number_subdirs : int, optional
+            Number of subdirectories to create (the default value is 2).
+
+        Returns
+        -------
+        main_test_dirpath : str
+            Path to the main directory which stores the subdirectories along
+            with their text files.
+
+        """
+        # Create a main test directory where many subdirectories with text
+        # files will be created
+        maintest_dirpath = os.path.join(self.sanbox_tmpdir, "main_testdir")
+        create_directory(maintest_dirpath)
+        for i in range(1, number_subdirs+1):
+            # Create the subdirectories with text files
+            test_dirpath = os.path.join(maintest_dirpath, "testdir{}".format(i))
+            create_directory(test_dirpath)
+            for j in range(1, number_files+1):
+                filepath = os.path.join(test_dirpath, "file{}.txt".format(j))
+                write_file(filepath, "Hello, World!\nI will be deleted soon :(\n")
+        return maintest_dirpath
+
+    # @unittest.skip("test_delete_folder_contents_case_1()")
+    def test_delete_folder_contents_case_1(self):
+        """Test that delete_folder_contents() removes everything in a folder.
+
+        Case 1 consists in testing that :meth:`delete_folder_contents` removes
+        everything in a folder, including the files and subdirectories.
+
+        See Also
+        --------
+        populate_folder : populates a folder with text files and subdirectories.
+
+        """
+        print("\nTesting case 1 of delete_folder_contents()...")
+        # Create the main test directory along with subdirectories and files
+        dirpath = self.populate_folder()
+        # Delete the whole content of the main test directory
+        delete_folder_contents(dirpath)
+        # Test that the folder is empty
+        msg = "The folder {} couldn't be cleared".format(dirpath)
+        self.assertTrue(len(os.listdir(dirpath)) == 0, msg)
+        print("The folder {} is empty".format(dirpath))
+
+    @unittest.skip("test_delete_folder_contents_case_2()")
+    def test_delete_folder_contents_case_2(self):
+        """Test that delete_folder_contents() removes everything in a folder,
+        except the subdirectories.
+
+        Case 2 consists in testing that :meth:`delete_folder_contents` removes
+        everything in a folder, except the subdirectories.
+
+        See Also
+        --------
+        populate_folder : populates a folder with text files and subdirectories.
+
+        """
+        print("\nTesting case 2 of delete_folder_contents()...")
+        import ipdb
+        ipdb.set_trace()
+        # Create the main test directory along with subdirectories and files
+        dirpath = self.populate_folder()
+        # Delete the whole content of the main test directory
+        delete_folder_contents(dirpath, remove_subdirs=False)
+        # Test that the folder only has subdirectories, no files
 
     @unittest.skip("test_dumps_json()")
     def test_dumps_json(self):
