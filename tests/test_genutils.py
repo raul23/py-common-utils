@@ -148,7 +148,7 @@ class TestFunctions(unittest.TestCase):
             print("The directory was created")
 
     def test_create_directory_case_2(self):
-        """Test create_directory() when a directory already exists
+        """Test create_directory() when the directory already exists.
 
         Case 2 consists in checking that the function :meth:`create_directory`
         raises a :exc:`FileExistsError` when we try to create a directory that
@@ -182,7 +182,7 @@ class TestFunctions(unittest.TestCase):
         # Put back write permission to owner
         os.chmod(testdir1_path, 0o744)
 
-    # @unittest.skip("test_create_timestamped_dir()")
+    # @unittest.skip("test_create_timestamped_dir_case_1()")
     def test_create_timestamped_dir_case_1(self):
         """Test that create_timestamped_dir() actually created a timestamped
         directory without suffix.
@@ -190,6 +190,26 @@ class TestFunctions(unittest.TestCase):
         Case 1 consists in testing that the timestamped directory without
         suffix in its name was actually created on disk by calling
         :meth:`os.path.isdir` on the directory path.
+
+        """
+        print("\nTesting create_timestamped_dir()...")
+        msg = "The timestamped directory couldn't be created"
+        try:
+            dirpath = create_timestamped_dir(self.sanbox_tmpdir)
+        except (FileExistsError, PermissionError) as e:
+            self.fail("{} : {}".format(msg, e))
+        else:
+            self.assertTrue(os.path.isdir(dirpath), msg)
+            print("The timestamped directory was created")
+
+    @unittest.skip("test_create_timestamped_dir_case_2()")
+    def test_create_timestamped_dir_case_2(self):
+        """Test create_timestamped_dir() when the timestamped directory already
+        exists.
+
+        Case 2 consists in checking that the function :meth:`create_directory`
+        raises a :exc:`FileExistsError` when we try to create a directory that
+        already exists on disk.
 
         """
         print("\nTesting create_timestamped_dir()...")

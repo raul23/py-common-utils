@@ -175,8 +175,7 @@ def create_timestamped_dir(parent_dirpath, suffix=""):
         Raised if the directory already exists.
     PermissionError
         Raised if trying to run an operation without the adequate access rights.
-
-
+g
     """
     new_dirname = "-{}".format(suffix) if suffix else suffix
     timestamped = datetime.now().strftime('%Y%m%d-%H%M%S{dirname}')
