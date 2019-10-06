@@ -88,7 +88,6 @@ def convert_utctime_to_local_tz(utc_time=None):
     else:
         # Get the local timezone name
         tz = pytz.timezone(tzlocal.get_localzone().zone)
-        print(tz)
         if utc_time:
             # Convert time.struct_time into datetime
             # Only the date and time up to seconds, e.g. (2019, 9, 5, 22, 12, 33)
