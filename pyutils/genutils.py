@@ -146,7 +146,7 @@ def create_directory(dirpath):
         return dirpath
 
 
-def create_timestamped_dir(parent_dirpath, new_dirname=""):
+def create_timestamped_dir(parent_dirpath, suffix=""):
     """Create a timestamped directory if it doesn't already exist.
 
     The timestamp is added to the beginning of the directory name, e.g.::
@@ -158,10 +158,10 @@ def create_timestamped_dir(parent_dirpath, new_dirname=""):
     parent_dirpath : str
         Path to the parent directory.
 
-    new_dirname : str, optional
-        Name of the directory to be created (the default value is "" which
-        implies that only the timestamp will be added as the name of the
-        directory).
+    suffix : str, optional
+        It will be added in the directory name after the timestamp (the default
+        value is "" which implies that only the timestamp will be added as the
+        name of the directory).
 
     Returns
     -------
@@ -176,7 +176,7 @@ def create_timestamped_dir(parent_dirpath, new_dirname=""):
         Raised if trying to run an operation without the adequate access rights.
 
     """
-    new_dirname = "-{}".format(new_dirname) if new_dirname else new_dirname
+    new_dirname = "-{}".format(suffix) if suffix else suffix
     timestamped = datetime.now().strftime('%Y%m%d-%H%M%S{dirname}')
     new_dirpath = os.path.join(
         parent_dirpath, timestamped.format(dirname=new_dirname))
