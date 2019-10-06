@@ -1,5 +1,11 @@
 """Module that defines tests for :mod:`~pyutils.genutils`
 
+The command to execute the :mod:`unittest` test runner::
+
+    python -m unittest discover
+
+This command is executed at the root of the project directory or in ``tests/``.
+
 """
 
 from datetime import datetime
@@ -11,8 +17,7 @@ import unittest
 import tzlocal
 # Custom modules
 from pyutils.genutils import convert_utctime_to_local_tz, create_directory, \
-    delete_folder_contents, run_cmd
-# import ipdb
+    create_timestamped_dir, delete_folder_contents, run_cmd
 
 
 class TestFunctions(unittest.TestCase):
@@ -61,7 +66,7 @@ class TestFunctions(unittest.TestCase):
         print("Main temporary directory deleted: ", cls.main_tmpdir_obj.name)
 
     def test_convert_utctime_to_local_tz_case_1(self):
-        """Test case 1 of convert_utctime_to_local_tz()
+        """Test convert_utctime_to_local_tz() returns a valid time.
 
         Case 1 consists in checking that the returned date and time is equal
         to the expected one in the local time zone.
@@ -90,14 +95,14 @@ class TestFunctions(unittest.TestCase):
             self.assertTrue(output == expected, msg)
         else:
             expected = '2019-10-04 ??:29:19???:00'
-            exp1 = output[0:11] == expected[0:13]
+            exp1 = output[0:11] == expected[0:11]
             exp2 = output[13:19] == expected[13:19]
             msg = "UTC time '{}' was incorrectly converted into the local time " \
                   "as '{}'".format(str(datetime(*stime[:7])), output)
             self.assertTrue(exp1 and exp2, msg)
 
     def test_convert_utctime_to_local_tz_case_2(self):
-        """Test case 2 of convert_utctime_to_local_tz()
+        """Test convert_utctime_to_local_tz() when no UTC time is given.
 
         Case 2 consists in setting `utc_time` to None and checking that the
         returned date and time follows the pattern::
@@ -125,7 +130,7 @@ class TestFunctions(unittest.TestCase):
         self.assertRegex(output, regex)
 
     def test_create_directory_case_1(self):
-        """Test that create_directory() actually created a directory
+        """Test that create_directory() actually created a directory.
 
         Case 1 consists in testing that the directory was actually created on
         disk.
@@ -140,7 +145,7 @@ class TestFunctions(unittest.TestCase):
             self.fail("{} : {}".format(msg, e))
         else:
             self.assertTrue(os.path.isdir(dirpath), msg)
-            print("The directory could be created")
+            print("The directory was created")
 
     def test_create_directory_case_2(self):
         """Test create_directory() when a directory already exists
@@ -158,7 +163,7 @@ class TestFunctions(unittest.TestCase):
         print("Raised a FileExistsError exception as expected")
 
     def test_create_directory_case_3(self):
-        """Test create_directory() with no permission write in a directory
+        """Test create_directory() with no permission to write in a directory.
 
         Case 3 consists in checking that the function :meth:`create_directory`
         raises a :exc:`PermissionError` when we try to create a directory in a
@@ -177,12 +182,25 @@ class TestFunctions(unittest.TestCase):
         # Put back write permission to owner
         os.chmod(testdir1_path, 0o744)
 
-    @unittest.skip("test_create_timestamped_dir()")
-    def test_create_timestamped_dir(self):
-        """Test create_timestamped_dir()
+    # @unittest.skip("test_create_timestamped_dir()")
+    def test_create_timestamped_dir_case_1(self):
+        """Test that create_timestamped_dir() actually created a timestamped
+        directory without suffix.
+
+        Case 1 consists in testing that the timestamped directory without
+        suffix in its name was actually created on disk by calling
+        :meth:`os.path.isdir` on the directory path.
 
         """
         print("\nTesting create_timestamped_dir()...")
+        msg = "The timestamped directory couldn't be created"
+        try:
+            dirpath = create_timestamped_dir(self.sanbox_tmpdir)
+        except (FileExistsError, PermissionError) as e:
+            self.fail("{} : {}".format(msg, e))
+        else:
+            self.assertTrue(os.path.isdir(dirpath), msg)
+            print("The timestamped directory was created")
 
     @unittest.skip("test_dumps_json()")
     def test_dumps_json(self):
