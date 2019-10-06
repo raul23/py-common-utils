@@ -16,6 +16,8 @@ saveutils : module that defines a class for saving webpages on disk.
 .. _PyYAML yaml.load(input) Deprecation: https://msg.pyyaml.org/load
 .. _Stack Overflow's user Mark Amery:
    http://stackoverflow.com/a/39501288/1709587
+.. _Stack Overflow's user Nick Stinemates:
+    https://stackoverflow.com/a/185941
 
 """
 
@@ -27,6 +29,7 @@ import pathlib
 import platform
 import pickle
 import shlex
+import shutil
 import subprocess
 # Custom modules
 from pyutils.exceptions.files import OverwriteFileError
@@ -113,6 +116,12 @@ def create_directory(dirpath):
     dirpath : str
         Path to the directory to be created.
 
+    Returns
+    -------
+    dirpath: str
+        If the directory was successfully created, the path to the directory is
+        returned.
+
     Raises
     ------
     FileExistsError
@@ -133,6 +142,8 @@ def create_directory(dirpath):
         raise FileExistsError(e)
     except PermissionError as e:
         raise PermissionError(e)
+    else:
+        return dirpath
 
 
 def create_timestamped_dir(parent_dirpath, new_dirname=""):
@@ -177,6 +188,40 @@ def create_timestamped_dir(parent_dirpath, new_dirname=""):
         raise PermissionError(e)
     else:
         return new_dirpath
+
+
+def delete_folder_contents(folderpath, remove_files=True, remove_subdirs=True):
+    """Delete the contents of a folder
+
+    The folder won't be removed!
+
+    The code is from `Stack Overflow's user Nick Stinemates`_.
+
+    Parameters
+    ----------
+    folderpath : str
+        Path to the folder whose content will be deleted.
+    remove_files : bool, optional
+        TODO
+    remove_subdirs : bool, optional
+        TODO
+
+    Raises
+    ------
+    OSError
+        Raised if any I/O related occurs while writing the data to disk, e.g.
+        the file doesn't exist.
+
+    """
+    for filename in os.listdir(folderpath):
+        filepath = os.path.join(folderpath, filename)
+        try:
+            if remove_files and os.path.isfile(filepath):
+                os.unlink(filepath)
+            elif remove_subdirs and os.path.isdir(filepath):
+                shutil.rmtree(filepath)
+        except OSError as e:
+            raise OSError(e)
 
 
 def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
