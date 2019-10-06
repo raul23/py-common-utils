@@ -23,6 +23,9 @@ class TestFunctions(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """TODO
+
+        """
         print("Setting up genutils tests...")
         # Create main temporary directory
         cls.main_tmpdir_obj = TemporaryDirectory()
@@ -40,6 +43,9 @@ class TestFunctions(unittest.TestCase):
 
     @classmethod
     def tearDown(cls):
+        """TODO
+
+        """
         print("Cleanup...")
         # Cleanup sandbox directory
         delete_folder_contents(cls.sanbox_tmpdir)
@@ -47,6 +53,9 @@ class TestFunctions(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        """TODO
+
+        """
         print("\n\nFinal cleanup...")
         cls.main_tmpdir_obj.cleanup()
         print("Main temporary directory deleted: ", cls.main_tmpdir_obj.name)
@@ -81,7 +90,7 @@ class TestFunctions(unittest.TestCase):
             self.assertTrue(output == expected, msg)
         else:
             expected = '2019-10-04 ??:29:19???:00'
-            exp1 = output[0:11] == expected[0:11]
+            exp1 = output[0:11] == expected[0:13]
             exp2 = output[13:19] == expected[13:19]
             msg = "UTC time '{}' was incorrectly converted into the local time " \
                   "as '{}'".format(str(datetime(*stime[:7])), output)
@@ -165,71 +174,73 @@ class TestFunctions(unittest.TestCase):
             testdir2_path = os.path.join(testdir1_path, "testdir2")
             create_directory(testdir2_path)
         print("Raised a PermissionError exception as expected")
+        # Put back write permission to owner
+        os.chmod(testdir1_path, 0o744)
 
-    @unittest.skip("skipping test_create_timestamped_dir()")
+    @unittest.skip("test_create_timestamped_dir()")
     def test_create_timestamped_dir(self):
         """Test create_timestamped_dir()
 
         """
         print("\nTesting create_timestamped_dir()...")
 
-    @unittest.skip("skipping test_dumps_json()")
+    @unittest.skip("test_dumps_json()")
     def test_dumps_json(self):
         """Test dumps_json()
 
         """
         print("\nTesting dumps_json()...")
 
-    @unittest.skip("skipping test_dumps_pickle()")
+    @unittest.skip("test_dumps_pickle()")
     def test_dumps_pickle(self):
         """Test dumps_pickle()
 
         """
         print("\nTesting dumps_pickle()...")
 
-    @unittest.skip("skipping test_get_creation_date()")
+    @unittest.skip("test_get_creation_date()")
     def test_get_creation_date(self):
         """Test get_creation_date()
 
         """
         print("\nTesting get_creation_date()...")
 
-    @unittest.skip("skipping test_load_json()")
+    @unittest.skip("test_load_json()")
     def test_load_json(self):
         """Test load_json()
 
         """
         print("\nTesting load_json()...")
 
-    @unittest.skip("skipping test_load_pickle()")
+    @unittest.skip("test_load_pickle()")
     def test_load_pickle(self):
         """Test load_pickle()
 
         """
         print("\nTesting load_pickle()...")
 
-    @unittest.skip("skipping test_dumps_pickle()")
+    @unittest.skip("test_dumps_pickle()")
     def test_load_yaml(self):
         """Test load_yaml()
 
         """
         print("\nTesting load_yaml()...")
 
-    @unittest.skip("skipping test_read_file()")
+    @unittest.skip("test_read_file()")
     def test_read_file(self):
         """Test read_file()
 
         """
         print("\nTesting read_file()...")
 
-    @unittest.skip("skipping test_read_yaml()")
+    @unittest.skip("test_read_yaml()")
     def test_read_yaml(self):
         """Test read_yaml()
 
         """
         print("\nTesting read_yaml()...")
 
-    @unittest.skip("skipping test_run_cmd_date()")
+    @unittest.skip("test_run_cmd_date()")
     def test_run_cmd_date(self):
         """Test run_cmd() with the command ``date``
 
@@ -238,7 +249,7 @@ class TestFunctions(unittest.TestCase):
         print("Command output: ")
         self.assertTrue(run_cmd("date") == 0)
 
-    @unittest.skip("skipping test_run_cmd_pwd()")
+    @unittest.skip("test_run_cmd_pwd()")
     def test_run_cmd_pwd(self):
         """Test run_cmd() with the command ``pwd``
 
@@ -247,7 +258,7 @@ class TestFunctions(unittest.TestCase):
         print("Command output: ")
         self.assertTrue(run_cmd("pwd") == 0)
 
-    @unittest.skip("skipping test_write_file()")
+    @unittest.skip("test_write_file()")
     def test_write_file(self):
         """Test run_cmd()
 
