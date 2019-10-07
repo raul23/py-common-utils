@@ -175,7 +175,7 @@ def create_timestamped_dir(parent_dirpath, suffix=""):
         Raised if the directory already exists.
     PermissionError
         Raised if trying to run an operation without the adequate access rights.
-g
+
     """
     new_dirname = "-{}".format(suffix) if suffix else suffix
     timestamped = datetime.now().strftime('%Y%m%d-%H%M%S{dirname}')
@@ -191,7 +191,7 @@ g
         return new_dirpath
 
 
-def delete_folder_contents(folderpath, remove_subdirs=True):
+def delete_folder_contents(folderpath, remove_subdirs=True, delete_recursively=False):
     """Delete the contents of a folder.
 
     The folder itself won't be removed!
@@ -202,6 +202,8 @@ def delete_folder_contents(folderpath, remove_subdirs=True):
     files and subdirectories. However, if subdirectories must not be deleted,
     then `remove_subdirs` must be set to False.
 
+    IMPORTANT: TODO about deleting recursively
+
     Parameters
     ----------
     folderpath : str
@@ -209,6 +211,8 @@ def delete_folder_contents(folderpath, remove_subdirs=True):
     remove_subdirs : bool, optional
         Remove the subdirectories (the default value is True which implies that
         everything will be deleted from the root folder).
+    delete_recursively: bool, optional
+        TODO
 
     Raises
     ------
@@ -217,15 +221,29 @@ def delete_folder_contents(folderpath, remove_subdirs=True):
         the file doesn't exist.
 
     """
-    for filename in os.listdir(folderpath):
-        filepath = os.path.join(folderpath, filename)
-        try:
+    def remove_non_recursively():
+        for filename in os.listdir(folderpath):
+            filepath = os.path.join(folderpath, filename)
             if os.path.isfile(filepath):
                 os.unlink(filepath)
             elif remove_subdirs and os.path.isdir(filepath):
                 shutil.rmtree(filepath)
-        except OSError as e:
-            raise OSError(e)
+
+    def remove_recursively():
+        for root, dirs, files in os.walk(folderpath):
+            for f in files:
+                os.unlink(os.path.join(root, f))
+            if remove_subdirs:
+                for d in dirs:
+                    shutil.rmtree(os.path.join(root, d))
+
+    try:
+        if delete_recursively:
+            remove_recursively()
+        else:
+            remove_non_recursively()
+    except OSError:
+        raise
 
 
 def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
