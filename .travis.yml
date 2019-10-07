@@ -7,5 +7,5 @@ python:
 
 install: pip install -r requirements_travis.txt
 
-script: python tests/test_dbutils.py
+script: python -m unittest discover
 
