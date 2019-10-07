@@ -21,7 +21,8 @@ import yaml
 # Custom modules
 from pyutils.genutils import convert_utctime_to_local_tz, create_dir, \
     create_timestamped_dir, delete_folder_contents, dumps_json, dump_pickle, \
-    get_creation_date, load_json, load_pickle, load_yaml, run_cmd, write_file
+    get_creation_date, load_json, load_pickle, load_yaml, read_file, run_cmd, \
+    write_file
 
 
 class TestFunctions(unittest.TestCase):
@@ -62,7 +63,7 @@ class TestFunctions(unittest.TestCase):
         print("Temporary directory deleted: ", cls.tmpdir)
 
     def test_convert_utctime_to_local_tz_case_1(self):
-        """Test convert_utctime_to_local_tz() returns a valid time.
+        """Test that convert_utctime_to_local_tz() returns a valid time.
 
         Case 1 consists in checking that the returned date and time is equal
         to the expected one in the local time zone.
@@ -100,15 +101,16 @@ class TestFunctions(unittest.TestCase):
     def test_convert_utctime_to_local_tz_case_2(self):
         """Test convert_utctime_to_local_tz() when no UTC time is given.
 
-        Case 2 consists in setting `utc_time` to None and checking that the
-        returned date and time follows the pattern::
+        Case 2 consists setting `utc_time` to None and testing that
+        :meth:`convert_utctime_to_local_tz` returns a date and time that
+        follows the pattern::
 
             YYYY-MM-DD HH:MM:SS-HH:MM
 
         Notes
         -----
-        `utc_time` is the argument given to :meth:`convert_utctime_to_local_tz`
-        which will convert it into the local time zone.
+        When `utc_time` is None, :meth:`convert_utctime_to_local_tz` will use
+        UTC as the timezone for the current time.
 
         """
         print("\nTesting case 2 of convert_utctime_to_local_tz()...")
@@ -129,7 +131,7 @@ class TestFunctions(unittest.TestCase):
         """Test that create_dir() actually creates a directory.
 
         Case 1 consists in testing that the directory was actually created on
-        disk.
+        disk by the function :meth:`create_dir()`.
 
         """
         print("\nTesting case 1 of create_dir()...")
@@ -172,8 +174,7 @@ class TestFunctions(unittest.TestCase):
         # TODO: Only works on macOS/Linux:
         os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError):
-            test2_dirpath = os.path.join(test1_dirpath, "testdir2")
-            create_dir(test2_dirpath)
+            create_dir(os.path.join(test1_dirpath, "testdir2"))
         print("Raised a PermissionError exception as expected")
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
@@ -226,8 +227,7 @@ class TestFunctions(unittest.TestCase):
         # TODO: Only works on macOS/Linux:
         os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError):
-            test2_dirpath = os.path.join(test1_dirpath, "testdir2")
-            create_timestamped_dir(test2_dirpath)
+            create_timestamped_dir(os.path.join(test1_dirpath, "testdir2"))
         print("Raised a PermissionError exception as expected")
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
@@ -249,16 +249,10 @@ class TestFunctions(unittest.TestCase):
 
         """
         for i in range(1, number_files + 1):
-            filepath = os.path.join(dirpath, "file{}.txt".format(i))
-            write_file(filepath, text)
+            write_file(os.path.join(dirpath, "file{}.txt".format(i)), text)
 
     def populate_folder(self, number_subdirs=2, number_files=2):
         """Populate a folder with text files and subdirectories.
-
-        This function is to be used when testing
-        :meth:`~genutils.delete_folder_contents`, see
-        :meth:`test_delete_folder_contents_case_1` and
-        :meth:`test_delete_folder_contents_case_2`.
 
         It creates a main test directory with `number_files` text files, and
         `number_subdirs` subdirectories with each storing `number_files` text
@@ -276,6 +270,13 @@ class TestFunctions(unittest.TestCase):
         main_test_dirpath : str
             Path to the main directory which stores the subdirectories along
             with their text files.
+
+        Notes
+        -----
+        This function is to be used when testing
+        :meth:`~genutils.delete_folder_contents`, see
+        :meth:`test_delete_folder_contents_case_1` and
+        :meth:`test_delete_folder_contents_case_2`.
 
         """
         # TODO: add symbolic links
@@ -436,12 +437,12 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting case 5 of delete_folder_contents()...")
-        fake_dirpath = os.path.join(self.tmpdir, "fakedir")
         try:
             # Delete everything in the directory that doesn't exist
-            delete_folder_contents(folderpath=fake_dirpath,
-                                   remove_subdirs=True,
-                                   delete_recursively=False)
+            delete_folder_contents(
+                folderpath=os.path.join(self.tmpdir, "fakedir"),
+                remove_subdirs=True,
+                delete_recursively=False)
         except OSError:
             print("Raised an OSError exception as expected")
         else:
@@ -449,8 +450,8 @@ class TestFunctions(unittest.TestCase):
 
     # @unittest.skip("test_dump_and_load_pickle()")
     def test_dump_and_load_pickle(self):
-        """Test dump_pickle() writes and load data correctly to/from a file on
-        disk.
+        """Test that dump_pickle() writes and load data correctly to/from a
+        file on disk.
 
         This function tests that the data saved on disk is not corrupted by
         loading it and checking that it is the same as the original data.
@@ -478,7 +479,7 @@ class TestFunctions(unittest.TestCase):
 
     # @unittest.skip("test_dumps_and_load_json_case_1()")
     def test_dumps_and_load_json_case_1(self):
-        """Test dumps_json() writes and loads data correctly to/from a JSON
+        """Test that dumps_json() writes and loads data correctly to/from a JSON
         file with its keys sorted.
 
         Case 1 tests that the JSON data saved on disk is not corrupted by
@@ -511,7 +512,7 @@ class TestFunctions(unittest.TestCase):
 
     # @unittest.skip("test_dumps_and_load_json_case_2()")
     def test_dumps_and_load_json_case_2(self):
-        """Test dumps_json() writes and loads data correctly to/from a JSON
+        """Test that dumps_json() writes and loads data correctly to/from a JSON
         file with its keys not sorted.
 
         Case 2 tests that the JSON data saved on disk is not corrupted by
@@ -544,10 +545,11 @@ class TestFunctions(unittest.TestCase):
 
     # @unittest.skip("test_get_creation_date()")
     def test_get_creation_date(self):
-        """Test get_creation_date() returns a valid creation date for a file.
+        """Test that get_creation_date() returns a valid creation date for a
+        file.
 
-        The test consists in saving a file on disk and then checking that its
-        creation date is valid by comparing it to the current date and time.
+        This function tests :meth:`get_creation_date` by comparing the creation
+        date of a file and the current date and time.
 
         """
         print("\nTesting get_creation_date()...")
@@ -569,10 +571,10 @@ class TestFunctions(unittest.TestCase):
 
     # @unittest.skip("test_load_yaml()")
     def test_load_yaml(self):
-        """Test load_yaml() loads data correctly from a YAML file.
+        """Test that load_yaml() loads data correctly from a YAML file.
 
-        This function tests that the YAML data saved on disk is not corrupted by
-        loading it and checking that it is the same as the original data.
+        This function tests that :meth:`load_yaml` can load a YAML data from a
+        file on disk by checking that it is the same as the original data.
 
         """
         print("\nTesting load_yaml()...")
@@ -594,12 +596,39 @@ class TestFunctions(unittest.TestCase):
         self.assertDictEqual(data1, data2, msg)
         print("The YAML data was saved correctly")
 
-    @unittest.skip("test_read_file()")
-    def test_read_file(self):
-        """Test read_file()
+    # @unittest.skip("test_read_file_case_1()")
+    def test_read_file_case_1(self):
+        """Test that read_file() reads a file on disk.
+
+        Case 1 consists in checking that :meth:`read_file()` can read a text
+        file from disk by checking that its content is the same as the
+        original data.
 
         """
-        print("\nTesting read_file()...")
+        print("\nTesting case 1 of read_file()...")
+        # Write text to a file on disk
+        text1 = "Hello World!\n"
+        filepath = os.path.join(self.tmpdir, "file.txt")
+        write_file(filepath, text1)
+        # Test that the text was correctly written by loading it
+        text2 = read_file(filepath)
+        msg = "The text that was saved on disk is corrupted"
+        self.assertTrue(text1==text2, msg)
+        print("The text was saved correctly")
+
+    # @unittest.skip("test_read_file_case_2()")
+    def test_read_file_case_2(self):
+        """Test that read_file() when a file doesn't exist.
+
+        Case 2 consists in checking that :meth:`read_file()` raises an
+        :exc:`OSError` exception when a file doesn't exist.
+
+        """
+        print("\nTesting case 2 of read_file()...")
+        # Write text to a file on disk
+        with self.assertRaises(OSError):
+            read_file(os.path.join(self.tmpdir, "file.txt"))
+        print("Raised an OSError exception as expected")
 
     # @unittest.skip("test_run_cmd_date()")
     def test_run_cmd_date(self):
