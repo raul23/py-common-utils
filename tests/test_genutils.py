@@ -10,6 +10,7 @@ This command is executed at the root of the project directory or in ``tests/``.
 
 from datetime import datetime
 import os
+import shutil
 from tempfile import TemporaryDirectory
 import time
 import unittest
@@ -236,6 +237,24 @@ class TestFunctions(unittest.TestCase):
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
 
+    def create_text_files(self, dirpath, text="Hello World!\n", number_files=2):
+        """Create text files in a directory.
+
+        `number_files` text files are created in the directory `dirpath` with
+        the text `text`.
+
+        Parameters
+        ----------
+        dirpath : str
+            Path to the directory where the text files are created.
+        number_files : int, optional
+            Number of files to create in the directory (the default value is 2).
+
+        """
+        for i in range(1, number_files + 1):
+            filepath = os.path.join(dirpath, "file{}.txt".format(i))
+            write_file(filepath, text)
+
     def populate_folder(self, number_subdirs=2, number_files=2):
         """Populate a folder with text files and subdirectories.
 
@@ -244,8 +263,9 @@ class TestFunctions(unittest.TestCase):
         :meth:`test_delete_folder_contents_case_1` and
         :meth:`test_delete_folder_contents_case_2`.
 
-        It creates a main test directory with `number_subdirs` subdirectories
-        with each storing `number_files` text files.
+        It creates a main test directory with `number_files` text files, and
+        `number_subdirs` subdirectories with each storing `number_files` text
+        files.
 
         Parameters
         ----------
@@ -261,17 +281,21 @@ class TestFunctions(unittest.TestCase):
             with their text files.
 
         """
+        # TODO: add symbolic links
         # Create a main test directory where many subdirectories with text
         # files will be created
         maintest_dirpath = os.path.join(self.sanbox_tmpdir, "main_testdir")
         create_directory(maintest_dirpath)
+        self.create_text_files(dirpath=maintest_dirpath,
+                          text="Hello, World!\nI will be deleted soon :(\n",
+                          number_files=number_files)
         for i in range(1, number_subdirs+1):
             # Create the subdirectories with text files
             test_dirpath = os.path.join(maintest_dirpath, "testdir{}".format(i))
             create_directory(test_dirpath)
-            for j in range(1, number_files+1):
-                filepath = os.path.join(test_dirpath, "file{}.txt".format(j))
-                write_file(filepath, "Hello, World!\nI will be deleted soon :(\n")
+            self.create_text_files(dirpath=test_dirpath,
+                              text="Hello, World!\nI will be deleted soon :(\n",
+                              number_files=number_files)
         return maintest_dirpath
 
     # @unittest.skip("test_delete_folder_contents_case_1()")
@@ -279,7 +303,10 @@ class TestFunctions(unittest.TestCase):
         """Test that delete_folder_contents() removes everything in a folder.
 
         Case 1 consists in testing that :meth:`delete_folder_contents` removes
-        everything in a folder, including the files and subdirectories.
+        everything in a folder, including the files and subdirectories at the
+        root of the given folder.
+
+        remove_subdirs=True and delete_recursively=False
 
         See Also
         --------
@@ -296,13 +323,16 @@ class TestFunctions(unittest.TestCase):
         self.assertTrue(len(os.listdir(dirpath)) == 0, msg)
         print("The folder {} is empty".format(dirpath))
 
-    @unittest.skip("test_delete_folder_contents_case_2()")
+    # @unittest.skip("test_delete_folder_contents_case_2()")
     def test_delete_folder_contents_case_2(self):
-        """Test that delete_folder_contents() removes everything in a folder,
-        except the subdirectories.
+        """Test that delete_folder_contents() removes everything at the root
+        of a directory except subdirectories and their contents.
 
         Case 2 consists in testing that :meth:`delete_folder_contents` removes
-        everything in a folder, except the subdirectories.
+        everything in a folder, except the subdirectories and their contents at
+        the root of the given folder.
+
+        remove_subdirs=False and delete_recursively=False
 
         See Also
         --------
@@ -310,13 +340,70 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting case 2 of delete_folder_contents()...")
+        # Create the main test directory along with subdirectories and files
+        dirpath = self.populate_folder()
+        # Delete everything in the main test directory, except subdirectories
+        delete_folder_contents(dirpath, remove_subdirs=False)
+        # Test that the folder only has subdirectories but no files at its root
+        for root, dirs, files in os.walk(dirpath):
+            if root == dirpath:
+                msg = "There is a file at the top of the directory"
+                self.assertTrue(len(files) == 0, msg)
+            else:
+                msg = "There is a subdirectory that is empty"
+                self.assertTrue(len(files) > 0, msg)
+
+        print("No files found at the top and the subdirectories are not "
+              "empty".format(dirpath))
+
+    @unittest.skip("test_delete_folder_contents_case_3()")
+    def test_delete_folder_contents_case_3(self):
+        """Test that delete_folder_contents() removes everything at the root
+        of a directory except subdirectories and their contents.
+
+        Remove text files recursively, remove_subdirs=False and delete_recursively=True
+
+        Case 3 consists in testing that :meth:`delete_folder_contents` removes
+        everything in a folder, except the subdirectories and their contents at
+        the root of the given folder.
+
+        See Also
+        --------
+        populate_folder : populates a folder with text files and subdirectories.
+
+        """
+        print("\nTesting case 3 of delete_folder_contents()...")
         import ipdb
         ipdb.set_trace()
         # Create the main test directory along with subdirectories and files
         dirpath = self.populate_folder()
-        # Delete the whole content of the main test directory
+        # Delete everything in the main test directory, except subdirectories
         delete_folder_contents(dirpath, remove_subdirs=False)
-        # Test that the folder only has subdirectories, no files
+
+    @unittest.skip("test_delete_folder_contents_case_4()")
+    def test_delete_folder_contents_case_4(self):
+        """Test that delete_folder_contents() removes everything at the root
+        of a directory except subdirectories and their contents.
+
+        Remove everything recursively at the root
+        remove_subdirs=True and delete_recursively=True
+
+        Case 4 consists in testing that :meth:`delete_folder_contents` removes
+        everything in a folder, except the subdirectories and their contents at
+        the root of the given folder.
+
+        See Also
+        --------
+        populate_folder : populates a folder with text files and subdirectories.
+
+        """
+        print("\nTesting case 4 of delete_folder_contents()...")
+        import ipdb
+        ipdb.set_trace()
+        # Create the main test directory along with subdirectories and files
+        dirpath = self.populate_folder()
+        # Delete everything in the main test directory, except subdirectories
+        delete_folder_contents(dirpath, remove_subdirs=False)
 
     @unittest.skip("test_dumps_json()")
     def test_dumps_json(self):
