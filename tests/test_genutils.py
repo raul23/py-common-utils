@@ -35,19 +35,10 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("Setting up genutils tests...")
-        # Create main temporary directory
-        cls._main_tmpdir_obj = TemporaryDirectory()
-        cls._main_tmpdir = cls._main_tmpdir_obj.name
-        print("Main temporary directory created: ", cls._main_tmpdir)
-        # Create sandbox directory where the methods can write
-        cls.sanbox_tmpdir = create_directory(
-            os.path.join(cls._main_tmpdir, "sandbox"))
-        print("Sandbox directory created: ", cls.sanbox_tmpdir)
-        # Create a directory for data files (e.g. YAML and txt files) useful
-        # for performing the tests
-        cls.datafiles_tmpdir = create_directory(
-            os.path.join(cls._main_tmpdir, "datafiles"))
-        print("Data files directory created: ", cls.datafiles_tmpdir)
+        # Create temporary directory
+        cls.tmpdir_obj = TemporaryDirectory()
+        cls.tmpdir = cls.tmpdir_obj.name
+        print("Temporary directory created: ", cls.tmpdir)
 
     @classmethod
     def tearDown(cls):
@@ -55,9 +46,9 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("Cleanup...")
-        # Cleanup sandbox directory
-        delete_folder_contents(cls.sanbox_tmpdir)
-        # print("Sandbox directory cleared: ", cls.sanbox_tmpdir)
+        # Cleanup temporary directory
+        delete_folder_contents(cls.tmpdir)
+        # print("Temporary directory cleared: ", cls.tmpdir)
 
     @classmethod
     def tearDownClass(cls):
@@ -65,8 +56,9 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\n\nFinal cleanup...")
-        cls._main_tmpdir_obj.cleanup()
-        print("Main temporary directory deleted: ", cls._main_tmpdir_obj.name)
+        # Delete the temporary directory
+        cls.tmpdir_obj.cleanup()
+        print("Temporary directory deleted: ", cls.tmpdir)
 
     def test_convert_utctime_to_local_tz_case_1(self):
         """Test convert_utctime_to_local_tz() returns a valid time.
@@ -140,7 +132,7 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting case 1 of create_directory()...")
-        dirpath = os.path.join(self.sanbox_tmpdir, "testdir")
+        dirpath = os.path.join(self.tmpdir, "testdir")
         msg = "The directory {} couldn't be created".format(dirpath)
         try:
             create_directory(dirpath)
@@ -160,7 +152,7 @@ class TestFunctions(unittest.TestCase):
         """
         print("\nTesting case 2 of create_directory() ...")
         with self.assertRaises(FileExistsError):
-            dirpath = os.path.join(self.sanbox_tmpdir, "testdir")
+            dirpath = os.path.join(self.tmpdir, "testdir")
             create_directory(dirpath)
             create_directory(dirpath)
         print("Raised a FileExistsError exception as expected")
@@ -174,7 +166,7 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting case 3 of create_directory() ...")
-        test1_dirpath = os.path.join(self.sanbox_tmpdir, "testdir1")
+        test1_dirpath = os.path.join(self.tmpdir, "testdir1")
         create_directory(test1_dirpath)
         # TODO: Only works on macOS/Linux:
         os.chmod(test1_dirpath, 0o444)
@@ -209,7 +201,7 @@ class TestFunctions(unittest.TestCase):
         print("\nTesting case 1 of create_timestamped_dir()...")
         msg = "The timestamped directory couldn't be created"
         try:
-            dirpath = create_timestamped_dir(self.sanbox_tmpdir)
+            dirpath = create_timestamped_dir(self.tmpdir)
         except (FileExistsError, PermissionError) as e:
             self.fail("{} : {}".format(msg, e))
         else:
@@ -228,7 +220,7 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting case 2 of create_timestamped_dir() ...")
-        test1_dirpath = os.path.join(self.sanbox_tmpdir, "testdir1")
+        test1_dirpath = os.path.join(self.tmpdir, "testdir1")
         create_directory(test1_dirpath)
         # TODO: Only works on macOS/Linux:
         os.chmod(test1_dirpath, 0o444)
@@ -288,7 +280,7 @@ class TestFunctions(unittest.TestCase):
         # TODO: add symbolic links
         # Create a main test directory where many subdirectories with text
         # files will be created
-        maintest_dirpath = os.path.join(self.sanbox_tmpdir, "main_testdir")
+        maintest_dirpath = os.path.join(self.tmpdir, "main_testdir")
         create_directory(maintest_dirpath)
         self.create_text_files(
             dirpath=maintest_dirpath,
@@ -443,7 +435,7 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting case 5 of delete_folder_contents()...")
-        fake_dirpath = os.path.join(self.sanbox_tmpdir, "fakedir")
+        fake_dirpath = os.path.join(self.tmpdir, "fakedir")
         try:
             # Delete everything in the directory that doesn't exist
             delete_folder_contents(folderpath=fake_dirpath,
@@ -475,7 +467,7 @@ class TestFunctions(unittest.TestCase):
                 'key3-2': 'value3-2'
             }
         }
-        filepath = os.path.join(self.sanbox_tmpdir, "data.pkl")
+        filepath = os.path.join(self.tmpdir, "data.pkl")
         dump_pickle(filepath, data1)
         # Test that the data was correctly written by loading it
         data2 = load_pickle(filepath)
@@ -505,7 +497,7 @@ class TestFunctions(unittest.TestCase):
             },
             'key2': 'value2'
         }
-        filepath = os.path.join(self.sanbox_tmpdir, "data.json")
+        filepath = os.path.join(self.tmpdir, "data.json")
         dumps_json(filepath, data1)
         # Test that the JSON data was correctly written by loading it
         data2 = load_json(filepath)
@@ -538,7 +530,7 @@ class TestFunctions(unittest.TestCase):
             },
             'key2': 'value2'
         }
-        filepath = os.path.join(self.sanbox_tmpdir, "data.json")
+        filepath = os.path.join(self.tmpdir, "data.json")
         dumps_json(filepath, data1, sort_keys=False)
         # Test that the JSON data was correctly written by loading it
         data2 = load_json(filepath)
@@ -553,10 +545,13 @@ class TestFunctions(unittest.TestCase):
     def test_get_creation_date(self):
         """Test get_creation_date() returns a valid creation date for a file.
 
-        The test consists in
+        The test consists in save a file on disk and then checking that its
+        creation date is valid by comparing to the current date and time.
 
         """
         print("\nTesting get_creation_date()...")
+        # Write file to disk
+
 
     @unittest.skip("test_dumps_pickle()")
     def test_load_yaml(self):
