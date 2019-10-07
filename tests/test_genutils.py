@@ -17,8 +17,8 @@ import unittest
 import tzlocal
 # Custom modules
 from pyutils.genutils import convert_utctime_to_local_tz, create_directory, \
-    create_timestamped_dir, delete_folder_contents, dumps_json, load_json, \
-    run_cmd, write_file
+    create_timestamped_dir, delete_folder_contents, dumps_json, dump_pickle, \
+    load_json, load_pickle, run_cmd, write_file
 
 
 class TestFunctions(unittest.TestCase):
@@ -34,17 +34,17 @@ class TestFunctions(unittest.TestCase):
         """
         print("Setting up genutils tests...")
         # Create main temporary directory
-        cls.main_tmpdir_obj = TemporaryDirectory()
-        cls.main_tmpdir = cls.main_tmpdir_obj.name
-        print("Main temporary directory created: ", cls.main_tmpdir)
+        cls._main_tmpdir_obj = TemporaryDirectory()
+        cls._main_tmpdir = cls._main_tmpdir_obj.name
+        print("Main temporary directory created: ", cls._main_tmpdir)
         # Create sandbox directory where the methods can write
         cls.sanbox_tmpdir = create_directory(
-            os.path.join(cls.main_tmpdir, "sandbox"))
+            os.path.join(cls._main_tmpdir, "sandbox"))
         print("Sandbox directory created: ", cls.sanbox_tmpdir)
         # Create a directory for data files (e.g. YAML and txt files) useful
         # for performing the tests
         cls.datafiles_tmpdir = create_directory(
-            os.path.join(cls.main_tmpdir, "datafiles"))
+            os.path.join(cls._main_tmpdir, "datafiles"))
         print("Data files directory created: ", cls.datafiles_tmpdir)
 
     @classmethod
@@ -63,8 +63,8 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\n\nFinal cleanup...")
-        cls.main_tmpdir_obj.cleanup()
-        print("Main temporary directory deleted: ", cls.main_tmpdir_obj.name)
+        cls._main_tmpdir_obj.cleanup()
+        print("Main temporary directory deleted: ", cls._main_tmpdir_obj.name)
 
     def test_convert_utctime_to_local_tz_case_1(self):
         """Test convert_utctime_to_local_tz() returns a valid time.
@@ -441,7 +441,7 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting case 5 of delete_folder_contents()...")
-        fake_dirpath = os.path.join(self.main_tmpdir, "fakedir")
+        fake_dirpath = os.path.join(self.sanbox_tmpdir, "fakedir")
         try:
             # Delete everything in the directory that doesn't exist
             delete_folder_contents(folderpath=fake_dirpath,
@@ -503,7 +503,7 @@ class TestFunctions(unittest.TestCase):
         }
         filepath = os.path.join(self.sanbox_tmpdir, "data.json")
         dumps_json(filepath, data1, sort_keys=False)
-        # Test that the keys from the JSON data are not sorted
+        # Test that the JSON data was correctly written by loading it
         data2 = load_json(filepath)
         msg = "The JSON data that was saved on disk is corrupted"
         self.assertDictEqual(data1, data2, msg)
@@ -512,12 +512,30 @@ class TestFunctions(unittest.TestCase):
         self.assertSequenceEqual(list(data1.keys()), list(data2.keys()))
         print("The JSON data was saved correctly with its keys not sorted")
 
-    @unittest.skip("test_dumps_pickle()")
-    def test_dumps_pickle(self):
-        """Test dumps_pickle()
+    # @unittest.skip("test_dump_pickle()")
+    def test_dump_pickle(self):
+        """Test dumps_pickle() writes data correctly to a file on disk.
+
+        This function tests that the data saved on disk is not corrupted by
+        loading it and checking that it is the same as the original data.
 
         """
-        print("\nTesting dumps_pickle()...")
+        print("\nTesting dump_pickle()...")
+        data1 = {
+            'key1': 'value1',
+            'key2': 'value2',
+            'key3': {
+                'key3-1': 'value3-1',
+                'key3-2': 'value3-2'
+            }
+        }
+        filepath = os.path.join(self.sanbox_tmpdir, "data.pkl")
+        dump_pickle(filepath, data1)
+        # Test that the data was correctly written by loading it
+        data2 = load_pickle(filepath)
+        msg = "The data that was saved on disk is corrupted"
+        self.assertDictEqual(data1, data2, msg)
+        print("The data was pickled and saved correctly")
 
     @unittest.skip("test_get_creation_date()")
     def test_get_creation_date(self):
