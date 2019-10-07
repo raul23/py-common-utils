@@ -17,10 +17,11 @@ import time
 import unittest
 # Third-party modules
 import tzlocal
+import yaml
 # Custom modules
 from pyutils.genutils import convert_utctime_to_local_tz, create_directory, \
     create_timestamped_dir, delete_folder_contents, dumps_json, dump_pickle, \
-    get_creation_date, load_json, load_pickle, run_cmd, write_file
+    get_creation_date, load_json, load_pickle, load_yaml, run_cmd, write_file
 
 
 class TestFunctions(unittest.TestCase):
@@ -566,12 +567,32 @@ class TestFunctions(unittest.TestCase):
         print("Current time: ", now)
         print("Valid file creation date: ", creation)
 
-    @unittest.skip("test_dumps_pickle()")
+    # @unittest.skip("test_load_yaml()")
     def test_load_yaml(self):
-        """Test load_yaml()
+        """Test load_yaml() loads data correctly from a YAML file.
+
+        This function tests that the YAML data saved on disk is not corrupted by
+        loading it and checking that it is the same as the original data.
 
         """
         print("\nTesting load_yaml()...")
+        # Write YAML data to a file on disk
+        data1 = {
+            'key1': 'value1',
+            'key3': {
+                'key3-2': 'value3-2',
+                'key3-1': 'value3-1'
+            },
+            'key2': 'value2'
+        }
+        filepath = os.path.join(self.tmpdir, "file.yaml")
+        with open(filepath, 'w') as f:
+            yaml.dump(data1, f, default_flow_style=False, sort_keys=False)
+        # Test that the YAML data was correctly written by loading it
+        data2 = load_yaml(filepath)
+        msg = "The YAML data that was saved on disk is corrupted"
+        self.assertDictEqual(data1, data2, msg)
+        print("The YAML data was saved correctly")
 
     @unittest.skip("test_read_file()")
     def test_read_file(self):
@@ -579,13 +600,6 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting read_file()...")
-
-    @unittest.skip("test_read_yaml()")
-    def test_read_yaml(self):
-        """Test read_yaml()
-
-        """
-        print("\nTesting read_yaml()...")
 
     # @unittest.skip("test_run_cmd_date()")
     def test_run_cmd_date(self):
