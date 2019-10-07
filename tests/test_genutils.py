@@ -482,7 +482,7 @@ class TestFunctions(unittest.TestCase):
         self.assertSequenceEqual(sorted(data1.keys()), list(data2.keys()))
         print("The JSON data was saved correctly with its keys sorted")
 
-    @unittest.skip("test_dumps_json_case_2()")
+    # @unittest.skip("test_dumps_json_case_2()")
     def test_dumps_json_case_2(self):
         """Test dumps_json() writes data correctly to a JSON file with its
         keys not sorted.
@@ -493,21 +493,24 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting case 2 of dumps_json()...")
-        import ipdb
-        ipdb.set_trace()
         data1 = {
             'key1': 'value1',
-            'key2': 'value2',
             'key3': {
-                'key3-1': 'value3-1',
-                'key3-2': 'value3-2'
-            }
+                'key3-2': 'value3-2',
+                'key3-1': 'value3-1'
+            },
+            'key2': 'value2'
         }
         filepath = os.path.join(self.sanbox_tmpdir, "data.json")
-        dumps_json(filepath, data1)
+        dumps_json(filepath, data1, sort_keys=False)
         # Test that the keys from the JSON data are not sorted
         data2 = load_json(filepath)
-        msg = "The JSON data that was saved on disk is "
+        msg = "The JSON data that was saved on disk is corrupted"
+        self.assertDictEqual(data1, data2, msg)
+        # Test that the keys from the JSON data are not sorted
+        # NOTE: Only the keys at level 1 of the JSON dict are tested
+        self.assertSequenceEqual(list(data1.keys()), list(data2.keys()))
+        print("The JSON data was saved correctly with its keys not sorted")
 
     @unittest.skip("test_dumps_pickle()")
     def test_dumps_pickle(self):
