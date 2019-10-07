@@ -10,7 +10,6 @@ This command is executed at the root of the project directory or in ``tests/``.
 
 from datetime import datetime
 import os
-import shutil
 from tempfile import TemporaryDirectory
 import time
 import unittest
@@ -18,7 +17,8 @@ import unittest
 import tzlocal
 # Custom modules
 from pyutils.genutils import convert_utctime_to_local_tz, create_directory, \
-    create_timestamped_dir, delete_folder_contents, run_cmd, write_file
+    create_timestamped_dir, delete_folder_contents, dumps_json, load_json, \
+    run_cmd, write_file
 
 
 class TestFunctions(unittest.TestCase):
@@ -452,12 +452,62 @@ class TestFunctions(unittest.TestCase):
         else:
             self.fail("An OSError exception was not raised as expected")
 
-    @unittest.skip("test_dumps_json()")
-    def test_dumps_json(self):
-        """Test dumps_json()
+    # @unittest.skip("test_dumps_json_case_1()")
+    def test_dumps_json_case_1(self):
+        """Test dumps_json() writes data correctly to a JSON file with its
+        keys sorted.
+
+        Case 1 tests that the JSON data saved on disk is not corrupted by
+        loading it and checking that it is the same as the original JSON data
+        and that its keys are sorted.
 
         """
-        print("\nTesting dumps_json()...")
+        print("\nTesting case 1 of dumps_json()...")
+        data1 = {
+            'key1': 'value1',
+            'key3': {
+                'key3-2': 'value3-2',
+                'key3-1': 'value3-1'
+            },
+            'key2': 'value2'
+        }
+        filepath = os.path.join(self.sanbox_tmpdir, "data.json")
+        dumps_json(filepath, data1)
+        # Test that the JSON data was correctly written by loading it
+        data2 = load_json(filepath)
+        msg = "The JSON data that was saved on disk is corrupted"
+        self.assertDictEqual(data1, data2, msg)
+        # Test that the keys from the JSON data are sorted
+        # NOTE: Only the keys at level 1 of the JSON dict are tested
+        self.assertSequenceEqual(sorted(data1.keys()), list(data2.keys()))
+        print("The JSON data was saved correctly with its keys sorted")
+
+    @unittest.skip("test_dumps_json_case_2()")
+    def test_dumps_json_case_2(self):
+        """Test dumps_json() writes data correctly to a JSON file with its
+        keys not sorted.
+
+        Case 2 tests that the JSON data saved on disk is not corrupted by
+        loading it and checking that it is the same as the original JSON data
+        and that its keys are not sorted.
+
+        """
+        print("\nTesting case 2 of dumps_json()...")
+        import ipdb
+        ipdb.set_trace()
+        data1 = {
+            'key1': 'value1',
+            'key2': 'value2',
+            'key3': {
+                'key3-1': 'value3-1',
+                'key3-2': 'value3-2'
+            }
+        }
+        filepath = os.path.join(self.sanbox_tmpdir, "data.json")
+        dumps_json(filepath, data1)
+        # Test that the keys from the JSON data are not sorted
+        data2 = load_json(filepath)
+        msg = "The JSON data that was saved on disk is "
 
     @unittest.skip("test_dumps_pickle()")
     def test_dumps_pickle(self):
@@ -508,7 +558,7 @@ class TestFunctions(unittest.TestCase):
         """
         print("\nTesting read_yaml()...")
 
-    @unittest.skip("test_run_cmd_date()")
+    # @unittest.skip("test_run_cmd_date()")
     def test_run_cmd_date(self):
         """Test run_cmd() with the command ``date``
 
@@ -517,7 +567,7 @@ class TestFunctions(unittest.TestCase):
         print("Command output: ")
         self.assertTrue(run_cmd("date") == 0)
 
-    @unittest.skip("test_run_cmd_pwd()")
+    # @unittest.skip("test_run_cmd_pwd()")
     def test_run_cmd_pwd(self):
         """Test run_cmd() with the command ``pwd``
 
