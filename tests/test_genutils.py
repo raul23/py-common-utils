@@ -452,6 +452,31 @@ class TestFunctions(unittest.TestCase):
         else:
             self.fail("An OSError exception was not raised as expected")
 
+    # @unittest.skip("test_dump_pickle()")
+    def test_dump_pickle(self):
+        """Test dump_pickle() writes data correctly to a file on disk.
+
+        This function tests that the data saved on disk is not corrupted by
+        loading it and checking that it is the same as the original data.
+
+        """
+        print("\nTesting dump_pickle()...")
+        data1 = {
+            'key1': 'value1',
+            'key2': 'value2',
+            'key3': {
+                'key3-1': 'value3-1',
+                'key3-2': 'value3-2'
+            }
+        }
+        filepath = os.path.join(self.sanbox_tmpdir, "data.pkl")
+        dump_pickle(filepath, data1)
+        # Test that the data was correctly written by loading it
+        data2 = load_pickle(filepath)
+        msg = "The data that was saved on disk is corrupted"
+        self.assertDictEqual(data1, data2, msg)
+        print("The data was pickled and saved correctly")
+
     # @unittest.skip("test_dumps_json_case_1()")
     def test_dumps_json_case_1(self):
         """Test dumps_json() writes data correctly to a JSON file with its
@@ -511,31 +536,6 @@ class TestFunctions(unittest.TestCase):
         # NOTE: Only the keys at level 1 of the JSON dict are tested
         self.assertSequenceEqual(list(data1.keys()), list(data2.keys()))
         print("The JSON data was saved correctly with its keys not sorted")
-
-    # @unittest.skip("test_dump_pickle()")
-    def test_dump_pickle(self):
-        """Test dumps_pickle() writes data correctly to a file on disk.
-
-        This function tests that the data saved on disk is not corrupted by
-        loading it and checking that it is the same as the original data.
-
-        """
-        print("\nTesting dump_pickle()...")
-        data1 = {
-            'key1': 'value1',
-            'key2': 'value2',
-            'key3': {
-                'key3-1': 'value3-1',
-                'key3-2': 'value3-2'
-            }
-        }
-        filepath = os.path.join(self.sanbox_tmpdir, "data.pkl")
-        dump_pickle(filepath, data1)
-        # Test that the data was correctly written by loading it
-        data2 = load_pickle(filepath)
-        msg = "The data that was saved on disk is corrupted"
-        self.assertDictEqual(data1, data2, msg)
-        print("The data was pickled and saved correctly")
 
     @unittest.skip("test_get_creation_date()")
     def test_get_creation_date(self):
