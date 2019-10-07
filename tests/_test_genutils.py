@@ -6,7 +6,7 @@ The command to execute the :mod:`unittest` test runner::
 
     python -m unittest discover
 
-This command is executed at the root of the project directory or in ``tests/``.
+This command is executed at the root of the project directory.
 
 """
 
@@ -461,7 +461,7 @@ class TestFunctions(unittest.TestCase):
         same time.
 
         """
-        print("\nTesting dump_pickle()...")
+        print("\nTesting dump_pickle() and load_pickle()...")
         data1 = {
             'key1': 'value1',
             'key2': 'value2',
@@ -494,7 +494,7 @@ class TestFunctions(unittest.TestCase):
         time.
 
         """
-        print("\nTesting case 1 of dumps_json()...")
+        print("\nTesting case 1 of dumps_json() and load_json()...")
         data1 = {
             'key1': 'value1',
             'key3': {
@@ -527,7 +527,7 @@ class TestFunctions(unittest.TestCase):
         time.
 
         """
-        print("\nTesting case 2 of dumps_json()...")
+        print("\nTesting case 2 of dumps_json() and load_json()...")
         data1 = {
             'key1': 'value1',
             'key3': {
@@ -600,29 +600,6 @@ class TestFunctions(unittest.TestCase):
         self.assertDictEqual(data1, data2, msg)
         print("The YAML data was saved correctly")
 
-    # @unittest.skip("test_read_file_case_1()")
-    def test_read_and_write_file(self):
-        """Test that write_file() writes text to a file on disk and that
-        read_file() reads the text back.
-
-        This function tests that the text saved on disk is not corrupted by
-        reading it and checking that it is the same as the original text.
-
-        Thus, :meth:`write_file` and :meth:`read_file` are tested at the same
-        time.
-
-        """
-        print("\nTesting case 1 of read_file()...")
-        # Write text to a file on disk
-        text1 = "Hello World!\n"
-        filepath = os.path.join(self.tmpdir, "file.txt")
-        write_file(filepath, text1)
-        # Test that the text was correctly written by loading it
-        text2 = read_file(filepath)
-        msg = "The text that was saved on disk is corrupted"
-        self.assertTrue(text1==text2, msg)
-        print("The text was saved correctly")
-
     # @unittest.skip("test_read_file()")
     def test_read_file(self):
         """Test read_file() when a file doesn't exist.
@@ -660,6 +637,31 @@ class TestFunctions(unittest.TestCase):
         print("\nTesting run_cmd(cmd='pwd')...")
         print("Command output: ")
         self.assertTrue(run_cmd("pwd") == 0)
+
+    # @unittest.skip("test_read_file_case_1()")
+    def test_write_and_read_file(self):
+        """Test that write_file() writes text to a file on disk and that
+        read_file() reads the text back.
+
+        This function tests that the text saved on disk is not corrupted by
+        reading it and checking that it is the same as the original text.
+
+        Thus, :meth:`write_file` and :meth:`read_file` are tested at the same
+        time.
+
+        """
+        print("\nTesting write_file() and read_file()...")
+        # Write text to a file on disk
+        text1 = "Hello World!\n"
+        filepath = os.path.join(self.tmpdir, "file.txt")
+        write_file(filepath, text1)
+        # Test that the text was correctly written by loading it
+        text2 = read_file(filepath)
+        msg = "The text that was saved on disk is corrupted"
+        self.assertTrue(text1 == text2, msg)
+        print("The text was saved correctly")
+
+    # TODO: test write_file with overwrite=False
 
 
 if __name__ == '__main__':

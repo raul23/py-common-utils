@@ -6,7 +6,7 @@ The command to execute the :mod:`unittest` test runner::
 
     python -m unittest discover
 
-This command is executed at the root of the project directory or in ``tests/``.
+This command is executed at the root of the project directory.
 
 """
 
@@ -27,7 +27,7 @@ class TestFunctions(unittest.TestCase):
         """TODO
 
         """
-        print("Setting up genutils tests...")
+        print("Setting up create_sqlite_db tests...")
         # Create temporary directory
         cls.tmpdir_obj = TemporaryDirectory()
         cls.tmpdir = cls.tmpdir_obj.name

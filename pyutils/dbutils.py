@@ -30,7 +30,7 @@ def connect_db(db_path, autocommit=False):
     autocommit : bool, optional
         In autocommit mode, all changes to the database are committed as soon
         as all operations associated with the current database connection
-        complete [1]_ (the default value is False, which implies that statements
+        complete [1]_ (the default value is False which implies that statements
         that modify the database don't take effect immediately [2]_. You have to
         call :meth:`~sqlite3.Connection.commit` to close the transaction.).
 
@@ -67,7 +67,7 @@ def connect_db(db_path, autocommit=False):
         return conn
 
 
-def create_db(overwrite_db, db_filepath, schema_filepath, **kwargs):
+def create_db(db_filepath, schema_filepath, overwrite_db=False,  **kwargs):
     """Create a SQLite database.
 
     A schema file is needed for creating the database. If an existing SQLite
@@ -76,13 +76,14 @@ def create_db(overwrite_db, db_filepath, schema_filepath, **kwargs):
 
     Parameters
     ----------
-    overwrite_db : bool
-        Whether the database will be overwritten. The user is given some time
-        to stop the script before the database is overwritten.
     db_filepath : str
         Path to the SQLite database.
     schema_filepath : str
         Path to the schema file.
+    overwrite_db : bool, optional
+        Whether the database will be overwritten. The user is given some time
+        to stop the script before the database is overwritten (the default value
+        is False which means the db will not be overwritten).
     **kwargs
         TODO
 
