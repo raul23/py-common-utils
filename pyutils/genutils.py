@@ -394,7 +394,7 @@ def load_json(filepath, encoding='utf8'):
 
 
 def load_pickle(filepath):
-    """Open a pickle file.
+    """Load data from a pickle file on disk.
 
     The function opens a pickle file and returns its content.
 
@@ -424,8 +424,10 @@ def load_pickle(filepath):
         return data
 
 
-def load_yaml(f):
+def load_yaml(filepath):
     """Load the content of a YAML file.
+
+    The content of the YAML file content is returned which is a :obj:`dict`.
 
     The module :mod:`yaml` needs to be installed. It can be installed with
     ``pip``::
@@ -434,8 +436,8 @@ def load_yaml(f):
 
     Parameters
     ----------
-    f
-        File stream associated with the file read from disk.
+    filepath : str
+        Path to the YAML file to be read.
 
     Returns
     -------
@@ -446,8 +448,10 @@ def load_yaml(f):
     ------
     ImportError
         Raised if the module :mod:`yaml` is not found.
-    yaml.YAMLError
-        Raised if there is any error in the YAML structure of the file.
+    OSError
+        Raised if any I/O related error occurs while reading the file, e.g. the
+        file doesn't exist or there is an error in the YAML structure of the
+        file.
 
     Notes
     -----
@@ -462,9 +466,10 @@ def load_yaml(f):
         raise ImportError("yaml not found. You can install it with: pip "
                           "install pyyaml")
     try:
-        return yaml.load(f, Loader=yaml.FullLoader)
-    except yaml.YAMLError as e:
-        raise yaml.YAMLError(e)
+        with open(filepath, 'r') as f:
+            return yaml.load(f, Loader=yaml.FullLoader)
+    except (OSError, yaml.YAMLError) as e:
+        raise OSError(e)
 
 
 def read_file(filepath):
@@ -492,47 +497,6 @@ def read_file(filepath):
             return f.read()
     except OSError as e:
         raise
-
-
-def read_yaml(filepath):
-    """Read a YAML file.
-
-    Its content is returned which is a :obj:`dict`.
-
-    The module :mod:`yaml` needs to be installed. It can be installed with
-    ``pip``::
-
-        $ pip install pyyaml
-
-    Parameters
-    ----------
-    filepath : str
-        Path to the YAML file to be read.
-
-    Returns
-    -------
-    dict
-        The :obj:`dict` read from the YAML file.
-
-    Raises
-    ------
-    ImportError
-        Raised if the module :mod:`yaml` is not found.
-    OSError
-        Raised if any I/O related error occurs while reading the file, e.g. the
-        file doesn't exist or an error in the YAML structure of the file.
-
-    """
-    try:
-        import yaml
-    except ImportError as e:
-        raise ImportError("yaml not found. You can install it with: pip "
-                          "install pyyaml")
-    try:
-        with open(filepath, 'r') as f:
-            return load_yaml(f)
-    except (OSError, yaml.YAMLError) as e:
-        raise OSError(e)
 
 
 def run_cmd(cmd):

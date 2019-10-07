@@ -15,7 +15,7 @@ genutils : module that defines many general and useful functions.
 from datetime import datetime
 import logging.config
 # Custom modules
-from pyutils.genutils import read_yaml
+from pyutils.genutils import load_yaml
 
 
 def get_error_msg(exc):
@@ -89,7 +89,7 @@ def setup_logging(logging_config):
         # Check type of logging_config
         if isinstance(logging_config, str):
             # It is a YAML configuration file
-            config_dict = read_yaml(logging_config)
+            config_dict = load_yaml(logging_config)
         else:
             # It is a logging config dictionary
             config_dict = logging_config
