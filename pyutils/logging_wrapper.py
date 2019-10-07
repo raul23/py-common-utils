@@ -313,7 +313,7 @@ class LoggingWrapper:
         color = self.color_levels[level]
         return color_log_levels_template[level].format(color, msg)
 
-    # Logging methods
+    # Logging methods start here
     def debug(self, msg):
         """Log a message with the 'debug' log level.
 

@@ -262,16 +262,17 @@ def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
         Data to be written to the JSON file.
 
     encoding : str, optional
-        Encoding to be used for opening the JSON file.
+        Encoding to be used for opening the JSON file in write mode (the
+        default value is 'utf8').
 
     sort_keys : bool, optional
-        If ``sort_keys`` is true, then the output of dictionaries will be sorted
+        If `sort_keys` is true, then the output of dictionaries will be sorted
         by key. See the :meth:`json.dumps` docstring description. (the default
         value is True).
 
     ensure_ascii : bool, optional
-        If ``ensure_ascii`` is False, then the return value can contain
-        non-ASCII characters if they appear in strings contained in ``data``.
+        If `ensure_ascii` is False, then the return value can contain
+        non-ASCII characters if they appear in strings contained in `data`.
         Otherwise, all such characters are escaped in JSON strings. See the
         :meth:`json.dumps` docstring description (the default value is False).
 
@@ -368,7 +369,8 @@ def load_json(filepath, encoding='utf8'):
     filepath : str
         Path to the JSON file which will be read.
     encoding : str, optional
-        Encoding to be used for opening the JSON file.
+        Encoding to be used for opening the JSON file in read mode (the default
+        value is 'utf8').
 
     Returns
     -------
@@ -378,13 +380,14 @@ def load_json(filepath, encoding='utf8'):
     Raises
     ------
     OSError
-        Raise
+        Raised if any I/O related error occurs while reading the file, e.g. the
+        file doesn't exist.
 
     """
     try:
         with codecs.open(filepath, 'r', encoding) as f:
             data = json.load(f)
-    except OSError as e:
+    except OSError:
         raise
     else:
         return data
@@ -407,12 +410,15 @@ def load_pickle(filepath):
 
     Raises
     ------
+    OSError
+        Raised if any I/O related error occurs while reading the file, e.g. the
+        file doesn't exist.
 
     """
     try:
         with open(filepath, 'rb') as f:
             data = pickle.load(f)
-    except FileNotFoundError as e:
+    except OSError:
         raise
     else:
         return data
