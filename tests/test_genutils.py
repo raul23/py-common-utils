@@ -306,11 +306,13 @@ class TestFunctions(unittest.TestCase):
         everything in a folder, including the files and subdirectories at the
         root of the given folder.
 
-        remove_subdirs=True and delete_recursively=False
-
         See Also
         --------
         populate_folder : populates a folder with text files and subdirectories.
+
+        Notes
+        -----
+        Case 1 sets `remove_subdirs` to True and `delete_recursively` to False.
 
         """
         print("\nTesting case 1 of delete_folder_contents()...")
@@ -332,17 +334,20 @@ class TestFunctions(unittest.TestCase):
         everything in a folder, except the subdirectories and their contents at
         the root of the given folder.
 
-        remove_subdirs=False and delete_recursively=False
-
         See Also
         --------
         populate_folder : populates a folder with text files and subdirectories.
+
+        Notes
+        -----
+        Case 2 sets `remove_subdirs` to False and `delete_recursively` to False.
 
         """
         print("\nTesting case 2 of delete_folder_contents()...")
         # Create the main test directory along with subdirectories and files
         dirpath = self.populate_folder()
         # Delete everything in the main test directory, except subdirectories
+        # and their contents
         delete_folder_contents(dirpath, remove_subdirs=False)
         # Test that the folder only has subdirectories but no files at its root
         for root, dirs, files in os.walk(dirpath):
@@ -352,33 +357,41 @@ class TestFunctions(unittest.TestCase):
             else:
                 msg = "There is a subdirectory that is empty"
                 self.assertTrue(len(files) > 0, msg)
-
         print("No files found at the top and the subdirectories are not "
               "empty".format(dirpath))
 
-    @unittest.skip("test_delete_folder_contents_case_3()")
+    # @unittest.skip("test_delete_folder_contents_case_3()")
     def test_delete_folder_contents_case_3(self):
-        """Test that delete_folder_contents() removes everything at the root
-        of a directory except subdirectories and their contents.
-
-        Remove text files recursively, remove_subdirs=False and delete_recursively=True
+        """Test that delete_folder_contents() removes all text files
+        recursively, except subdirectories.
 
         Case 3 consists in testing that :meth:`delete_folder_contents` removes
-        everything in a folder, except the subdirectories and their contents at
-        the root of the given folder.
+        all text files recursively, except subdirectories. Thus, at the end,
+        anything left should be subdirectories, including the root directory.
 
         See Also
         --------
         populate_folder : populates a folder with text files and subdirectories.
 
+        Notes
+        -----
+        Case 3 sets `remove_subdirs` to False and `delete_recursively` to True.
+
         """
         print("\nTesting case 3 of delete_folder_contents()...")
-        import ipdb
-        ipdb.set_trace()
         # Create the main test directory along with subdirectories and files
         dirpath = self.populate_folder()
-        # Delete everything in the main test directory, except subdirectories
-        delete_folder_contents(dirpath, remove_subdirs=False)
+        # Delete all text files recursively in the main test directory, except
+        # subdirectories
+        delete_folder_contents(folderpath=dirpath,
+                               remove_subdirs=False,
+                               delete_recursively=True)
+        # Test that only the subdirectories are left
+        for root, dirs, files in os.walk(dirpath):
+            msg = "There is a file"
+            self.assertTrue(len(files) == 0, msg)
+        print("All subdirectories are empty including the main "
+              "directory".format(dirpath))
 
     @unittest.skip("test_delete_folder_contents_case_4()")
     def test_delete_folder_contents_case_4(self):
@@ -396,6 +409,10 @@ class TestFunctions(unittest.TestCase):
         --------
         populate_folder : populates a folder with text files and subdirectories.
 
+        Notes
+        -----
+        Case 2 sets `remove_subdirs` to True and `delete_recursively` to True.
+
         """
         print("\nTesting case 4 of delete_folder_contents()...")
         import ipdb
@@ -403,7 +420,9 @@ class TestFunctions(unittest.TestCase):
         # Create the main test directory along with subdirectories and files
         dirpath = self.populate_folder()
         # Delete everything in the main test directory, except subdirectories
-        delete_folder_contents(dirpath, remove_subdirs=False)
+        delete_folder_contents(folderpath=dirpath,
+                               remove_subdirs=False,
+                               delete_recursively=True)
 
     @unittest.skip("test_dumps_json()")
     def test_dumps_json(self):
