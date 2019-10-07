@@ -10,6 +10,7 @@ This command is executed at the root of the project directory or in ``tests/``.
 
 """
 
+# TODO: add support for Python 3.4 and 3.5
 from datetime import datetime
 import os
 from tempfile import TemporaryDirectory
