@@ -1,5 +1,7 @@
 """Module that defines tests for :mod:`~pyutils.genutils`
 
+Every functions in :mod:`~pyutils.genutils` is tested here.
+
 The command to execute the :mod:`unittest` test runner::
 
     python -m unittest discover
@@ -18,7 +20,7 @@ import tzlocal
 # Custom modules
 from pyutils.genutils import convert_utctime_to_local_tz, create_directory, \
     create_timestamped_dir, delete_folder_contents, dumps_json, dump_pickle, \
-    load_json, load_pickle, run_cmd, write_file
+    get_creation_date, load_json, load_pickle, run_cmd, write_file
 
 
 class TestFunctions(unittest.TestCase):
@@ -452,12 +454,16 @@ class TestFunctions(unittest.TestCase):
         else:
             self.fail("An OSError exception was not raised as expected")
 
-    # @unittest.skip("test_dump_pickle()")
-    def test_dump_pickle(self):
-        """Test dump_pickle() writes data correctly to a file on disk.
+    # @unittest.skip("test_dump_and_load_pickle()")
+    def test_dump_and_load_pickle(self):
+        """Test dump_pickle() writes and load data correctly to/from a file on
+        disk.
 
         This function tests that the data saved on disk is not corrupted by
         loading it and checking that it is the same as the original data.
+
+        Thus, :meth:`dump_pickle` and :meth:`load_pickle` are tested at the
+        same time.
 
         """
         print("\nTesting dump_pickle()...")
@@ -477,14 +483,17 @@ class TestFunctions(unittest.TestCase):
         self.assertDictEqual(data1, data2, msg)
         print("The data was pickled and saved correctly")
 
-    # @unittest.skip("test_dumps_json_case_1()")
-    def test_dumps_json_case_1(self):
-        """Test dumps_json() writes data correctly to a JSON file with its
-        keys sorted.
+    # @unittest.skip("test_dumps_and_load_json_case_1()")
+    def test_dumps_and_load_json_case_1(self):
+        """Test dumps_json() writes and loads data correctly to/from a JSON
+        file with its keys sorted.
 
         Case 1 tests that the JSON data saved on disk is not corrupted by
         loading it and checking that it is the same as the original JSON data
         and that its keys are sorted.
+
+        Thus, :meth:`dumps_json` and :meth:`load_json` are tested at the same
+        time.
 
         """
         print("\nTesting case 1 of dumps_json()...")
@@ -507,14 +516,17 @@ class TestFunctions(unittest.TestCase):
         self.assertSequenceEqual(sorted(data1.keys()), list(data2.keys()))
         print("The JSON data was saved correctly with its keys sorted")
 
-    # @unittest.skip("test_dumps_json_case_2()")
-    def test_dumps_json_case_2(self):
-        """Test dumps_json() writes data correctly to a JSON file with its
-        keys not sorted.
+    # @unittest.skip("test_dumps_and_load_json_case_2()")
+    def test_dumps_and_load_json_case_2(self):
+        """Test dumps_json() writes and loads data correctly to/from a JSON
+        file with its keys not sorted.
 
         Case 2 tests that the JSON data saved on disk is not corrupted by
         loading it and checking that it is the same as the original JSON data
         and that its keys are not sorted.
+
+        Thus, :meth:`dumps_json` and :meth:`load_json` are tested at the same
+        time.
 
         """
         print("\nTesting case 2 of dumps_json()...")
@@ -539,24 +551,12 @@ class TestFunctions(unittest.TestCase):
 
     @unittest.skip("test_get_creation_date()")
     def test_get_creation_date(self):
-        """Test get_creation_date()
+        """Test get_creation_date() returns a valid creation date for a file.
+
+        The test consists in
 
         """
         print("\nTesting get_creation_date()...")
-
-    @unittest.skip("test_load_json()")
-    def test_load_json(self):
-        """Test load_json()
-
-        """
-        print("\nTesting load_json()...")
-
-    @unittest.skip("test_load_pickle()")
-    def test_load_pickle(self):
-        """Test load_pickle()
-
-        """
-        print("\nTesting load_pickle()...")
 
     @unittest.skip("test_dumps_pickle()")
     def test_load_yaml(self):
