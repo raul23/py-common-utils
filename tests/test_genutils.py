@@ -320,7 +320,7 @@ class TestFunctions(unittest.TestCase):
         dirpath = self.populate_folder()
         # Delete the whole content of the main test directory
         delete_folder_contents(dirpath)
-        # Test that the folder is empty
+        # Test that the main test directory is empty
         msg = "The folder {} couldn't be cleared".format(dirpath)
         self.assertTrue(len(os.listdir(dirpath)) == 0, msg)
         print("The folder {} is empty".format(dirpath))
@@ -393,17 +393,13 @@ class TestFunctions(unittest.TestCase):
         print("All subdirectories are empty including the main "
               "directory".format(dirpath))
 
-    @unittest.skip("test_delete_folder_contents_case_4()")
+    # @unittest.skip("test_delete_folder_contents_case_4()")
     def test_delete_folder_contents_case_4(self):
-        """Test that delete_folder_contents() removes everything at the root
-        of a directory except subdirectories and their contents.
-
-        Remove everything recursively at the root
-        remove_subdirs=True and delete_recursively=True
+        """Test that delete_folder_contents() removes everything in a folder
+        with `delete_recursively` set to True.
 
         Case 4 consists in testing that :meth:`delete_folder_contents` removes
-        everything in a folder, except the subdirectories and their contents at
-        the root of the given folder.
+        everything in a folder with the flag `delete_recursively` set to False.
 
         See Also
         --------
@@ -411,18 +407,22 @@ class TestFunctions(unittest.TestCase):
 
         Notes
         -----
-        Case 2 sets `remove_subdirs` to True and `delete_recursively` to True.
+        Case 4 sets `remove_subdirs` to True and `delete_recursively` to True.
+        Case 4 is similar to case 1 where everything is deleted but with
+        `remove_subdirs` set to True and `delete_recursively` to False.
 
         """
         print("\nTesting case 4 of delete_folder_contents()...")
-        import ipdb
-        ipdb.set_trace()
         # Create the main test directory along with subdirectories and files
         dirpath = self.populate_folder()
-        # Delete everything in the main test directory, except subdirectories
+        # Delete everything recursively in the main test directory
         delete_folder_contents(folderpath=dirpath,
-                               remove_subdirs=False,
+                               remove_subdirs=True,
                                delete_recursively=True)
+        # Test that the main test directory is empty
+        msg = "The folder {} couldn't be cleared".format(dirpath)
+        self.assertTrue(len(os.listdir(dirpath)) == 0, msg)
+        print("The folder {} is empty".format(dirpath))
 
     @unittest.skip("test_dumps_json()")
     def test_dumps_json(self):
