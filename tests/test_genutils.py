@@ -541,17 +541,30 @@ class TestFunctions(unittest.TestCase):
         self.assertSequenceEqual(list(data1.keys()), list(data2.keys()))
         print("The JSON data was saved correctly with its keys not sorted")
 
-    @unittest.skip("test_get_creation_date()")
+    # @unittest.skip("test_get_creation_date()")
     def test_get_creation_date(self):
         """Test get_creation_date() returns a valid creation date for a file.
 
-        The test consists in save a file on disk and then checking that its
-        creation date is valid by comparing to the current date and time.
+        The test consists in saving a file on disk and then checking that its
+        creation date is valid by comparing it to the current date and time.
 
         """
         print("\nTesting get_creation_date()...")
         # Write file to disk
-
+        filepath = os.path.join(self.tmpdir, "file.txt")
+        write_file(filepath, "Hello, World!\n")
+        # Get the current time
+        now = str(datetime.fromtimestamp(time.time()))
+        # Get the file creation date
+        creation = str(datetime.fromtimestamp(get_creation_date(filepath)))
+        # Compare the two times to an accuracy of a decasecond (10s).
+        # NOTE: However, we could test to an accuracy of a second but it is
+        # better to be safe.
+        msg = "File creation date ('{}') not as expected " \
+              "('{}')".format(creation, now)
+        self.assertTrue(now[:19] == creation[:19], msg)
+        print("Current time: ", now)
+        print("Valid file creation date: ", creation)
 
     @unittest.skip("test_dumps_pickle()")
     def test_load_yaml(self):
