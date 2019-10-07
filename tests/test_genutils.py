@@ -245,6 +245,8 @@ class TestFunctions(unittest.TestCase):
 
         Parameters
         ----------
+        text : str
+            Text to write in each file.
         dirpath : str
             Path to the directory where the text files are created.
         number_files : int, optional
@@ -286,16 +288,18 @@ class TestFunctions(unittest.TestCase):
         # files will be created
         maintest_dirpath = os.path.join(self.sanbox_tmpdir, "main_testdir")
         create_directory(maintest_dirpath)
-        self.create_text_files(dirpath=maintest_dirpath,
-                          text="Hello, World!\nI will be deleted soon :(\n",
-                          number_files=number_files)
+        self.create_text_files(
+            dirpath=maintest_dirpath,
+            text="Hello, World!\nI will be deleted soon :(\n",
+            number_files=number_files)
         for i in range(1, number_subdirs+1):
             # Create the subdirectories with text files
             test_dirpath = os.path.join(maintest_dirpath, "testdir{}".format(i))
             create_directory(test_dirpath)
-            self.create_text_files(dirpath=test_dirpath,
-                              text="Hello, World!\nI will be deleted soon :(\n",
-                              number_files=number_files)
+            self.create_text_files(
+                dirpath=test_dirpath,
+                text="Hello, World!\nI will be deleted soon :(\n",
+                number_files=number_files)
         return maintest_dirpath
 
     # @unittest.skip("test_delete_folder_contents_case_1()")
@@ -388,7 +392,7 @@ class TestFunctions(unittest.TestCase):
                                delete_recursively=True)
         # Test that only the subdirectories are left
         for root, dirs, files in os.walk(dirpath):
-            msg = "There is a file"
+            msg = "There is still a file in the main test directory"
             self.assertTrue(len(files) == 0, msg)
         print("All subdirectories are empty including the main "
               "directory".format(dirpath))
@@ -423,6 +427,30 @@ class TestFunctions(unittest.TestCase):
         msg = "The folder {} couldn't be cleared".format(dirpath)
         self.assertTrue(len(os.listdir(dirpath)) == 0, msg)
         print("The folder {} is empty".format(dirpath))
+
+    # @unittest.skip("test_delete_folder_contents_case_5()")
+    def test_delete_folder_contents_case_5(self):
+        """Test delete_folder_contents() when a folder doesn't exist.
+
+        Case 5 consists in testing that :meth:`delete_folder_contents` raises
+        an :exc:`OSError` exception when the folder to be cleared doesn't exist.
+
+        See Also
+        --------
+        populate_folder : populates a folder with text files and subdirectories.
+
+        """
+        print("\nTesting case 5 of delete_folder_contents()...")
+        fake_dirpath = os.path.join(self.main_tmpdir, "fakedir")
+        try:
+            # Delete everything in the directory that doesn't exist
+            delete_folder_contents(folderpath=fake_dirpath,
+                                   remove_subdirs=True,
+                                   delete_recursively=False)
+        except OSError:
+            print("Raised an OSError exception as expected")
+        else:
+            self.fail("An OSError exception was not raised as expected")
 
     @unittest.skip("test_dumps_json()")
     def test_dumps_json(self):

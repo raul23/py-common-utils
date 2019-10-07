@@ -139,9 +139,9 @@ def create_directory(dirpath):
     try:
         pathlib.Path(dirpath).mkdir(parents=True, exist_ok=False)
     except FileExistsError as e:
-        raise FileExistsError(e)
+        raise
     except PermissionError as e:
-        raise PermissionError(e)
+        raise
     else:
         return dirpath
 
@@ -287,8 +287,8 @@ def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
             f.write(json.dumps(data,
                                sort_keys=sort_keys,
                                ensure_ascii=ensure_ascii))
-    except OSError as e:
-        raise OSError(e)
+    except OSError:
+        raise
 
 
 def dump_pickle(filepath, data):
@@ -311,8 +311,8 @@ def dump_pickle(filepath, data):
     try:
         with open(filepath, 'wb') as f:
             pickle.dump(data, f)
-    except OSError as e:
-        raise OSError(e)
+    except OSError:
+        raise
 
 
 def get_creation_date(filepath):
@@ -385,7 +385,7 @@ def load_json(filepath, encoding='utf8'):
         with codecs.open(filepath, 'r', encoding) as f:
             data = json.load(f)
     except OSError as e:
-        raise OSError(e)
+        raise
     else:
         return data
 
@@ -413,7 +413,7 @@ def load_pickle(filepath):
         with open(filepath, 'rb') as f:
             data = pickle.load(f)
     except FileNotFoundError as e:
-        raise FileNotFoundError(e)
+        raise
     else:
         return data
 
@@ -452,7 +452,7 @@ def load_yaml(f):
     """
     try:
         import yaml
-    except ImportError as e:
+    except ImportError:
         raise ImportError("yaml not found. You can install it with: pip "
                           "install pyyaml")
     try:
@@ -485,7 +485,7 @@ def read_file(filepath):
         with open(filepath, 'r') as f:
             return f.read()
     except OSError as e:
-        raise OSError(e)
+        raise
 
 
 def read_yaml(filepath):
@@ -594,5 +594,5 @@ def write_file(filepath, data, overwrite_file=True):
         else:
             with open(filepath, 'w') as f:
                 f.write(data)
-    except OSError as e:
-        raise OSError(e)
+    except OSError:
+        raise
