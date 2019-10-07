@@ -108,7 +108,7 @@ def convert_utctime_to_local_tz(utc_time=None):
         return local_time
 
 
-def create_directory(dirpath):
+def create_dir(dirpath):
     """Create a directory if it doesn't already exist.
 
     Parameters

@@ -19,7 +19,7 @@ import unittest
 import tzlocal
 import yaml
 # Custom modules
-from pyutils.genutils import convert_utctime_to_local_tz, create_directory, \
+from pyutils.genutils import convert_utctime_to_local_tz, create_dir, \
     create_timestamped_dir, delete_folder_contents, dumps_json, dump_pickle, \
     get_creation_date, load_json, load_pickle, load_yaml, run_cmd, write_file
 
@@ -125,55 +125,55 @@ class TestFunctions(unittest.TestCase):
         regex = r"^\d{4}(-\d{2}){2} (\d{2}:){2}\d{2}[-|+]\d{2}:\d{2}$"
         self.assertRegex(output, regex)
 
-    def test_create_directory_case_1(self):
-        """Test that create_directory() actually creates a directory.
+    def test_create_dir_case_1(self):
+        """Test that create_dir() actually creates a directory.
 
         Case 1 consists in testing that the directory was actually created on
         disk.
 
         """
-        print("\nTesting case 1 of create_directory()...")
+        print("\nTesting case 1 of create_dir()...")
         dirpath = os.path.join(self.tmpdir, "testdir")
         msg = "The directory {} couldn't be created".format(dirpath)
         try:
-            create_directory(dirpath)
+            create_dir(dirpath)
         except (FileExistsError, PermissionError) as e:
             self.fail("{} : {}".format(msg, e))
         else:
             self.assertTrue(os.path.isdir(dirpath), msg)
             print("The directory was created")
 
-    def test_create_directory_case_2(self):
-        """Test create_directory() when the directory already exists.
+    def test_create_dir_case_2(self):
+        """Test create_dir() when the directory already exists.
 
-        Case 2 consists in checking that the function :meth:`create_directory`
+        Case 2 consists in checking that the function :meth:`create_dir`
         raises a :exc:`FileExistsError` when we try to create a directory that
         already exists on disk.
 
         """
-        print("\nTesting case 2 of create_directory() ...")
+        print("\nTesting case 2 of create_dir() ...")
         with self.assertRaises(FileExistsError):
             dirpath = os.path.join(self.tmpdir, "testdir")
-            create_directory(dirpath)
-            create_directory(dirpath)
+            create_dir(dirpath)
+            create_dir(dirpath)
         print("Raised a FileExistsError exception as expected")
 
-    def test_create_directory_case_3(self):
-        """Test create_directory() with no permission to write in a directory.
+    def test_create_dir_case_3(self):
+        """Test create_dir() with no permission to write in a directory.
 
-        Case 3 consists in checking that the function :meth:`create_directory`
+        Case 3 consists in checking that the function :meth:`create_dir`
         raises a :exc:`PermissionError` when we try to create a subdirectory in
         a directory without the write permission.
 
         """
-        print("\nTesting case 3 of create_directory() ...")
+        print("\nTesting case 3 of create_dir() ...")
         test1_dirpath = os.path.join(self.tmpdir, "testdir1")
-        create_directory(test1_dirpath)
+        create_dir(test1_dirpath)
         # TODO: Only works on macOS/Linux:
         os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError):
             test2_dirpath = os.path.join(test1_dirpath, "testdir2")
-            create_directory(test2_dirpath)
+            create_dir(test2_dirpath)
         print("Raised a PermissionError exception as expected")
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
@@ -222,7 +222,7 @@ class TestFunctions(unittest.TestCase):
         """
         print("\nTesting case 2 of create_timestamped_dir() ...")
         test1_dirpath = os.path.join(self.tmpdir, "testdir1")
-        create_directory(test1_dirpath)
+        create_dir(test1_dirpath)
         # TODO: Only works on macOS/Linux:
         os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError):
@@ -282,7 +282,7 @@ class TestFunctions(unittest.TestCase):
         # Create a main test directory where many subdirectories with text
         # files will be created
         maintest_dirpath = os.path.join(self.tmpdir, "main_testdir")
-        create_directory(maintest_dirpath)
+        create_dir(maintest_dirpath)
         self.create_text_files(
             dirpath=maintest_dirpath,
             text="Hello, World!\nI will be deleted soon :(\n",
@@ -290,7 +290,7 @@ class TestFunctions(unittest.TestCase):
         for i in range(1, number_subdirs+1):
             # Create the subdirectories with text files
             test_dirpath = os.path.join(maintest_dirpath, "testdir{}".format(i))
-            create_directory(test_dirpath)
+            create_dir(test_dirpath)
             self.create_text_files(
                 dirpath=test_dirpath,
                 text="Hello, World!\nI will be deleted soon :(\n",
