@@ -450,8 +450,8 @@ class TestFunctions(unittest.TestCase):
 
     # @unittest.skip("test_dump_and_load_pickle()")
     def test_dump_and_load_pickle(self):
-        """Test that dump_pickle() writes and load data correctly to/from a
-        file on disk.
+        """Test that dump_pickle() dumps data to a file on disk and that
+        load_pickle() loads the data back.
 
         This function tests that the data saved on disk is not corrupted by
         loading it and checking that it is the same as the original data.
@@ -479,8 +479,11 @@ class TestFunctions(unittest.TestCase):
 
     # @unittest.skip("test_dumps_and_load_json_case_1()")
     def test_dumps_and_load_json_case_1(self):
-        """Test that dumps_json() writes and loads data correctly to/from a JSON
-        file with its keys sorted.
+        """Test that dumps_json() dumps JSON data to a file on disk and that
+        load_json() loads the data back with its keys sorted.
+
+        Test that dump_pickle() dumps JSON data to a file on disk and that
+        load_pickle() loads the data back.
 
         Case 1 tests that the JSON data saved on disk is not corrupted by
         loading it and checking that it is the same as the original JSON data
@@ -512,8 +515,8 @@ class TestFunctions(unittest.TestCase):
 
     # @unittest.skip("test_dumps_and_load_json_case_2()")
     def test_dumps_and_load_json_case_2(self):
-        """Test that dumps_json() writes and loads data correctly to/from a JSON
-        file with its keys not sorted.
+        """Test that dumps_json() dumps JSON data to a file on disk and that
+        load_json() loads the data back with its keys not sorted.
 
         Case 2 tests that the JSON data saved on disk is not corrupted by
         loading it and checking that it is the same as the original JSON data
@@ -597,12 +600,15 @@ class TestFunctions(unittest.TestCase):
         print("The YAML data was saved correctly")
 
     # @unittest.skip("test_read_file_case_1()")
-    def test_read_file_case_1(self):
-        """Test that read_file() reads a file on disk.
+    def test_read_and_write_file(self):
+        """Test that write_file() writes text to a file on disk and that
+        read_file() reads the text back.
 
-        Case 1 consists in checking that :meth:`read_file()` can read a text
-        file from disk by checking that its content is the same as the
-        original data.
+        This function tests that the text saved on disk is not corrupted by
+        reading it and checking that it is the same as the original text.
+
+        Thus, :meth:`write_file` and :meth:`read_file` are tested at the same
+        time.
 
         """
         print("\nTesting case 1 of read_file()...")
@@ -616,11 +622,11 @@ class TestFunctions(unittest.TestCase):
         self.assertTrue(text1==text2, msg)
         print("The text was saved correctly")
 
-    # @unittest.skip("test_read_file_case_2()")
-    def test_read_file_case_2(self):
-        """Test that read_file() when a file doesn't exist.
+    # @unittest.skip("test_read_file()")
+    def test_read_file(self):
+        """Test read_file() when a file doesn't exist.
 
-        Case 2 consists in checking that :meth:`read_file()` raises an
+        This test consists in checking that :meth:`read_file()` raises an
         :exc:`OSError` exception when a file doesn't exist.
 
         """
@@ -634,6 +640,9 @@ class TestFunctions(unittest.TestCase):
     def test_run_cmd_date(self):
         """Test run_cmd() with the command ``date``
 
+        This function tests that :meth:`run_cmd` can succesfully execute a
+        shell command.
+
         """
         print("\nTesting run_cmd(cmd='date')...")
         print("Command output: ")
@@ -643,17 +652,13 @@ class TestFunctions(unittest.TestCase):
     def test_run_cmd_pwd(self):
         """Test run_cmd() with the command ``pwd``
 
+        This function tests that :meth:`run_cmd` can succesfully execute a
+        shell command.
+
         """
         print("\nTesting run_cmd(cmd='pwd')...")
         print("Command output: ")
         self.assertTrue(run_cmd("pwd") == 0)
-
-    @unittest.skip("test_write_file()")
-    def test_write_file(self):
-        """Test run_cmd()
-
-        """
-        print("\nTesting write_file()...")
 
 
 if __name__ == '__main__':
