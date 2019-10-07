@@ -1,6 +1,6 @@
 """Module that defines tests for :mod:`~pyutils.genutils`
 
-Every functions in :mod:`~pyutils.genutils` is tested here.
+Every functions in :mod:`~pyutils.genutils` are tested here.
 
 The command to execute the :mod:`unittest` test runner::
 
