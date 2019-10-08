@@ -41,19 +41,26 @@ class TestFunctions(TestBase):
         self.assertTrue(error_msg == expected, msg)
         print("The error message is the expected one")
 
-    # @unittest.skip("test_setup_logging_case_1()")
-    def test_setup_logging_case_1(self):
-        """Test that setup_logging() can successfully setup logging from a
-        YAML config file.
+    def setup_logging_for_testing(self, logging_cfg):
+        """Setup logging for testing from a logging config file or dict.
 
-        This function tests that :meth:pyutils.logutils.setup_logging` TODO ...
+        Depending on `logging_cfg`, this function setups logging for testing
+        from a logging config file or dict.
+
+        Parameters
+        ----------
+        logging_cfg
+
+        Notes
+        -----
+        This function is called by :meth:`test_setup_logging_case_1` and
+        :meth:`test_setup_logging_case_2`.
 
         """
-        print("\nTesting case 1 of get_error_msg()...")
-        logger = logging.getLogger('scripts.scraper')
         # NOTE: if I put the next line inside the with, it will complain that
         # the expected log was not triggered on 'scripts.scraper'
-        cfg_dict = setup_logging(self.logging_cfg_path)
+        cfg_dict = setup_logging(logging_cfg)
+        logger = logging.getLogger('scripts.scraper')
         with self.assertLogs(logger, 'INFO') as cm:
             logger.info('first message')
         msg = "Log emitted not as expected"
@@ -66,6 +73,27 @@ class TestFunctions(TestBase):
                                  list(self.logging_cfg_dict),
                                  msg)
         print("Logging setup successful!")
+
+    # @unittest.skip("test_setup_logging_case_1()")
+    def test_setup_logging_case_1(self):
+        """Test that setup_logging() can successfully setup logging from a
+        YAML config file.
+
+        This function tests that :meth:pyutils.logutils.setup_logging` TODO ...
+
+        """
+        print("\nTesting case 1 of get_error_msg()...")
+        self.setup_logging_for_testing(self.logging_cfg_path)
+
+    # @unittest.skip("test_setup_logging_case_2()")
+    def test_setup_logging_case_2(self):
+        """Test that setup_logging() can successfully setup logging from a dict.
+
+        This function tests that :meth:pyutils.logutils.setup_logging` TODO ...
+
+        """
+        print("\nTesting case 2 of get_error_msg()...")
+        self.setup_logging_for_testing(self.logging_cfg_dict)
 
 
 if __name__ == '__main__':
