@@ -10,6 +10,7 @@ This command is executed at the root of the project directory.
 
 """
 
+from copy import copy
 import logging
 import unittest
 # Custom modules
@@ -72,7 +73,9 @@ class TestFunctions(TestBase):
         self.assertSequenceEqual(list(cfg_dict.keys()),
                                  list(self.logging_cfg_dict),
                                  msg)
-        print("Logging setup successful!")
+        how = "dict" if isinstance(logging_cfg, dict) else "file"
+        print("Successfully setup logging with the logging config "
+              "{}!".format(how))
 
     # @unittest.skip("test_setup_logging_case_1()")
     def test_setup_logging_case_1(self):
@@ -82,7 +85,7 @@ class TestFunctions(TestBase):
         Case 1 tests that :meth:`~pyutils.logutils.setup_logging` TODO ...
 
         """
-        print("\nTesting case 1 of get_error_msg()...")
+        print("\nTesting case 1 of setup_logging()...")
         self.setup_logging_for_testing(self.logging_cfg_path)
 
     # @unittest.skip("test_setup_logging_case_2()")
@@ -92,30 +95,43 @@ class TestFunctions(TestBase):
         Case 2 tests that :meth:`~pyutils.logutils.setup_logging` TODO ...
 
         """
-        print("\nTesting case 2 of get_error_msg()...")
+        print("\nTesting case 2 of setup_logging()...")
         self.setup_logging_for_testing(self.logging_cfg_dict)
 
     # @unittest.skip("test_setup_logging_case_3()")
     def test_setup_logging_case_3(self):
-        """Test that setup_logging() when the logging config file doesn't
-        exist.
+        """Test setup_logging() when the logging config file doesn't exist.
 
         Case 3 tests that :meth:`~pyutils.logutils.setup_logging` raises an
         :exc:`OSError` exception when the logging config file doesn't exist.
 
         """
-        print("\nTesting case 3 of get_error_msg()...")
+        print("\nTesting case 3 of setup_logging()...")
         with self.assertRaises(OSError):
             setup_logging("bad_logging_config.yaml")
         print("Raised an OSError exception as expected")
 
-    @unittest.skip("test_setup_logging_case_4()")
+    # @unittest.skip("test_setup_logging_case_4()")
     def test_setup_logging_case_4(self):
-        print("\nTesting case 4 of get_error_msg()...")
+        """Test setup_logging() when the logging config dict is invalid.
+
+        Case 4 tests that :meth:`~pyutils.logutils.setup_logging` raises an
+        :exc:`ValueError` exception when the logging config dict is invalid,
+        e.g. a logging handler's class is written incorrectly.
+
+        """
+        print("\nTesting case 4 of setup_logging()...")
+        # Corrupt a logging handler's class
+        corrupted_cfg = copy(logging_cfg)
+        corrupted_cfg['handlers']['console']['class'] = 'bad.handler.class'
+        # Setup logging with the corrupted config dict
+        with self.assertRaises(ValueError):
+            setup_logging(corrupted_cfg)
+        print("Raised a ValueError exception as expected")
 
     @unittest.skip("test_setup_logging_case_5()")
     def test_setup_logging_case_5(self):
-        print("\nTesting case 5 of get_error_msg()...")
+        print("\nTesting case 5 of setup_logging()...")
 
 
 if __name__ == '__main__':
