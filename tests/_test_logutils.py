@@ -14,16 +14,16 @@ from copy import deepcopy
 import logging
 import unittest
 # Custom modules
-from .logging_cfg import logging_cfg
+from .logging_cfg import logging_cfg as _logging_cfg
 from .utils import TestBase
 from pyutils.logutils import get_error_msg, setup_logging
 
 
 class TestFunctions(TestBase):
-
-    TestBase.testname = "logutils"
-    logging_cfg_path = "tests/logging_cfg.yaml"
-    logging_cfg_dict = logging_cfg
+    # TODO
+    testname = "logutils"
+    _logging_cfg_path = "tests/logging_cfg.yaml"
+    _logging_cfg_dict = _logging_cfg
 
     # @unittest.skip("test_get_error_msg()")
     def test_get_error_msg(self):
@@ -60,7 +60,7 @@ class TestFunctions(TestBase):
         """
         # NOTE: if I put the next line inside the with, it will complain that
         # the expected log was not triggered on 'scripts.scraper'
-        cfg_dict = setup_logging(logging_cfg)
+        ret_cfg_dict = setup_logging(logging_cfg)
         logger = logging.getLogger('scripts.scraper')
         with self.assertLogs(logger, 'INFO') as cm:
             logger.info('first message')
@@ -70,8 +70,8 @@ class TestFunctions(TestBase):
                          msg)
         print("Log emitted as expected")
         msg = "The returned logging config dict doesn't have the expected keys"
-        self.assertSequenceEqual(list(cfg_dict.keys()),
-                                 list(self.logging_cfg_dict),
+        self.assertSequenceEqual(list(ret_cfg_dict.keys()),
+                                 list(self._logging_cfg_dict),
                                  msg)
         how = "dict" if isinstance(logging_cfg, dict) else "file"
         print("Successfully setup logging with the logging config "
@@ -86,7 +86,7 @@ class TestFunctions(TestBase):
 
         """
         print("\nTesting case 1 of setup_logging()...")
-        self.setup_logging_for_testing(self.logging_cfg_path)
+        self.setup_logging_for_testing(self._logging_cfg_path)
 
     # @unittest.skip("test_setup_logging_case_2()")
     def test_setup_logging_case_2(self):
@@ -96,7 +96,7 @@ class TestFunctions(TestBase):
 
         """
         print("\nTesting case 2 of setup_logging()...")
-        self.setup_logging_for_testing(self.logging_cfg_dict)
+        self.setup_logging_for_testing(self._logging_cfg_dict)
 
     # @unittest.skip("test_setup_logging_case_3()")
     def test_setup_logging_case_3(self):
@@ -125,7 +125,7 @@ class TestFunctions(TestBase):
         # Corrupt a logging handler's class
         # NOTE: if I use copy instead of deepcopy, logging_cfg will also
         # reflect the corrupted handler's class
-        corrupted_cfg = deepcopy(logging_cfg)
+        corrupted_cfg = deepcopy(self._logging_cfg_dict)
         corrupted_cfg['handlers']['console']['class'] = 'bad.handler.class'
         # Setup logging with the corrupted config dict
         with self.assertRaises(ValueError):
@@ -145,7 +145,7 @@ class TestFunctions(TestBase):
         """
         print("\nTesting case 5 of setup_logging()...")
         # Remove a key from the logging config dict
-        corrupted_cfg = deepcopy(logging_cfg)
+        corrupted_cfg = deepcopy(self._logging_cfg_dict)
         expected_missing_key = 'handlers'
         del corrupted_cfg[expected_missing_key]
         # Setup logging with the corrupted config dict

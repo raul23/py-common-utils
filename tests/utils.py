@@ -27,12 +27,12 @@ class TestBase(unittest.TestCase):
         print()
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls, with_sandbox=False, with_datafiles=False):
         """TODO
 
         """
         print("Setting up {} tests...".format(cls.testname))
-        cls.setup_tmp_dirs()
+        cls.setup_tmp_dirs(with_sandbox, with_datafiles)
 
     @classmethod
     def tearDown(cls):
@@ -59,6 +59,14 @@ class TestBase(unittest.TestCase):
 
     @classmethod
     def setup_tmp_dirs(cls, with_sandbox=False, with_datafiles=False):
+        """TODO
+
+        Parameters
+        ----------
+        with_sandbox : bool, optional
+        with_datafiles : bool, optional
+
+        """
         # Create main temporary directory
         cls.main_tmpdir_obj = TemporaryDirectory()
         cls.main_tmpdir = cls.main_tmpdir_obj.name

@@ -15,11 +15,17 @@ from pyutils.dbutils import create_db
 
 
 def main():
+    """TODO
+
+    Returns
+    -------
+
+    """
     # Setup argument parser
     parser = argparse.ArgumentParser(
         description="Create SQLite database")
-    parser.add_argument("-o", action="store_true", dest="overwrite",
-                        default=False,
+    parser.add_argument("-o", "--overwrite", action="store_true",
+                        dest="overwrite", default=False,
                         help="Overwrite the database file")
     parser.add_argument("-d", "--database", default="database.sqlite",
                         help="Path to the SQLite database file")
@@ -29,7 +35,7 @@ def main():
     # Process command-line arguments
     args = parser.parse_args()
     # Create database
-    create_db(args.overwrite, args.database, args.schema)
+    return create_db(args.database, args.schema, args.overwrite)
 
 
 if __name__ == '__main__':
