@@ -20,15 +20,19 @@ from pyutils.scripts.create_sqlite_db import main
 
 
 class TestFunctions(TestBase):
-    testname = "create_sqlite_db"
+    # TODO
+    test_name = "create_sqlite_db"
     _schema_filepath = "tests/music.sql"
     _db_filepath = None
 
     @classmethod
-    def setUpClass(cls, with_sandbox=False, with_datafiles=False):
-        super().setUpClass(with_sandbox=True, with_datafiles=True)
+    def setUpClass(cls):
+        """TODO: overrides
+
+        """
+        super().setUpClass()
         # Create SQLite db
-        cls._db_filepath = os.path.join(cls.datafiles_tmpdir, "db.sqlite")
+        cls._db_filepath = os.path.join(cls.data_tmpdir, "db.sqlite")
         create_db(cls._db_filepath, cls._schema_filepath)
 
     # @unittest.skip("test_main_case_1()")
@@ -50,7 +54,7 @@ class TestFunctions(TestBase):
         msg = "The database couldn't be created. Return code is " \
               "{}".format(retcode)
         self.assertTrue(retcode == 0, msg)
-        print("The database could be created!")
+        print("The database was created")
 
     # @unittest.skip("test_main_case_2()")
     def test_main_case_2(self):
@@ -70,7 +74,7 @@ class TestFunctions(TestBase):
         retcode = main()
         msg = "Something very odd! Return code is {}".format(retcode)
         self.assertTrue(retcode == 1, msg)
-        print("The database couldn't be overwritten as expected")
+        print("The database wasn't overwritten as expected")
 
     # @unittest.skip("test_main_case_3()")
     def test_main_case_3(self):
@@ -89,7 +93,7 @@ class TestFunctions(TestBase):
         retcode = main()
         msg = "Something very odd! Return code is {}".format(retcode)
         self.assertTrue(retcode == 0, msg)
-        print("The database could be overwritten as expected")
+        print("The database was overwritten as expected")
 
     # @unittest.skip("test_main_case_4()")
     def test_main_case_4(self):
@@ -104,10 +108,10 @@ class TestFunctions(TestBase):
         print("\nTesting case 4 of main()...")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', self._db_filepath,
-                    '-s', self._schema_filepath + '_bad']
-        with self.assertRaises(IOError):
+                    '-s', '/bad/schema/path.sql']
+        with self.assertRaises(IOError) as cm:
             main()
-        print("Raised an IOError as expected")
+        print("Raised an IOError as expected: ", cm.exception)
 
     # @unittest.skip("test_main_case_5()")
     def test_main_case_5(self):
@@ -121,11 +125,11 @@ class TestFunctions(TestBase):
         """
         print("\nTesting case 5 of main()...")
         sys.argv = ['create_sqlite_db.py', '-o',
-                    '-d', "/bad/db/path",
+                    '-d', '/bad/db/path.sqlite',
                     '-s', self._schema_filepath]
-        with self.assertRaises(sqlite3.OperationalError):
+        with self.assertRaises(sqlite3.OperationalError) as cm:
             main()
-        print("Raised a sqlite3.OperationalError as expected")
+        print("Raised a sqlite3.OperationalError as expected: ", cm.exception)
 
 
 if __name__ == '__main__':

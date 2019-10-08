@@ -14,55 +14,25 @@ import os
 import sqlite3
 import unittest
 # Custom modules
-from .utils import setup_tmp_dirs
-from pyutils.genutils import delete_folder_contents
+from .utils import TestBase
 from pyutils.dbutils import connect_db, create_db
 
 
-class TestFunctions(unittest.TestCase):
-
-    @classmethod
-    def setUp(cls):
-        print()
+class TestFunctions(TestBase):
+    # TODO
+    test_name = "dbutils"
+    _schema_filepath = "tests/music.sql"
+    _db_filepath = None
 
     @classmethod
     def setUpClass(cls):
-        """TODO
+        """TODO: overrides
 
         """
-        print("Setting up dbutils tests...")
-        tmp_dirs = setup_tmp_dirs(with_sandbox=True, with_datafiles=True)
-        cls._main_tmpdir_obj = tmp_dirs.main_tmpdir_obj
-        cls._main_tmpdir = cls._main_tmpdir_obj.name
-        cls.sandbox_tmpdir = tmp_dirs.sandbox_tmpdir
-        cls.datafiles_tmpdir = tmp_dirs.datafiles_tmpdir
-        cls.schema_filepath = "tests/music.sql"
+        super().setUpClass()
         # Create SQLite db
-        cls.db_filepath = os.path.join(cls.datafiles_tmpdir, "db.sqlite")
-        create_db(cls.db_filepath, cls.schema_filepath)
-
-    @classmethod
-    def tearDown(cls):
-        """TODO
-
-        """
-        print("Cleanup...")
-        # Cleanup sandbox temporary directory ONLY
-        # TODO: only sandbox directory is to be cleared
-        delete_folder_contents(cls.sandbox_tmpdir)
-        # print("Temporary directory cleared: ", cls.tmpdir)
-
-    @classmethod
-    def tearDownClass(cls):
-        """TODO
-
-        """
-        print("\n\nFinal cleanup...")
-        # Delete the temporary directory
-        cls._main_tmpdir_obj.cleanup()
-        print("Main temporary directory deleted: ", cls._main_tmpdir)
-        print("\n# ========================================================="
-              "==================================== #\n")
+        cls._db_filepath = os.path.join(cls.data_tmpdir, "db.sqlite")
+        create_db(cls._db_filepath, cls._schema_filepath)
 
     # @unittest.skip("test_connect_db_case_1()")
     def test_connect_db_case_1(self):
@@ -70,7 +40,7 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("Testing case 1 of connect_db()...")
-        conn = connect_db(self.db_filepath)
+        conn = connect_db(self._db_filepath)
         msg = "The returned connection is not an instance of sqlite3.Connection"
         self.assertIsInstance(conn, sqlite3.Connection, msg)
         print("Connection to SQLite database established")
@@ -84,7 +54,7 @@ class TestFunctions(unittest.TestCase):
         """
         # TODO
         print("\nTesting case 2 of connect_db()...")
-        conn = connect_db(self.db_filepath)
+        conn = connect_db(self._db_filepath)
         msg = "The returned connection is not an instance of sqlite3.Connection"
         self.assertIsInstance(conn, sqlite3.Connection, msg)
         print("Connection to SQLite database established")
@@ -98,7 +68,7 @@ class TestFunctions(unittest.TestCase):
         """
         # TODO
         print("\nTesting case 3 of connect_db()...")
-        conn = connect_db(self.db_filepath)
+        conn = connect_db(self._db_filepath)
         msg = "The returned connection is not an instance of sqlite3.Connection"
         self.assertIsInstance(conn, sqlite3.Connection, msg)
         print("Connection to SQLite database established")
@@ -113,14 +83,12 @@ class TestFunctions(unittest.TestCase):
         At the same time, this function checks also the last message logged
         by :meth:~pyutils.dbutils.create_db`after the database was created.
 
-        TODO: same time I am testing the dbutils' logger
-
         """
         print("\nTesting case 1 of create_db()...")
         db_filepath = os.path.join(self.sandbox_tmpdir, "db.sqlite")
         from pyutils.dbutils import logger
         with self.assertLogs(logger, 'INFO') as cm:
-            retcode = create_db(db_filepath, self.schema_filepath)
+            retcode = create_db(db_filepath, self._schema_filepath)
         msg = "Log emitted not as expected"
         self.assertEqual(cm.output[-1],
                          'INFO:pyutils.dbutils:Database created!',
@@ -156,11 +124,11 @@ class TestFunctions(unittest.TestCase):
 
         """
         db_filepath = os.path.join(self.sandbox_tmpdir, "db.sqlite")
-        retcode1 = create_db(db_filepath, self.schema_filepath)
+        retcode1 = create_db(db_filepath, self._schema_filepath)
         msg = "The test database couldn't be created"
         self.assertTrue(retcode1 == 0, msg)
         retcode2 = create_db(db_filepath,
-                             self.schema_filepath,
+                             self._schema_filepath,
                              overwrite_db=overwrite_db,
                              pause=0)
         msg = "The option 'overwrite_db' didn't have any effect when " \
@@ -208,7 +176,7 @@ class TestFunctions(unittest.TestCase):
         print("\nTesting case 4 of create_db()...")
         db_filepath = os.path.join(self.sandbox_tmpdir, "db.sqlite")
         with self.assertRaises(IOError) as cm:
-            create_db(db_filepath, self.schema_filepath+'_bad')
+            create_db(db_filepath, '/bad/schema/path.sql')
         print("The database couldn't be created because no schema was given")
         print("Raised an IOError as expected: ", cm.exception)
 
@@ -223,7 +191,7 @@ class TestFunctions(unittest.TestCase):
         """
         print("\nTesting case 5 of create_db()...")
         with self.assertRaises(sqlite3.OperationalError) as cm:
-            create_db("/bad/db/path/db.sqlite", self.schema_filepath)
+            create_db("/bad/db/path.sqlite", self._schema_filepath)
         print("The database couldn't be created because a wrong db path was "
               "given")
         print("Raised an sqlite3.OperationalError as expected: ", cm.exception)

@@ -13,11 +13,11 @@ from pyutils.genutils import delete_folder_contents
 class TestBase(unittest.TestCase):
 
     # TODO
-    main_tmpdir_obj = None
-    main_tmpdir = None
+    _main_tmpdir_obj = None
+    _main_tmpdir = None
     sandbox_tmpdir = None
-    datafiles_tmpdir = None
-    testname = ""
+    data_tmpdir = None
+    test_name = ""
 
     @classmethod
     def setUp(cls):
@@ -27,12 +27,18 @@ class TestBase(unittest.TestCase):
         print()
 
     @classmethod
-    def setUpClass(cls, with_sandbox=False, with_datafiles=False):
+    def setUpClass(cls):
         """TODO
 
         """
-        print("Setting up {} tests...".format(cls.testname))
-        cls.setup_tmp_dirs(with_sandbox, with_datafiles)
+        # TODO: fix long print
+        print("\n# ========================================================="
+              "==================================== #")
+        print("                                     {}".format(cls.test_name))
+        print("# ========================================================="
+              "==================================== #")
+        print("Setting up {} tests...".format(cls.test_name))
+        cls.setup_tmp_dirs()
 
     @classmethod
     def tearDown(cls):
@@ -41,11 +47,9 @@ class TestBase(unittest.TestCase):
         """
         print("Cleanup...")
         # Cleanup temporary directories
-        # TODO: explain the if...else
+        # TODO: explain the if...
         if cls.sandbox_tmpdir:
             delete_folder_contents(cls.sandbox_tmpdir)
-        else:
-            delete_folder_contents(cls.main_tmpdir)
 
     @classmethod
     def tearDownClass(cls):
@@ -54,34 +58,27 @@ class TestBase(unittest.TestCase):
         """
         print("\n\nFinal cleanup...")
         # Delete the temporary directory
-        cls.main_tmpdir_obj.cleanup()
-        print("Main temporary directory deleted: ", cls.main_tmpdir)
+        cls._main_tmpdir_obj.cleanup()
+        print("Main temporary directory deleted: ", cls._main_tmpdir)
 
     @classmethod
-    def setup_tmp_dirs(cls, with_sandbox=False, with_datafiles=False):
+    def setup_tmp_dirs(cls):
         """TODO
-
-        Parameters
-        ----------
-        with_sandbox : bool, optional
-        with_datafiles : bool, optional
 
         """
         # Create main temporary directory
-        cls.main_tmpdir_obj = TemporaryDirectory()
-        cls.main_tmpdir = cls.main_tmpdir_obj.name
-        print("Main temporary directory created: ", cls.main_tmpdir)
-        if with_sandbox:
-            # Create sandbox directory where the methods can write
-            cls.sandbox_tmpdir = create_dir(
-                os.path.join(cls.main_tmpdir, "sandbox"))
-            print("Sandbox directory created: ", cls.sandbox_tmpdir)
-        if with_datafiles:
-            # Create a directory for data files (e.g. SQLite database) useful
-            # for performing the tests
-            cls.datafiles_tmpdir = create_dir(
-                os.path.join(cls.main_tmpdir, "datafiles"))
-            print("Data files directory created: ", cls.datafiles_tmpdir)
+        cls._main_tmpdir_obj = TemporaryDirectory()
+        cls._main_tmpdir = cls._main_tmpdir_obj.name
+        print("Main temporary directory created: ", cls._main_tmpdir)
+        # Create sandbox directory where the methods can write
+        cls.sandbox_tmpdir = create_dir(
+            os.path.join(cls._main_tmpdir, "sandbox"))
+        print("Sandbox directory created: ", cls.sandbox_tmpdir)
+        # Create a directory for data files (e.g. SQLite database) useful
+        # for performing the tests
+        cls.data_tmpdir = create_dir(
+            os.path.join(cls._main_tmpdir, "data"))
+        print("Data directory created: ", cls.data_tmpdir)
 
 
 def setup_tmp_dirs(with_sandbox=False, with_datafiles=False):
