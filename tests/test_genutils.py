@@ -584,7 +584,7 @@ class TestFunctions(TestBase):
         exception when a file doesn't exist.
 
         """
-        print("\nTesting case 2 of read_file()...")
+        print("\nTesting read_file()...")
         # Write text to a file on disk
         with self.assertRaises(OSError) as cm:
             read_file("/bad/file/path.txt")
