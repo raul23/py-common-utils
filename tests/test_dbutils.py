@@ -77,7 +77,7 @@ class TestFunctions(unittest.TestCase):
         """Test connect_db() with autocommit=False.
 
         """
-        print("Testing case 2 of connect_db()...")
+        print("\nTesting case 2 of connect_db()...")
         conn = connect_db(self.db_filepath)
         msg = "The returned connection is not an instance of sqlite3.Connection"
         self.assertIsInstance(conn, sqlite3.Connection, msg)
@@ -88,7 +88,7 @@ class TestFunctions(unittest.TestCase):
         """Test connect_db() with autocommit=True.
 
         """
-        print("Testing case 3 of connect_db()...")
+        print("\nTesting case 3 of connect_db()...")
         conn = connect_db(self.db_filepath)
         msg = "The returned connection is not an instance of sqlite3.Connection"
         self.assertIsInstance(conn, sqlite3.Connection, msg)
@@ -99,7 +99,7 @@ class TestFunctions(unittest.TestCase):
         """Test that create_db() can create a SQLite database.
 
         """
-        print("Testing case 1 of create_db()...")
+        print("\nTesting case 1 of create_db()...")
         db_filepath = os.path.join(self.sandbox_tmpdir, "db.sqlite")
         from pyutils.dbutils import logger
         with self.assertLogs(logger, 'INFO') as cm:
@@ -118,7 +118,7 @@ class TestFunctions(unittest.TestCase):
         `overwrite_db` is set to False.
 
         """
-        print("Testing case 2 of create_db()...")
+        print("\nTesting case 2 of create_db()...")
 
     @unittest.skip("test_create_db_case_3()")
     def test_create_db_case_3(self):
@@ -126,7 +126,7 @@ class TestFunctions(unittest.TestCase):
         `overwrite_db` is set to True.
 
         """
-        print("Testing case 3 of create_db()...")
+        print("\nTesting case 3 of create_db()...")
 
     @unittest.skip("test_create_db_case_4()")
     def test_create_db_case_4(self):
@@ -134,7 +134,7 @@ class TestFunctions(unittest.TestCase):
         is given.
 
         """
-        print("Testing case 4 of create_db()...")
+        print("\nTesting case 4 of create_db()...")
 
 
 if __name__ == '__main__':
