@@ -28,7 +28,7 @@ class TestFunctions(TestBase):
     def test_get_error_msg(self):
         """Test that get_error_msg() returns an error message.
 
-        This function tests that :meth:pyutils.logutils.get_error_msg` returns
+        This function tests that :meth:`~pyutils.logutils.get_error_msg` returns
         an error message from an exception.
 
         """
@@ -79,7 +79,7 @@ class TestFunctions(TestBase):
         """Test that setup_logging() can successfully setup logging from a
         YAML config file.
 
-        This function tests that :meth:pyutils.logutils.setup_logging` TODO ...
+        Case 1 tests that :meth:`~pyutils.logutils.setup_logging` TODO ...
 
         """
         print("\nTesting case 1 of get_error_msg()...")
@@ -89,11 +89,33 @@ class TestFunctions(TestBase):
     def test_setup_logging_case_2(self):
         """Test that setup_logging() can successfully setup logging from a dict.
 
-        This function tests that :meth:pyutils.logutils.setup_logging` TODO ...
+        Case 2 tests that :meth:`~pyutils.logutils.setup_logging` TODO ...
 
         """
         print("\nTesting case 2 of get_error_msg()...")
         self.setup_logging_for_testing(self.logging_cfg_dict)
+
+    # @unittest.skip("test_setup_logging_case_3()")
+    def test_setup_logging_case_3(self):
+        """Test that setup_logging() when the logging config file doesn't
+        exist.
+
+        Case 3 tests that :meth:`~pyutils.logutils.setup_logging` raises an
+        :exc:`OSError` exception when the logging config file doesn't exist.
+
+        """
+        print("\nTesting case 3 of get_error_msg()...")
+        with self.assertRaises(OSError):
+            setup_logging("bad_logging_config.yaml")
+        print("Raised an OSError exception as expected")
+
+    @unittest.skip("test_setup_logging_case_4()")
+    def test_setup_logging_case_4(self):
+        print("\nTesting case 4 of get_error_msg()...")
+
+    @unittest.skip("test_setup_logging_case_5()")
+    def test_setup_logging_case_5(self):
+        print("\nTesting case 5 of get_error_msg()...")
 
 
 if __name__ == '__main__':
