@@ -61,8 +61,8 @@ def connect_db(db_path, autocommit=False):
             conn = sqlite3.connect(db_path, isolation_level=None)
         else:
             conn = sqlite3.connect(db_path)
-    except sqlite3.Error as e:
-        raise sqlite3.Error(e)
+    except sqlite3.Error:
+        raise
     else:
         return conn
 
@@ -107,17 +107,22 @@ def create_db(db_filepath, schema_filepath, overwrite_db=False,  **kwargs):
 
     if not db_exists or overwrite_db:
         logger.info("Creating database '{}'".format(db_filepath))
-        with sqlite3.connect(db_filepath) as conn:
-            try:
-                with open(schema_filepath, 'rt') as f:
-                    schema = f.read()
-                    conn.executescript(schema)
-            except IOError as e:
-                raise IOError(e)
-            else:
-                logger.info("Database created!")
+        try:
+            with sqlite3.connect(db_filepath) as conn:
+                f = open(schema_filepath, 'rt')
+                schema = f.read()
+                conn.executescript(schema)
+                f.close()
+        except IOError:
+            raise
+        except sqlite3.OperationalError:
+            raise
+        else:
+            logger.info("Database created!")
+            return 0
     else:
         logger.warning("Database '{}' already exists!".format(db_filepath))
+        return 1
 
 
 def sql_sanity_check(sql, values):
