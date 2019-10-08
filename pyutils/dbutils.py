@@ -67,12 +67,13 @@ def connect_db(db_path, autocommit=False):
         return conn
 
 
-def create_db(db_filepath, schema_filepath, overwrite_db=False,  **kwargs):
+def create_db(db_filepath, schema_filepath, overwrite_db=False, pause=2,
+              **kwargs):
     """Create a SQLite database.
 
     A schema file is needed for creating the database. If an existing SQLite
-    database will be overwritten, the user is given 5 seconds to stop the script
-    before the database is overwritten.
+    database will be overwritten, the user is given `pause` seconds to stop the
+    program before the database is overwritten.
 
     Parameters
     ----------
@@ -84,6 +85,11 @@ def create_db(db_filepath, schema_filepath, overwrite_db=False,  **kwargs):
         Whether the database will be overwritten. The user is given some time
         to stop the script before the database is overwritten (the default value
         is False which means the db will not be overwritten).
+    pause: int, optional
+        Number of seconds to give to the user for deciding if the database
+        should be overwritten. The user can stop the program within the `pause`
+        seconds before the database is overwritten (the default value is 2
+        seconds).
     **kwargs
         TODO
 
@@ -110,7 +116,7 @@ def create_db(db_filepath, schema_filepath, overwrite_db=False,  **kwargs):
     if overwrite_db and db_exists:
         logger.warning("{} will be overwritten ...".format(db_filepath))
         # Exit program before delay expires or the database is overwritten
-        time.sleep(5)
+        time.sleep(pause)
         os.remove(db_filepath)
 
     if not db_exists or overwrite_db:
