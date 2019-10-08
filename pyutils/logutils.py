@@ -64,9 +64,9 @@ def setup_logging(logging_config):
     Returns
     -------
     config_dict : dict
-        The logging configuration :obj:`dict` that is used to setup the logger(s).
-        The contents of the logging dictionary is described in `Configuration
-        dictionary schema`_.
+        The logging configuration :obj:`dict` that is used to setup the
+        logger(s). The contents of the logging dictionary is described in
+        `Configuration dictionary schema`_.
 
     Raises
     ------
@@ -75,7 +75,7 @@ def setup_logging(logging_config):
     OSError
         Raised if the YAML logging config file doesn't exist.
     ValueError
-        Raised if the YAML logging config :obj:`dict` is invalid, i.e. a key or
+        Raised if the logging config :obj:`dict` is invalid, i.e. a key or
         value is invalid. Example: a logging handler's class is written
         incorrectly.
 
