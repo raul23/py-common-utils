@@ -2,12 +2,6 @@
 
 Every functions in :mod:`~pyutils.dbutils` are tested here.
 
-The command to execute the :mod:`unittest` test runner::
-
-    python -m unittest discover
-
-This command is executed at the root of the project directory .
-
 """
 
 import os
@@ -21,18 +15,6 @@ from pyutils.dbutils import connect_db, create_db
 class TestFunctions(TestBase):
     # TODO
     test_name = "dbutils"
-    _schema_filepath = "tests/music.sql"
-    _db_filepath = None
-
-    @classmethod
-    def setUpClass(cls):
-        """TODO: overrides
-
-        """
-        super().setUpClass()
-        # Create SQLite db
-        cls._db_filepath = os.path.join(cls.data_tmpdir, "db.sqlite")
-        create_db(cls._db_filepath, cls._schema_filepath)
 
     # @unittest.skip("test_connect_db_case_1()")
     def test_connect_db_case_1(self):
@@ -40,7 +22,7 @@ class TestFunctions(TestBase):
 
         """
         print("Testing case 1 of connect_db()...")
-        conn = connect_db(self._db_filepath)
+        conn = connect_db(self.db_filepath)
         msg = "The returned connection is not an instance of sqlite3.Connection"
         self.assertIsInstance(conn, sqlite3.Connection, msg)
         print("Connection to SQLite database established")
@@ -54,7 +36,7 @@ class TestFunctions(TestBase):
         """
         # TODO
         print("\nTesting case 2 of connect_db()...")
-        conn = connect_db(self._db_filepath)
+        conn = connect_db(self.db_filepath)
         msg = "The returned connection is not an instance of sqlite3.Connection"
         self.assertIsInstance(conn, sqlite3.Connection, msg)
         print("Connection to SQLite database established")
@@ -68,7 +50,7 @@ class TestFunctions(TestBase):
         """
         # TODO
         print("\nTesting case 3 of connect_db()...")
-        conn = connect_db(self._db_filepath)
+        conn = connect_db(self.db_filepath)
         msg = "The returned connection is not an instance of sqlite3.Connection"
         self.assertIsInstance(conn, sqlite3.Connection, msg)
         print("Connection to SQLite database established")
@@ -88,7 +70,7 @@ class TestFunctions(TestBase):
         db_filepath = os.path.join(self.sandbox_tmpdir, "db.sqlite")
         from pyutils.dbutils import logger
         with self.assertLogs(logger, 'INFO') as cm:
-            retcode = create_db(db_filepath, self._schema_filepath)
+            retcode = create_db(db_filepath, self.schema_filepath)
         msg = "Log emitted not as expected"
         self.assertEqual(cm.output[-1],
                          'INFO:pyutils.dbutils:Database created!',
@@ -124,11 +106,11 @@ class TestFunctions(TestBase):
 
         """
         db_filepath = os.path.join(self.sandbox_tmpdir, "db.sqlite")
-        retcode1 = create_db(db_filepath, self._schema_filepath)
+        retcode1 = create_db(db_filepath, self.schema_filepath)
         msg = "The test database couldn't be created"
         self.assertTrue(retcode1 == 0, msg)
         retcode2 = create_db(db_filepath,
-                             self._schema_filepath,
+                             self.schema_filepath,
                              overwrite_db=overwrite_db,
                              pause=0)
         msg = "The option 'overwrite_db' didn't have any effect when " \
@@ -191,10 +173,10 @@ class TestFunctions(TestBase):
         """
         print("\nTesting case 5 of create_db()...")
         with self.assertRaises(sqlite3.OperationalError) as cm:
-            create_db("/bad/db/path.sqlite", self._schema_filepath)
+            create_db("/bad/db/path.sqlite", self.schema_filepath)
         print("The database couldn't be created because a wrong db path was "
               "given")
-        print("Raised an sqlite3.OperationalError as expected: ", cm.exception)
+        print("Raised a sqlite3.OperationalError as expected: ", cm.exception)
 
 
 if __name__ == '__main__':

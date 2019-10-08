@@ -6,18 +6,26 @@ import os
 from tempfile import TemporaryDirectory
 import unittest
 # Custom modules
-from pyutils.genutils import create_dir
-from pyutils.genutils import delete_folder_contents
+from .data.logging_cfg import logging_cfg_dict
+from pyutils.dbutils import create_db
+from pyutils.genutils import create_dir, delete_folder_contents
 
 
 class TestBase(unittest.TestCase):
 
     # TODO
+    test_name = "TestBase"
+    # Temporary directories
     _main_tmpdir_obj = None
     _main_tmpdir = None
+    _data_tmpdir = None
     sandbox_tmpdir = None
-    data_tmpdir = None
-    test_name = ""
+    # DB-related files
+    schema_filepath = "tests/data/music.sql"
+    db_filepath = None
+    # Logging-related data
+    logging_cfg_path = "tests/data/logging_cfg.yaml"
+    logging_cfg_dict = logging_cfg_dict
 
     @classmethod
     def setUp(cls):
@@ -39,6 +47,9 @@ class TestBase(unittest.TestCase):
               "==================================== #")
         print("Setting up {} tests...".format(cls.test_name))
         cls.setup_tmp_dirs()
+        # Create SQLite db
+        cls.db_filepath = os.path.join(cls._data_tmpdir, "db.sqlite")
+        create_db(cls.db_filepath, cls.schema_filepath)
 
     @classmethod
     def tearDown(cls):
@@ -59,7 +70,7 @@ class TestBase(unittest.TestCase):
         print("\n\nFinal cleanup...")
         # Delete the temporary directory
         cls._main_tmpdir_obj.cleanup()
-        print("Main temporary directory deleted: ", cls._main_tmpdir)
+        print("All temporary directories deleted")
 
     @classmethod
     def setup_tmp_dirs(cls):
@@ -72,52 +83,9 @@ class TestBase(unittest.TestCase):
         print("Main temporary directory created: ", cls._main_tmpdir)
         # Create sandbox directory where the methods can write
         cls.sandbox_tmpdir = create_dir(
-            os.path.join(cls._main_tmpdir, "sandbox"))
+             os.path.join(cls._main_tmpdir, "sandbox"))
         print("Sandbox directory created: ", cls.sandbox_tmpdir)
         # Create a directory for data files (e.g. SQLite database) useful
         # for performing the tests
-        cls.data_tmpdir = create_dir(
-            os.path.join(cls._main_tmpdir, "data"))
-        print("Data directory created: ", cls.data_tmpdir)
-
-
-def setup_tmp_dirs(with_sandbox=False, with_datafiles=False):
-    """TODO
-
-    Parameters
-    ----------
-    with_sandbox : bool, optional
-    with_datafiles : bool, optional
-
-    Returns
-    -------
-
-    """
-    # Create main temporary directory
-    main_tmpdir_obj = TemporaryDirectory()
-    main_tmpdir = main_tmpdir_obj.name
-    print("Main temporary directory created: ", main_tmpdir)
-    sandbox_tmpdir = None
-    datafiles_tmpdir = None
-    if with_sandbox:
-        # Create sandbox directory where the methods can write
-        sandbox_tmpdir = create_dir(os.path.join(main_tmpdir, "sandbox"))
-        print("Sandbox directory created: ", sandbox_tmpdir)
-    if with_datafiles:
-        # Create a directory for data files (e.g. SQLite database) useful for
-        # performing the tests
-        datafiles_tmpdir = create_dir(os.path.join(main_tmpdir, "datafiles"))
-        print("Data files directory created: ", datafiles_tmpdir)
-
-    class TmpDirs:
-        """TODO
-
-        """
-        @classmethod
-        def setupClass(cls):
-            cls.main_tmpdir_obj = main_tmpdir_obj
-            cls.sandbox_tmpdir = sandbox_tmpdir
-            cls.datafiles_tmpdir = datafiles_tmpdir
-
-    TmpDirs.setupClass()
-    return TmpDirs
+        cls._data_tmpdir = create_dir(os.path.join(cls._main_tmpdir, "data"))
+        print("Data directory created: ", cls._data_tmpdir)

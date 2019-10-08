@@ -1,4 +1,4 @@
-logging_cfg = {
+logging_cfg_dict = {
     'version': 1,
     'add_datetime': True,
     'disable_existing_loggers': False,

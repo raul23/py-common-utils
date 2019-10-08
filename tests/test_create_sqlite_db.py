@@ -1,10 +1,7 @@
 """Module that defines tests for :mod:`~pyutils.scripts.create_sqlite_db`
 
-The command to execute the :mod:`unittest` test runner::
-
-    python -m unittest discover
-
-This command is executed at the root of the project directory.
+The script ``create_sqlite_db.py`` is tested here with different combinations of
+command-line options.
 
 """
 
@@ -14,26 +11,12 @@ import sys
 import unittest
 # Custom modules
 from .utils import TestBase
-from pyutils.dbutils import create_db
 from pyutils.scripts import create_sqlite_db
-from pyutils.scripts.create_sqlite_db import main
 
 
 class TestFunctions(TestBase):
     # TODO
     test_name = "create_sqlite_db"
-    _schema_filepath = "tests/music.sql"
-    _db_filepath = None
-
-    @classmethod
-    def setUpClass(cls):
-        """TODO: overrides
-
-        """
-        super().setUpClass()
-        # Create SQLite db
-        cls._db_filepath = os.path.join(cls.data_tmpdir, "db.sqlite")
-        create_db(cls._db_filepath, cls._schema_filepath)
 
     # @unittest.skip("test_main_case_1()")
     def test_main_case_1(self):
@@ -49,8 +32,8 @@ class TestFunctions(TestBase):
         db_filepath = os.path.join(self.sandbox_tmpdir, "db.sqlite")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', db_filepath,
-                    '-s', self._schema_filepath]
-        retcode = main()
+                    '-s', self.schema_filepath]
+        retcode = create_sqlite_db.main()
         msg = "The database couldn't be created. Return code is " \
               "{}".format(retcode)
         self.assertTrue(retcode == 0, msg)
@@ -68,10 +51,10 @@ class TestFunctions(TestBase):
         """
         print("\nTesting case 2 of main()...")
         sys.argv = ['create_sqlite_db.py',
-                    '-d', self._db_filepath,
-                    '-s', self._schema_filepath]
+                    '-d', self.db_filepath,
+                    '-s', self.schema_filepath]
         create_sqlite_db.PAUSE = 0
-        retcode = main()
+        retcode = create_sqlite_db.main()
         msg = "Something very odd! Return code is {}".format(retcode)
         self.assertTrue(retcode == 1, msg)
         print("The database wasn't overwritten as expected")
@@ -87,10 +70,10 @@ class TestFunctions(TestBase):
         """
         print("\nTesting case 3 of main()...")
         sys.argv = ['create_sqlite_db.py', '-o',
-                    '-d', self._db_filepath,
-                    '-s', self._schema_filepath]
+                    '-d', self.db_filepath,
+                    '-s', self.schema_filepath]
         create_sqlite_db.PAUSE = 0
-        retcode = main()
+        retcode = create_sqlite_db.main()
         msg = "Something very odd! Return code is {}".format(retcode)
         self.assertTrue(retcode == 0, msg)
         print("The database was overwritten as expected")
@@ -107,10 +90,10 @@ class TestFunctions(TestBase):
         """
         print("\nTesting case 4 of main()...")
         sys.argv = ['create_sqlite_db.py', '-o',
-                    '-d', self._db_filepath,
+                    '-d', self.db_filepath,
                     '-s', '/bad/schema/path.sql']
         with self.assertRaises(IOError) as cm:
-            main()
+            create_sqlite_db.main()
         print("Raised an IOError as expected: ", cm.exception)
 
     # @unittest.skip("test_main_case_5()")
@@ -126,9 +109,9 @@ class TestFunctions(TestBase):
         print("\nTesting case 5 of main()...")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', '/bad/db/path.sqlite',
-                    '-s', self._schema_filepath]
+                    '-s', self.schema_filepath]
         with self.assertRaises(sqlite3.OperationalError) as cm:
-            main()
+            create_sqlite_db.main()
         print("Raised a sqlite3.OperationalError as expected: ", cm.exception)
 
 

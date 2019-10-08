@@ -2,66 +2,27 @@
 
 Every functions in :mod:`~pyutils.genutils` are tested here.
 
-The command to execute the :mod:`unittest` test runner::
-
-    python -m unittest discover
-
-This command is executed at the root of the project directory.
-
 """
 
 # TODO: add support for Python 3.4 and 3.5
 from datetime import datetime
 import os
-from tempfile import TemporaryDirectory
 import time
 import unittest
 # Third-party modules
 import tzlocal
 import yaml
 # Custom modules
+from .utils import TestBase
 from pyutils.genutils import convert_utctime_to_local_tz, create_dir, \
     create_timestamped_dir, delete_folder_contents, dumps_json, dump_pickle, \
     get_creation_date, load_json, load_pickle, load_yaml, read_file, run_cmd, \
     write_file
 
 
-class TestFunctions(unittest.TestCase):
-
-    @classmethod
-    def setUp(cls):
-        print()
-
-    @classmethod
-    def setUpClass(cls):
-        """TODO
-
-        """
-        print("Setting up genutils tests...")
-        # Create temporary directory
-        cls.tmpdir_obj = TemporaryDirectory()
-        cls.tmpdir = cls.tmpdir_obj.name
-        print("Temporary directory created: ", cls.tmpdir)
-
-    @classmethod
-    def tearDown(cls):
-        """TODO
-
-        """
-        print("Cleanup...")
-        # Cleanup temporary directory
-        delete_folder_contents(cls.tmpdir)
-        # print("Temporary directory cleared: ", cls.tmpdir)
-
-    @classmethod
-    def tearDownClass(cls):
-        """TODO
-
-        """
-        print("\n\nFinal cleanup...")
-        # Delete the temporary directory
-        cls.tmpdir_obj.cleanup()
-        print("Temporary directory deleted: ", cls.tmpdir)
+class TestFunctions(TestBase):
+    # TODO
+    test_name = "genutils"
 
     def test_convert_utctime_to_local_tz_case_1(self):
         """Test that convert_utctime_to_local_tz() returns a valid time.
@@ -138,15 +99,15 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting case 1 of create_dir()...")
-        dirpath = os.path.join(self.tmpdir, "testdir")
-        msg = "The directory {} couldn't be created".format(dirpath)
+        dirpath = os.path.join(self.sandbox_tmpdir, "testdir")
+        msg = "The test directory {} couldn't be created".format(dirpath)
         try:
             create_dir(dirpath)
         except (FileExistsError, PermissionError) as e:
             self.fail("{} : {}".format(msg, e))
         else:
             self.assertTrue(os.path.isdir(dirpath), msg)
-            print("The directory was created")
+            print("The test directory was created")
 
     def test_create_dir_case_2(self):
         """Test create_dir() when the directory already exists.
@@ -157,11 +118,11 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting case 2 of create_dir() ...")
-        with self.assertRaises(FileExistsError):
-            dirpath = os.path.join(self.tmpdir, "testdir")
+        with self.assertRaises(FileExistsError) as cm:
+            dirpath = os.path.join(self.sandbox_tmpdir, "testdir")
             create_dir(dirpath)
             create_dir(dirpath)
-        print("Raised a FileExistsError exception as expected")
+        print("Raised a FileExistsError exception as expected: ", cm.exception)
 
     def test_create_dir_case_3(self):
         """Test create_dir() with no permission to write in a directory.
@@ -173,13 +134,13 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting case 3 of create_dir() ...")
-        test1_dirpath = os.path.join(self.tmpdir, "testdir1")
+        test1_dirpath = os.path.join(self.sandbox_tmpdir, "testdir1")
         create_dir(test1_dirpath)
         # TODO: Only works on macOS/Linux:
         os.chmod(test1_dirpath, 0o444)
-        with self.assertRaises(PermissionError):
+        with self.assertRaises(PermissionError) as cm:
             create_dir(os.path.join(test1_dirpath, "testdir2"))
-        print("Raised a PermissionError exception as expected")
+        print("Raised a PermissionError exception as expected: ", cm.exception)
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
 
@@ -207,7 +168,7 @@ class TestFunctions(unittest.TestCase):
         print("\nTesting case 1 of create_timestamped_dir()...")
         msg = "The timestamped directory couldn't be created"
         try:
-            dirpath = create_timestamped_dir(self.tmpdir)
+            dirpath = create_timestamped_dir(self.sandbox_tmpdir)
         except (FileExistsError, PermissionError) as e:
             self.fail("{} : {}".format(msg, e))
         else:
@@ -226,13 +187,13 @@ class TestFunctions(unittest.TestCase):
 
         """
         print("\nTesting case 2 of create_timestamped_dir() ...")
-        test1_dirpath = os.path.join(self.tmpdir, "testdir1")
+        test1_dirpath = os.path.join(self.sandbox_tmpdir, "testdir1")
         create_dir(test1_dirpath)
         # TODO: Only works on macOS/Linux:
         os.chmod(test1_dirpath, 0o444)
-        with self.assertRaises(PermissionError):
+        with self.assertRaises(PermissionError) as cm:
             create_timestamped_dir(os.path.join(test1_dirpath, "testdir2"))
-        print("Raised a PermissionError exception as expected")
+        print("Raised a PermissionError exception as expected: ", cm.exception)
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
 
@@ -258,8 +219,10 @@ class TestFunctions(unittest.TestCase):
     def populate_folder(self, number_subdirs=2, number_files=2):
         """Populate a folder with text files and subdirectories.
 
-        It creates a main test directory with `number_files` text files, and
-        `number_subdirs` subdirectories with each storing `number_files` text
+        It creates:
+
+        - a main test directory with `number_files` text files, and
+        - `number_subdirs` subdirectories with each storing `number_files` text
         files.
 
         Parameters
@@ -286,7 +249,7 @@ class TestFunctions(unittest.TestCase):
         # TODO: add symbolic links
         # Create a main test directory where many subdirectories with text
         # files will be created
-        maintest_dirpath = os.path.join(self.tmpdir, "main_testdir")
+        maintest_dirpath = os.path.join(self.sandbox_tmpdir, "main_testdir")
         create_dir(maintest_dirpath)
         self.create_text_files(
             dirpath=maintest_dirpath,
@@ -374,7 +337,7 @@ class TestFunctions(unittest.TestCase):
         Case 3 consists in testing that
         :meth:`~pyutils.genutils.delete_folder_contents` removes all text files
         recursively, except subdirectories. Thus, at the end, anything left
-        should be subdirectories, including the root directory.
+        should be empty subdirectories and the root directory.
 
         See Also
         --------
@@ -407,7 +370,8 @@ class TestFunctions(unittest.TestCase):
 
         Case 4 consists in testing that
         :meth:`~pyutils.genutils.delete_folder_contents` removes everything in
-        a folder with the flag `delete_recursively` set to False.
+        a folder with the flag `delete_recursively` set to False. Thus, at the
+        end, only the empty root directory should be left.
 
         See Also
         --------
@@ -434,7 +398,7 @@ class TestFunctions(unittest.TestCase):
 
     # @unittest.skip("test_delete_folder_contents_case_5()")
     def test_delete_folder_contents_case_5(self):
-        """Test delete_folder_contents() when a folder doesn't exist.
+        """Test delete_folder_contents() when a folder path doesn't exist.
 
         Case 5 consists in testing that
         :meth:`~pyutils.genutils.delete_folder_contents` raises an
@@ -449,11 +413,11 @@ class TestFunctions(unittest.TestCase):
         try:
             # Delete everything in the directory that doesn't exist
             delete_folder_contents(
-                folderpath=os.path.join(self.tmpdir, "fakedir"),
+                folderpath=os.path.join(self.sandbox_tmpdir, "fakedir"),
                 remove_subdirs=True,
                 delete_recursively=False)
-        except OSError:
-            print("Raised an OSError exception as expected")
+        except OSError as e:
+            print("Raised an OSError exception as expected: ", e)
         else:
             self.fail("An OSError exception was not raised as expected")
 
@@ -478,13 +442,13 @@ class TestFunctions(unittest.TestCase):
                 'key3-2': 'value3-2'
             }
         }
-        filepath = os.path.join(self.tmpdir, "data.pkl")
+        filepath = os.path.join(self.sandbox_tmpdir, "data.pkl")
         dump_pickle(filepath, data1)
         # Test that the data was correctly written by loading it
         data2 = load_pickle(filepath)
         msg = "The data that was saved on disk is corrupted"
         self.assertDictEqual(data1, data2, msg)
-        print("The data was pickled and saved correctly")
+        print("The pickled data was saved and loaded correctly")
 
     # @unittest.skip("test_dumps_and_load_json_case_1()")
     def test_dumps_and_load_json_case_1(self):
@@ -511,7 +475,7 @@ class TestFunctions(unittest.TestCase):
             },
             'key2': 'value2'
         }
-        filepath = os.path.join(self.tmpdir, "data.json")
+        filepath = os.path.join(self.sandbox_tmpdir, "data.json")
         dumps_json(filepath, data1)
         # Test that the JSON data was correctly written by loading it
         data2 = load_json(filepath)
@@ -520,7 +484,8 @@ class TestFunctions(unittest.TestCase):
         # Test that the keys from the JSON data are sorted
         # NOTE: Only the keys at level 1 of the JSON dict are tested
         self.assertSequenceEqual(sorted(data1.keys()), list(data2.keys()))
-        print("The JSON data was saved correctly with its keys sorted")
+        print("The JSON data was saved and loaded correctly with its keys "
+              "sorted")
 
     # @unittest.skip("test_dumps_and_load_json_case_2()")
     def test_dumps_and_load_json_case_2(self):
@@ -544,7 +509,7 @@ class TestFunctions(unittest.TestCase):
             },
             'key2': 'value2'
         }
-        filepath = os.path.join(self.tmpdir, "data.json")
+        filepath = os.path.join(self.sandbox_tmpdir, "data.json")
         dumps_json(filepath, data1, sort_keys=False)
         # Test that the JSON data was correctly written by loading it
         data2 = load_json(filepath)
@@ -553,7 +518,8 @@ class TestFunctions(unittest.TestCase):
         # Test that the keys from the JSON data are not sorted
         # NOTE: Only the keys at level 1 of the JSON dict are tested
         self.assertSequenceEqual(list(data1.keys()), list(data2.keys()))
-        print("The JSON data was saved correctly with its keys not sorted")
+        print("The JSON data was saved and loaded correctly with its keys not "
+              "sorted")
 
     # @unittest.skip("test_get_creation_date()")
     def test_get_creation_date(self):
@@ -566,7 +532,7 @@ class TestFunctions(unittest.TestCase):
         """
         print("\nTesting get_creation_date()...")
         # Write file to disk
-        filepath = os.path.join(self.tmpdir, "file.txt")
+        filepath = os.path.join(self.sandbox_tmpdir, "file.txt")
         write_file(filepath, "Hello, World!\n")
         # Get the current time
         now = str(datetime.fromtimestamp(time.time()))
@@ -600,14 +566,14 @@ class TestFunctions(unittest.TestCase):
             },
             'key2': 'value2'
         }
-        filepath = os.path.join(self.tmpdir, "file.yaml")
+        filepath = os.path.join(self.sandbox_tmpdir, "file.yaml")
         with open(filepath, 'w') as f:
             yaml.dump(data1, f, default_flow_style=False, sort_keys=False)
         # Test that the YAML data was correctly written by loading it
         data2 = load_yaml(filepath)
         msg = "The YAML data that was saved on disk is corrupted"
         self.assertDictEqual(data1, data2, msg)
-        print("The YAML data was saved correctly")
+        print("The YAML data was saved and loaded correctly")
 
     # @unittest.skip("test_read_file()")
     def test_read_file(self):
@@ -620,9 +586,9 @@ class TestFunctions(unittest.TestCase):
         """
         print("\nTesting case 2 of read_file()...")
         # Write text to a file on disk
-        with self.assertRaises(OSError):
-            read_file(os.path.join(self.tmpdir, "file.txt"))
-        print("Raised an OSError exception as expected")
+        with self.assertRaises(OSError) as cm:
+            read_file("/bad/file/path.txt")
+        print("Raised an OSError exception as expected: ", cm.exception)
 
     # @unittest.skip("test_run_cmd_date()")
     def test_run_cmd_date(self):
@@ -663,13 +629,13 @@ class TestFunctions(unittest.TestCase):
         print("\nTesting write_file() and read_file()...")
         # Write text to a file on disk
         text1 = "Hello World!\n"
-        filepath = os.path.join(self.tmpdir, "file.txt")
+        filepath = os.path.join(self.sandbox_tmpdir, "file.txt")
         write_file(filepath, text1)
         # Test that the text was correctly written by loading it
         text2 = read_file(filepath)
         msg = "The text that was saved on disk is corrupted"
         self.assertTrue(text1 == text2, msg)
-        print("The text was saved correctly")
+        print("The text was saved and read correctly")
 
     # TODO: test write_file with overwrite=False
 
