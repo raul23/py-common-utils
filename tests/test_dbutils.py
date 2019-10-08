@@ -61,6 +61,8 @@ class TestFunctions(unittest.TestCase):
         # Delete the temporary directory
         cls._main_tmpdir_obj.cleanup()
         print("Main temporary directory deleted: ", cls._main_tmpdir)
+        print("\n# ========================================================="
+              "==================================== #\n")
 
     # @unittest.skip("test_connect_db_case_1()")
     def test_connect_db_case_1(self):
