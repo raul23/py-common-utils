@@ -14,7 +14,7 @@ import os
 import sqlite3
 import unittest
 # Custom modules
-from .testutils import setup_tmp_dirs
+from .utils import setup_tmp_dirs
 from pyutils.genutils import delete_folder_contents
 from pyutils.dbutils import connect_db, create_db
 
