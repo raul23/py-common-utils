@@ -87,11 +87,19 @@ def create_db(db_filepath, schema_filepath, overwrite_db=False,  **kwargs):
     **kwargs
         TODO
 
+    Returns
+    -------
+    int
+        Return code. TODO ...
+
     Raises
     ------
     IOError
         Raised if there is any IOError when opening the schema file, e.g. the
         schema file doesn't exist (OSError).
+    sqlite3.OperationalError
+        Raised if TODO ...
+
 
     """
     # TODO: add verbose option
