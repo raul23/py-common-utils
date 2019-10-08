@@ -71,8 +71,9 @@ class TestFunctions(unittest.TestCase):
 
         Notes
         -----
-        `utc_time` is the argument given to :meth:`convert_utctime_to_local_tz`
-        which will convert it into the local time zone.
+        `utc_time` is the argument given to
+        :meth:`~pyutils.genutils.convert_utctime_to_local_tz` which will convert
+        it into the local time zone.
 
         The function sets `utc_time` to a date and time which is a
         :obj:`time.struct_time`
@@ -95,23 +96,24 @@ class TestFunctions(unittest.TestCase):
             expected = '2019-10-04 ??:29:19???:00'
             exp1 = output[0:11] == expected[0:11]
             exp2 = output[13:19] == expected[13:19]
-            msg = "UTC time '{}' was incorrectly converted into the local time " \
-                  "as '{}'".format(str(datetime(*stime[:7])), output)
+            msg = "UTC time '{}' was incorrectly converted into the local " \
+                  "time as '{}'".format(str(datetime(*stime[:7])), output)
             self.assertTrue(exp1 and exp2, msg)
 
     def test_convert_utctime_to_local_tz_case_2(self):
         """Test convert_utctime_to_local_tz() when no UTC time is given.
 
         Case 2 consists setting `utc_time` to None and testing that
-        :meth:`convert_utctime_to_local_tz` returns a date and time that
-        follows the pattern::
+        :meth:`~pyutils.genutils.convert_utctime_to_local_tz` returns a date
+        and time that follows the pattern::
 
             YYYY-MM-DD HH:MM:SS-HH:MM
 
         Notes
         -----
-        When `utc_time` is None, :meth:`convert_utctime_to_local_tz` will use
-        UTC as the timezone for the current time.
+        When `utc_time` is None,
+        :meth:`~pyutils.genutils.convert_utctime_to_local_tz` will use UTC as
+        the timezone for the current time.
 
         """
         print("\nTesting case 2 of convert_utctime_to_local_tz()...")
@@ -132,7 +134,7 @@ class TestFunctions(unittest.TestCase):
         """Test that create_dir() actually creates a directory.
 
         Case 1 consists in testing that the directory was actually created on
-        disk by the function :meth:`create_dir()`.
+        disk by the function :meth:`~pyutils.genutils.create_dir()`.
 
         """
         print("\nTesting case 1 of create_dir()...")
@@ -149,9 +151,9 @@ class TestFunctions(unittest.TestCase):
     def test_create_dir_case_2(self):
         """Test create_dir() when the directory already exists.
 
-        Case 2 consists in checking that the function :meth:`create_dir`
-        raises a :exc:`FileExistsError` when we try to create a directory that
-        already exists on disk.
+        Case 2 consists in checking that the function
+        :meth:`~pyutils.genutils.create_dir` raises a :exc:`FileExistsError`
+        when we try to create a directory that already exists on disk.
 
         """
         print("\nTesting case 2 of create_dir() ...")
@@ -164,9 +166,10 @@ class TestFunctions(unittest.TestCase):
     def test_create_dir_case_3(self):
         """Test create_dir() with no permission to write in a directory.
 
-        Case 3 consists in checking that the function :meth:`create_dir`
-        raises a :exc:`PermissionError` when we try to create a subdirectory in
-        a directory without the write permission.
+        Case 3 consists in checking that the function
+        :meth:`~pyutils.genutils.create_dir` raises a :exc:`PermissionError`
+        when we try to create a subdirectory in a directory without the write
+        permission.
 
         """
         print("\nTesting case 3 of create_dir() ...")
@@ -192,13 +195,13 @@ class TestFunctions(unittest.TestCase):
         Notes
         -----
         It is trickier to test the case where
-        :meth:`create_create_timestamped_directory` must raise a
-        :exc:`FileExistsError` exception since you can't easily create a
-        timestamped directory that already exists, unless for example you call
-        :meth:`create_create_timestamped_directory` twice very quickly and the
-        second call might rise a :exc:`FileExistsError` exception if it ends up
-        using an already taken timestamped directory name (with the seconds and
-        all).
+        :meth:`~pyutils.genutils.create_create_timestamped_directory` must
+        raise a :exc:`FileExistsError` exception since you can't easily
+        create a timestamped directory that already exists, unless for example
+        you call :meth:`~pyutils.genutils.create_create_timestamped_directory`
+        twice very quickly and the second call might rise a
+        :exc:`FileExistsError` exception if it ends up using an already taken
+        timestamped directory name (with the seconds and all).
 
         """
         print("\nTesting case 1 of create_timestamped_dir()...")
@@ -217,7 +220,7 @@ class TestFunctions(unittest.TestCase):
         directory.
 
         Case 2 consists in checking that the function
-        :meth:`create_create_timestamped_directory` raises a
+        :meth:`~pyutils.genutils.create_create_timestamped_directory` raises a
         :exc:`PermissionError` when we try to create a subdirectory in a
         directory without the write permission.
 
@@ -275,7 +278,7 @@ class TestFunctions(unittest.TestCase):
         Notes
         -----
         This function is to be used when testing
-        :meth:`~genutils.delete_folder_contents`, see
+        :meth:`~pyutils.genutils.delete_folder_contents`, see
         :meth:`test_delete_folder_contents_case_1` and
         :meth:`test_delete_folder_contents_case_2`.
 
@@ -303,9 +306,10 @@ class TestFunctions(unittest.TestCase):
     def test_delete_folder_contents_case_1(self):
         """Test that delete_folder_contents() removes everything in a folder.
 
-        Case 1 consists in testing that :meth:`delete_folder_contents` removes
-        everything in a folder, including the files and subdirectories at the
-        root of the given folder.
+        Case 1 consists in testing that
+        :meth:`~pyutils.genutils.delete_folder_contents` removes everything in
+        a folder, including the files and subdirectories at the root of the
+        given folder.
 
         See Also
         --------
@@ -331,9 +335,10 @@ class TestFunctions(unittest.TestCase):
         """Test that delete_folder_contents() removes everything at the root
         of a directory except subdirectories and their contents.
 
-        Case 2 consists in testing that :meth:`delete_folder_contents` removes
-        everything in a folder, except the subdirectories and their contents at
-        the root of the given folder.
+        Case 2 consists in testing that
+        :meth:`~pyutils.genutils.delete_folder_contents` removes everything in
+        a folder, except the subdirectories and their contents at the root of
+        the given folder.
 
         See Also
         --------
@@ -366,9 +371,10 @@ class TestFunctions(unittest.TestCase):
         """Test that delete_folder_contents() removes all text files
         recursively, except subdirectories.
 
-        Case 3 consists in testing that :meth:`delete_folder_contents` removes
-        all text files recursively, except subdirectories. Thus, at the end,
-        anything left should be subdirectories, including the root directory.
+        Case 3 consists in testing that
+        :meth:`~pyutils.genutils.delete_folder_contents` removes all text files
+        recursively, except subdirectories. Thus, at the end, anything left
+        should be subdirectories, including the root directory.
 
         See Also
         --------
@@ -399,8 +405,9 @@ class TestFunctions(unittest.TestCase):
         """Test that delete_folder_contents() removes everything in a folder
         with `delete_recursively` set to True.
 
-        Case 4 consists in testing that :meth:`delete_folder_contents` removes
-        everything in a folder with the flag `delete_recursively` set to False.
+        Case 4 consists in testing that
+        :meth:`~pyutils.genutils.delete_folder_contents` removes everything in
+        a folder with the flag `delete_recursively` set to False.
 
         See Also
         --------
@@ -429,8 +436,9 @@ class TestFunctions(unittest.TestCase):
     def test_delete_folder_contents_case_5(self):
         """Test delete_folder_contents() when a folder doesn't exist.
 
-        Case 5 consists in testing that :meth:`delete_folder_contents` raises
-        an :exc:`OSError` exception when the folder to be cleared doesn't exist.
+        Case 5 consists in testing that
+        :meth:`~pyutils.genutils.delete_folder_contents` raises an
+        :exc:`OSError` exception when the folder to be cleared doesn't exist.
 
         See Also
         --------
@@ -457,8 +465,8 @@ class TestFunctions(unittest.TestCase):
         This function tests that the data saved on disk is not corrupted by
         loading it and checking that it is the same as the original data.
 
-        Thus, :meth:`dump_pickle` and :meth:`load_pickle` are tested at the
-        same time.
+        Thus, :meth:`~pyutils.genutils.dump_pickle` and
+        :meth:`~pyutils.genutils.load_pickle` are tested at the same time.
 
         """
         print("\nTesting dump_pickle() and load_pickle()...")
@@ -490,8 +498,8 @@ class TestFunctions(unittest.TestCase):
         loading it and checking that it is the same as the original JSON data
         and that its keys are sorted.
 
-        Thus, :meth:`dumps_json` and :meth:`load_json` are tested at the same
-        time.
+        Thus, :meth:`~pyutils.genutils.dumps_json` and
+        :meth:`~pyutils.genutils.load_json` are tested at the same time.
 
         """
         print("\nTesting case 1 of dumps_json() and load_json()...")
@@ -523,8 +531,8 @@ class TestFunctions(unittest.TestCase):
         loading it and checking that it is the same as the original JSON data
         and that its keys are not sorted.
 
-        Thus, :meth:`dumps_json` and :meth:`load_json` are tested at the same
-        time.
+        Thus, :meth:`~pyutils.genutils.dumps_json` and
+        :meth:`~pyutils.genutils.load_json` are tested at the same time.
 
         """
         print("\nTesting case 2 of dumps_json() and load_json()...")
@@ -552,8 +560,8 @@ class TestFunctions(unittest.TestCase):
         """Test that get_creation_date() returns a valid creation date for a
         file.
 
-        This function tests :meth:`get_creation_date` by comparing the creation
-        date of a file and the current date and time.
+        This function tests :meth:`~pyutils.genutils.get_creation_date` by
+        comparing the creation date of a file and the current date and time.
 
         """
         print("\nTesting get_creation_date()...")
@@ -577,8 +585,9 @@ class TestFunctions(unittest.TestCase):
     def test_load_yaml(self):
         """Test that load_yaml() loads data correctly from a YAML file.
 
-        This function tests that :meth:`load_yaml` can load a YAML data from a
-        file on disk by checking that it is the same as the original data.
+        This function tests that :meth:`~pyutils.genutils.load_yaml` can load a
+        YAML data from a file on disk by checking that it is the same as the
+        original data.
 
         """
         print("\nTesting load_yaml()...")
@@ -604,8 +613,9 @@ class TestFunctions(unittest.TestCase):
     def test_read_file(self):
         """Test read_file() when a file doesn't exist.
 
-        This test consists in checking that :meth:`read_file()` raises an
-        :exc:`OSError` exception when a file doesn't exist.
+        This test consists in checking that
+        :meth:`~pyutils.genutils.read_file()` raises an :exc:`OSError`
+        exception when a file doesn't exist.
 
         """
         print("\nTesting case 2 of read_file()...")
@@ -618,8 +628,8 @@ class TestFunctions(unittest.TestCase):
     def test_run_cmd_date(self):
         """Test run_cmd() with the command ``date``
 
-        This function tests that :meth:`run_cmd` can succesfully execute a
-        shell command.
+        This function tests that :meth:`~pyutils.genutils.run_cmd` can
+        successfully execute a shell command.
 
         """
         print("\nTesting run_cmd(cmd='date')...")
@@ -630,8 +640,8 @@ class TestFunctions(unittest.TestCase):
     def test_run_cmd_pwd(self):
         """Test run_cmd() with the command ``pwd``
 
-        This function tests that :meth:`run_cmd` can succesfully execute a
-        shell command.
+        This function tests that :meth:`~pyutils.genutils.run_cmd` can
+        successfully execute a shell command.
 
         """
         print("\nTesting run_cmd(cmd='pwd')...")
@@ -646,8 +656,8 @@ class TestFunctions(unittest.TestCase):
         This function tests that the text saved on disk is not corrupted by
         reading it and checking that it is the same as the original text.
 
-        Thus, :meth:`write_file` and :meth:`read_file` are tested at the same
-        time.
+        Thus, :meth:`~pyutils.genutils.write_file` and
+        :meth:`~pyutils.genutils.read_file` are tested at the same time.
 
         """
         print("\nTesting write_file() and read_file()...")
