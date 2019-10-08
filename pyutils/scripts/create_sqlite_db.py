@@ -14,6 +14,10 @@ import argparse
 from pyutils.dbutils import create_db
 
 
+# TODO: explain
+PAUSE = 3
+
+
 def main():
     """TODO
 
@@ -31,11 +35,11 @@ def main():
                         help="Path to the SQLite database file")
     parser.add_argument("-s", "--schema", required=True,
                         help="Path to the schema file")
-    # TODO: add verbose argument
+    # TODO: add verbose argument since no message is shown on the console
     # Process command-line arguments
     args = parser.parse_args()
     # Create database
-    return create_db(args.database, args.schema, args.overwrite)
+    return create_db(args.database, args.schema, args.overwrite, PAUSE)
 
 
 if __name__ == '__main__':

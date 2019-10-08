@@ -14,6 +14,7 @@ import unittest
 # Custom modules
 from .utils import TestBase
 from pyutils.dbutils import create_db
+from pyutils.scripts import create_sqlite_db
 from pyutils.scripts.create_sqlite_db import main
 
 
@@ -51,27 +52,57 @@ class TestFunctions(TestBase):
 
     # @unittest.skip("test_main_case_2()")
     def test_main_case_2(self):
-        """Test that main() can overwrite a database when the option -o is used.
+        """Test that main() can't overwrite a database when the option -o is
+        not used.
 
-        Case 2 tests that :meth:`~pyutils.scripts.create_sqlite_dbmain()` can
-        overwrite a SQLite database the option `-o` is used in the command-line.
+        Case 2 tests that :meth:`~pyutils.scripts.create_sqlite_dbmain()` can't
+        overwrite a SQLite database when the option `-o` is not used in the
+        command-line.
 
         """
         print("\nTesting case 2 of main()...")
         sys.argv = ['create_sqlite_db.py', '-d', self._db_filepath, '-s',
                     self._schema_filepath]
+        create_sqlite_db.PAUSE = 0
         retcode = main()
         msg = "Something very odd! Return code is {}".format(retcode)
         self.assertTrue(retcode == 1, msg)
         print("The database couldn't be overwritten as expected")
 
-    @unittest.skip("test_main_case_3()")
+    # @unittest.skip("test_main_case_3()")
     def test_main_case_3(self):
-        print("\nTesting case 3 of main()...")
+        """Test that main() can overwrite a database when the option -o is used.
 
-    @unittest.skip("test_main_case_4()")
+        Case 3 tests that :meth:`~pyutils.scripts.create_sqlite_dbmain()` can
+        overwrite a SQLite database when the option `-o` is used in the
+        command-line.
+
+        """
+        print("\nTesting case 3 of main()...")
+        sys.argv = ['create_sqlite_db.py', '-o', '-d', self._db_filepath, '-s',
+                    self._schema_filepath]
+        create_sqlite_db.PAUSE = 0
+        retcode = main()
+        msg = "Something very odd! Return code is {}".format(retcode)
+        self.assertTrue(retcode == 0, msg)
+        print("The database could be overwritten as expected")
+
+    # @unittest.skip("test_main_case_4()")
     def test_main_case_4(self):
+        """Test that main() can't create a database when a schema that doesn't
+        exist is given.
+
+        Case 4 tests that :meth:`~pyutils.scripts.create_sqlite_dbmain()` can
+        overwrite a SQLite database when a schema that doesn't exist is given
+        in the command-line.
+
+        """
         print("\nTesting case 4 of main()...")
+        sys.argv = ['create_sqlite_db.py', '-o', '-d', self._db_filepath, '-s',
+                    self._schema_filepath + '_bad']
+        with self.assertRaises(IOError):
+            main()
+        print("Raised an IOError as expected")
 
 
 if __name__ == '__main__':

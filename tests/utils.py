@@ -55,7 +55,7 @@ class TestBase(unittest.TestCase):
         print("\n\nFinal cleanup...")
         # Delete the temporary directory
         cls.main_tmpdir_obj.cleanup()
-        print("Temporary directory deleted: ", cls.main_tmpdir)
+        print("Main temporary directory deleted: ", cls.main_tmpdir)
 
     @classmethod
     def setup_tmp_dirs(cls, with_sandbox=False, with_datafiles=False):
