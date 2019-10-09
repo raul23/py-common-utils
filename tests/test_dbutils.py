@@ -7,7 +7,7 @@ Every functions in :mod:`~pyutils.dbutils` are tested here.
 import os
 import sqlite3
 import unittest
-# Custom modules
+
 from .utils import TestBase
 from pyutils.dbutils import connect_db, create_db
 

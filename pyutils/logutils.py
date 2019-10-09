@@ -14,7 +14,7 @@ genutils : module that defines many general and useful functions.
 
 from datetime import datetime
 import logging.config
-# Custom modules
+
 from pyutils.genutils import load_yaml
 
 

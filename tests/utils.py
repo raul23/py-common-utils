@@ -5,7 +5,7 @@
 import os
 from tempfile import TemporaryDirectory
 import unittest
-# Custom modules
+
 from .data.logging_cfg import logging_cfg_dict
 from pyutils.dbutils import create_db
 from pyutils.genutils import create_dir, delete_folder_contents
@@ -18,7 +18,7 @@ class TestBase(unittest.TestCase):
     # Temporary directories
     _main_tmpdir_obj = None
     _main_tmpdir = None
-    _data_tmpdir = None
+    data_tmpdir = None
     sandbox_tmpdir = None
     # DB-related files
     schema_filepath = "tests/data/music.sql"
@@ -48,7 +48,7 @@ class TestBase(unittest.TestCase):
         print("Setting up {} tests...".format(cls.test_name))
         cls.setup_tmp_dirs()
         # Create SQLite db
-        cls.db_filepath = os.path.join(cls._data_tmpdir, "db.sqlite")
+        cls.db_filepath = os.path.join(cls.data_tmpdir, "db.sqlite")
         create_db(cls.db_filepath, cls.schema_filepath)
 
     @classmethod
@@ -87,5 +87,5 @@ class TestBase(unittest.TestCase):
         print("Sandbox directory created: ", cls.sandbox_tmpdir)
         # Create a directory for data files (e.g. SQLite database) useful
         # for performing the tests
-        cls._data_tmpdir = create_dir(os.path.join(cls._main_tmpdir, "data"))
-        print("Data directory created: ", cls._data_tmpdir)
+        cls.data_tmpdir = create_dir(os.path.join(cls._main_tmpdir, "data"))
+        print("Data directory created: ", cls.data_tmpdir)

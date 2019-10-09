@@ -9,10 +9,10 @@ from datetime import datetime
 import os
 import time
 import unittest
-# Third-party modules
+
 import tzlocal
 import yaml
-# Custom modules
+
 from .utils import TestBase
 from pyutils.genutils import convert_utctime_to_local_tz, create_dir, \
     create_timestamped_dir, delete_folder_contents, dumps_json, dump_pickle, \

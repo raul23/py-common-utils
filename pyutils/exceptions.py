@@ -9,12 +9,6 @@ class HTTP404Error(Exception):
     not found."""
 
 
-# Files error
-class OverwriteFileError(Exception):
-    """Raised if an existing file is being overwritten and the flag to
-    overwrite files is disabled."""
-
-
 # Logging error
 class LoggingSanityCheckError(Exception):
     """Raised if the sanity check on one of the ``LoggingWrapper`` parameters

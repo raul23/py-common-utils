@@ -31,8 +31,6 @@ import pickle
 import shlex
 import shutil
 import subprocess
-# Custom modules
-from pyutils.exceptions.files import OverwriteFileError
 
 
 def convert_utctime_to_local_tz(utc_time=None):
@@ -108,13 +106,15 @@ def convert_utctime_to_local_tz(utc_time=None):
         return local_time
 
 
-def create_dir(dirpath):
+def create_dir(dirpath, overwrite=False):
     """Create a directory if it doesn't already exist.
 
     Parameters
     ----------
     dirpath : str
         Path to the directory to be created.
+    overwrite : bool, optional
+        TODO: redo tests with overwrite=True
 
     Returns
     -------
@@ -137,10 +137,10 @@ def create_dir(dirpath):
 
     """
     try:
-        pathlib.Path(dirpath).mkdir(parents=True, exist_ok=False)
-    except FileExistsError as e:
+        pathlib.Path(dirpath).mkdir(parents=True, exist_ok=overwrite)
+    except FileExistsError:
         raise
-    except PermissionError as e:
+    except PermissionError:
         raise
     else:
         return dirpath
@@ -558,7 +558,7 @@ def write_file(filepath, data, overwrite_file=True):
     """
     try:
         if os.path.isfile(filepath) and not overwrite_file:
-            raise OverwriteFileError(
+            raise FileExistsError(
                 "File '{}' already exists and overwrite is False".format(
                     filepath))
         else:

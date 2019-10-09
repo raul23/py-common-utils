@@ -12,8 +12,8 @@ import os
 import sqlite3
 import time
 from logging import NullHandler
-# Custom modules
-from pyutils.exceptions.sql import SQLSanityCheckError
+
+from pyutils.exceptions import SQLSanityCheckError
 
 
 logging.getLogger(__name__).addHandler(NullHandler())

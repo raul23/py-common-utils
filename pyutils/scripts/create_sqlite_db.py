@@ -10,7 +10,7 @@ TODO: add usage
 """
 
 import argparse
-# Custom modules
+
 from pyutils.dbutils import create_db
 
 
