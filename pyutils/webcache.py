@@ -107,7 +107,7 @@ class WebCache:
         # Setup cache
         self._cache_filename = os.path.join(self._cache_dirpath, "cache")
         self._setup_cache()
-        self.cache = requests_cache.get_cache()
+        self._cache = requests_cache.get_cache()
         # Establish a session to be used for the GET requests
         # IMPORTANT: the session must be established after installing the cache
         # if you want all your responses to be cached, i.e. monkey-patching
@@ -184,7 +184,7 @@ class WebCache:
         TODO: html
 
         """
-        if self.cache.has_url(url):
+        if self._cache.has_url(url):
             self.logger.debug("The URL was found in cache. Webpage will be "
                               "retrieved from cache.")
             response = self._req_session.get(url)
