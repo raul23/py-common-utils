@@ -8,6 +8,8 @@ import os
 import time
 import unittest
 
+import requests
+
 import pyutils.exceptions
 from .utils import TestBase
 from pyutils.webcache import WebCache
@@ -49,6 +51,7 @@ class TestFunctions(TestBase):
         test_from_cache : bool, optional
 
         """
+        # TODO: explain
         start = time.time()
         try:
             html = self.webcache.get_webpage(url)
@@ -110,11 +113,12 @@ class TestFunctions(TestBase):
 
     # @unittest.skip("test_get_webpage_case_3()")
     def test_get_webpage_case_3(self):
-        """Test get_webpage() when a URL doesn't exist.
+        """Test get_webpage() when a URL raises a '404 Not found' error.
 
         Test 3 consists in testing that
         :meth:`~pyutils.webcache.WebCache.get_webpage` raises an
-        :exc:`pyutils.exceptions.HTTP404Error` when the URL doesn't exist.
+        :exc:`pyutils.exceptions.HTTP404Error` when the URL refers to a
+        resource that doesn't exist but you can still connect to the server.
 
         """
         print("\nTesting case 3 of get_webpage()...")
@@ -123,6 +127,24 @@ class TestFunctions(TestBase):
         with self.assertRaises(pyutils.exceptions.HTTP404Error) as cm:
             self.get_webpage(bad_url, test_from_cache=False)
         print("Raised an HTTP404Error exception as expected: ", cm.exception)
+
+    # @unittest.skip("test_get_webpage_case_4()")
+    def test_get_webpage_case_4(self):
+        """Test get_webpage() when a URL doesn't exist.
+
+        Test 4 consists in testing that
+        :meth:`~pyutils.webcache.WebCache.get_webpage` raises an
+        :exc:`requests.exceptions.RequestException` when the URL doesn't exist,
+        i.e. no server could be reached.
+
+        """
+        print("\nTesting case 4 of get_webpage()...")
+        bad_url = "https://thisurldoesntexistatall.com"
+        print("Retrieving the webpage: ", bad_url)
+        with self.assertRaises(requests.exceptions.RequestException) as cm:
+            self.get_webpage(bad_url, test_from_cache=False)
+        print("Raised an 'requests.exceptions.RequestException' exception as "
+              "expected: ", cm.exception)
 
 
 if __name__ == '__main__':
