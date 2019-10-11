@@ -9,8 +9,11 @@ This command is executed at the root of the project directory and all tests in
 
 Also, to execute a specific test, this is the command::
 
-    $ python -m unttest tests/test_module.py
+    $ python -m unittest tests/test_module.py
 
 This command is executed at the root of the project directory.
 
 """
+
+from pyutils import install_colored_logger
+install_colored_logger(terminal="UNIX")

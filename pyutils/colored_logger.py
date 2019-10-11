@@ -10,20 +10,20 @@ The log messages can also be colored depending on the type of terminal:
 
 Attributes
 ----------
-log_levels : list of str
-    The list of logging levels' names as supported by Python's `logging`.
-color_log_levels_template : dict
+_nameToLevel : list of str
+    The list of logging levels' names as supported by :mod:`logging`.
+_levelToColoredMessage : dict
     Dictionary that defines a template for writing messages with colors based
     on the name of the log level.
     Its keys are the names of the log levels (e.g. debug and info) and its
     values are strings that consist of ANSI escape sequences with placeholders
     for the color code and the log message.
-default_color_log_levels : dict
+_unixLevelToColor : dict
     Colors for the different log levels when working on the standard Unix
     terminal.
     Its keys are the names of the log levels (e.g. debug and info) and its
     values are the color code.
-pycharm_color_log_levels : dict
+_pycharmLevelToColor : dict
     Colors for the different log levels when working on the PyCharm terminal.
     Its keys are the names of the log levels (e.g. debug and info) and its
     values are the color code.
@@ -44,47 +44,82 @@ the module name or the level name).
 """
 
 import logging
+from logging import getLevelName, Logger, StreamHandler, NOTSET
 
-import pyutils.exceptions
 from pyutils.logutils import get_error_msg
+import ipdb
 
-log_levels = ['debug', 'info', 'warning', 'error', 'exception', 'critical']
 
-color_log_levels_template = {
-    'debug':        "\033[{}m{}\033[0m",
-    'info':         "\033[{}m{}\033[0m",
-    'warning':      "\033[{}m{}\033[0m",
-    'error':        "\033[{}m{}\033[0m",
-    'exception':    "\033[{}m{}\033[0m",
-    'critical':     "\033[7;31;{}m{}\033[0m"
+# WARN = WARNING and FATAL = CRITICAL
+_levels = ['CRITICAL', 'FATAL', 'ERROR', 'WARN', 'WARNING', 'INFO', 'DEBUG',
+           'NOTSET']
+_terminals = ['UNIX', 'PYCHARM']
+
+# TODO: explain, incl. CRITICAL different code than other levels (highlight)
+_levelToColoredMessage = {
+    'NOTSET':       "\033[{}m{}\033[0m",
+    'DEBUG':        "\033[{}m{}\033[0m",
+    'INFO':         "\033[{}m{}\033[0m",
+    'WARNING':      "\033[{}m{}\033[0m",
+    'ERROR':        "\033[{}m{}\033[0m",
+    'EXCEPTION':    "\033[{}m{}\033[0m",
+    'CRITICAL':     "\033[7;31;{}m{}\033[0m"
+}
+_levelToColoredMessage['WARN'] = _levelToColoredMessage['WARNING']
+
+# Color codes for the log levels on the standard Unix Terminal
+_unixLevelToColor = {
+    'NOTSET':    36,    # Blue
+    'DEBUG':     36,    # Blue
+    'INFO':      32,    # Green
+    'WARNING':   33,    # Yellow
+    'ERROR':     31,    # Red
+    'EXCEPTION': 31,    # Red
+    'CRITICAL':  31     # Red highlighted
+}
+_unixLevelToColor['WARN'] = _unixLevelToColor['WARNING']
+
+# Color codes for the log levels on the PyCharm Terminal
+_pycharmLevelToColor = {
+    'NOTSET':    34,    # Blue
+    'DEBUG':     34,    # Blue
+    'INFO':      36,    # Blue aqua
+    'WARNING':   32,    # Yellow
+    'ERROR':     31,    # Red
+    'EXCEPTION': 31,    # Red
+    'CRITICAL':  31     # Red highlighted
+}
+_pycharmLevelToColor['WARN'] = _pycharmLevelToColor['WARNING']
+
+# TODO: explain
+_terminalToColorCodes = {
+    'UNIX': _unixLevelToColor,
+    'PYCHARM': _pycharmLevelToColor
 }
 
-# Colors for the log levels on the standard Unix Terminal
-default_color_log_levels = {
-    'debug':     36,    # Blue
-    'info':      32,    # Green
-    'warning':   33,    # Yellow
-    'error':     31,    # Red
-    'exception': 31,    # Red
-    'critical':  31     # Red highlighted
-}
 
-# Colors for the log levels on the PyCharm Terminal
-pycharm_color_log_levels = {
-    'debug':     34,    # Blue
-    'info':      36,    # Blue aqua
-    'warning':   32,    # Yellow
-    'error':     31,    # Red
-    'exception': 31,    # Red
-    'critical':  31     # Red highlighted
-}
+def list_to_str(list_):
+    """Convert a list of strings into a single string.
+
+    Parameters
+    ----------
+    list_ : list of str
+        List of strings to be converted into a single string.
+
+    Returns
+    -------
+    str_ : str
+        The converted string.
+
+    """
+    return ", ".join(map(lambda a: "'{}'".format(a), list_))
 
 
-class LoggingWrapper:
+class ColoredLogger(Logger):
     """A class that allows you to add color to log messages.
 
-    This class is a wrapper around ``logging.Logger`` that allows you to add
-    color to log messages.
+    This class is a wrapper around :class:`logging.Logger` that allows you to
+    add color to log messages.
 
     By calling one of the pubic logging method (e.g. warning and critical), the
     message can be logged with color, where each color is associated to a log
@@ -92,31 +127,17 @@ class LoggingWrapper:
 
     Parameters
     ----------
-    logger : logging.Logger
-        A logger for logging to console and/or file.
-    terminal_type : str, {None, 'u', 'p'}, optional
+    terminal : str, {None, 'UNIX', 'PYCHARM'}, optional
         The type of terminal used: 'u' for a Unix terminal and 'p' for a
         PyCharm terminal. Each terminal displays color codes differently (the
-        default value is None which implies that no color will be added to the
-        log messages).
-    color_levels : dict, optional
+        default value is 'u').
+    level_to_color : dict, optional
         The dictionary that defines the colors for the different log levels
-        (the default value is `default_color_log_levels` which implies that the
+        (the default value is `_unixLevelToColor` which implies that the
         colors as defined for the Unix terminal will be used).
 
         Its keys are the names of the log levels (e.g. debug and info) and its
-        values are the color code.
-
-    Attributes
-    ----------
-    handlers : list of logging.Handler
-        The list of handlers (e.g. StreamHandler or FileHandler) for the given
-        logger.
-    _removed_handlers : list of logging.Handler
-        This list of logger handlers is used for adding and removing specific
-        handlers (console or file handlers) in order to be able to log to
-        console with colors without logging to file (the color code must not be
-        written to the log file) and vice versa.
+        values are the color code used in ANSI escape sequences.
 
     Methods
     -------
@@ -141,41 +162,49 @@ class LoggingWrapper:
 
     """
 
-    def __init__(self, logger, terminal_type=None,
-                 color_levels=default_color_log_levels):
-        # TODO: add option to change color_levels from the logging config file.
-        # Right now, we only have two sets of color levels to choose from:
-        # default_color_log_levels and pycharm_color_log_levels
-        try:
-            assert terminal_type in [None, 'u', 'p'], \
-                "'{}' is not an accepted terminal type".format(terminal_type)
-            assert isinstance(color_levels, dict), "color_levels must be a dict"
-            assert sorted(list(color_levels.keys())) == sorted(log_levels), \
-                "An unsupported log level detected in {}".format(color_levels.keys())
-        except AssertionError as e:
-            raise pyutils.exceptions.LoggingSanityCheckError(e)
-        self.logger = logger
-        self.handlers = logger.handlers
-        self.terminal_type = terminal_type
-        # Use the correct color levels for the type of terminal used
-        if self.terminal_type == "u":
-            # Standard Unix terminal
-            self.color_levels = default_color_log_levels
-        elif self.terminal_type == "p":
-            # PyCharm terminal
-            self.color_levels = pycharm_color_log_levels
-        else:
-            # Custom color levels
-            self.color_levels = color_levels
+    TERMINAL_USED = "UNIX"
+
+    def __init__(self, name, level=NOTSET, terminal_used=TERMINAL_USED):
+        ipdb.set_trace()
+        super().__init__(name, level)
+        self.terminal = terminal_used
+        self.level_to_color = _terminalToColorCodes[self.terminal]
         self._removed_handlers = []
 
-    def _call_logger(self, msg, level):
-        """Call the logger by adding color to the messages.
+    def _change_terminal(self, terminal):
+        self.terminal = self.TERMINAL_USED = terminal
+        if terminal not in _terminals:
+            _terminals.append(terminal)
+        self.level_to_color = _terminalToColorCodes[self.terminal]
 
-        This method calls the logger's logging methods to write a message with
+    def __repr__(self):
+        level = getLevelName(self.getEffectiveLevel())
+        return '<%s %s (%s)>' % (self.__class__.__name__, self.name, level)
+
+    def set_level_colors(self, level_colors, terminal="UNIX"):
+        """TODO
+
+        Parameters
+        ----------
+        level_colors : dict
+        terminal : str, optional
+
+        """
+        self.terminal = terminal
+        self.level_to_color = level_colors
+        # TODO: sanity check on level_colors
+        if terminal not in _terminals:
+            _terminals.append(terminal)
+        _terminalToColorCodes[terminal] = self.level_to_color
+
+    def _log_with_color(self, logging_fnc, msg, level, *args, **kwargs):
+        """Call the specified logging function by adding color to the messages.
+
+        This method calls the logger's logging method to write a message with
         color (if specified).
 
-        Only the console handler gets its message colored, not the file handler.
+        Only the console handler gets its message colored, not the other type
+        of handlers, e.g. file handler.
 
         Parameters
         ----------
@@ -192,32 +221,29 @@ class LoggingWrapper:
         # If msg is an Exception, process the Exception to build the
         # error message as a string
         msg = get_error_msg(msg) if isinstance(msg, Exception) else msg
-        # Get the corresponding message-logging functions (e.g. logger.info or
-        # logger.debug) for the logger
-        logger_method = self.logger.__getattribute__(level)
         # IMPORTANT: Only the console handler gets colored messages. The file
         # handler don't.
         # Get the log message with color code for the console handler
-        c_msg = self._set_color(msg, level) if self.terminal_type else msg
+        c_msg = self._add_color_to_msg(msg, level)
         # Disable the other non-console handlers when logging in the console.
         # Hence, the color code will not appear in the log file.
         # Remove non-console handlers from the logger
-        self._remove_many_handlers(handlers_to_keep='console')
+        self._remove_non_console_handlers()
         # NOTE: it is possible that no console handlers are to be found
         # since the user might have set the logger to log to a file only
         # for example.
         # Log the colored message in the console
-        if self.logger.handlers:
+        if self.handlers:
             # Call the message-logging function, e.g. logger.info()
-            logger_method(c_msg)
+            logging_fnc(c_msg, *args, **kwargs)
         # Re-add the removed non-console handlers back to the logger
         self._add_removed_handlers()
         # Remove the console handlers from the logger since we are now
         # going to log with non-console handlers
-        self._remove_many_handlers(handlers_to_keep='non-console')
+        self._remove_console_handlers()
         # Log the non-colored message with the non-console handlers
-        if self.logger.handlers:
-            logger_method(msg)
+        if self.handlers:
+            logging_fnc(msg, *args, **kwargs)
         # Re-add the removed console handlers back to the logger
         self._add_removed_handlers()
 
@@ -226,11 +252,11 @@ class LoggingWrapper:
 
         """
         for h in self._removed_handlers:
-            self.logger.addHandler(h)
+            self.addHandler(h)
         self._removed_handlers = []
 
-    def _remove_single_handler(self, h):
-        """Remove a single handler from the logger.
+    def _remove_handler(self, h):
+        """Remove a handler from the logger.
 
         Parameters
         ----------
@@ -239,52 +265,35 @@ class LoggingWrapper:
 
         """
         self._removed_handlers.append(h)
-        self.logger.removeHandler(h)
+        self.removeHandler(h)
 
-    def _remove_many_handlers(self, handlers_to_keep='console'):
-        """Remove handlers from the logger.
-
-        If `handlers_to_keep` is equal to 'non-console', then all handlers
-        whose type is ``logging.StreamHandler`` (i.e. console) are removed
-        from the logger.
-
-        If `handlers_to_keep` is equal to 'console', then all handlers whose
-        type is not ``logging.StreamHandler`` (i.e. console) are removed from
-        the logger.
-
-        Parameters
-        ----------
-        handlers_to_keep : {'console, 'non-console'}, optional
-            The type of handlers that will be kept in the logger. The others
-            will be removed (the default value is 'console' which implies that
-            only console handlers will be kept).
+    def _remove_console_handlers(self):
+        """TODO
 
         """
-        if handlers_to_keep not in ['console', 'non-console']:
-            # TODO: custom exception?
-            # TODO: test this case
-            raise SystemExit(
-                "[logging_wrapper._remove_handlers()] The parameter "
-                "handlers_to_keep value '{}' is not supported.".format(
-                    handlers_to_keep))
         self._removed_handlers = []
-        for h in self.logger.handlers:
+        for h in self.handlers:
+            if type(h) is StreamHandler:
+                # Remove the console handler and save it to re-add it again
+                # afterward
+                self._remove_handler(h)
+
+    def _remove_non_console_handlers(self):
+        """TODO
+
+        """
+        self._removed_handlers = []
+        for h in self.handlers:
             # TODO: not working if I use isinstance(h, logging.StreamHandler)?
             # If h is of type logging.StreamHandler, both
             # isinstance(h, logging.StreamHandler) and
             # isinstance(h, logging.FileHandler) equal to True
-            if type(h) is logging.StreamHandler \
-                    and handlers_to_keep == 'non-console':
-                # Remove the console handler and save it to re-add it again
-                # afterward
-                self._remove_single_handler(h)
-            if not type(h) is logging.StreamHandler \
-                    and handlers_to_keep == 'console':
+            if not type(h) is StreamHandler:
                 # Remove the non-console handler and save it to re-add it again
                 # afterward
-                self._remove_single_handler(h)
+                self._remove_handler(h)
 
-    def _set_color(self, msg, level):
+    def _add_color_to_msg(self, msg, level):
         """Add color to the log message.
 
         Add color to the log message based on the log level (e.g. by default
@@ -310,11 +319,12 @@ class LoggingWrapper:
         https://stackoverflow.com/a/45924203`_.
 
         """
-        color = self.color_levels[level]
-        return color_log_levels_template[level].format(color, msg)
+        level = level.upper()
+        color = self.level_to_color[level]
+        return _levelToColoredMessage[level].format(color, msg)
 
     # Logging methods start here
-    def debug(self, msg):
+    def debug(self, msg, *args, **kwargs):
         """Log a message with the 'debug' log level.
 
         Parameters
@@ -323,9 +333,9 @@ class LoggingWrapper:
             The message to be logged.
 
         """
-        self._call_logger(msg, 'debug')
+        self._log_with_color(super().debug, msg, 'debug', *args, **kwargs)
 
-    def info(self, msg):
+    def info(self, msg, *args, **kwargs):
         """Log a message with the INFO log level.
 
         TODO: message can be colored
@@ -336,9 +346,9 @@ class LoggingWrapper:
             The message to be logged in a console and file.
 
         """
-        self._call_logger(msg, 'info')
+        self._log_with_color(super().info, msg, 'info', *args, **kwargs)
 
-    def warning(self, msg):
+    def warning(self, msg, *args, **kwargs):
         """Log a message with the WARNING log level.
 
         Parameters
@@ -347,9 +357,9 @@ class LoggingWrapper:
             The message to be logged.
 
         """
-        self._call_logger(msg, 'warning')
+        self._log_with_color(super().warning, msg, 'warning', *args, **kwargs)
 
-    def error(self, msg):
+    def error(self, msg, *args, **kwargs):
         """Log a message with the ERROR log level.
 
         Parameters
@@ -361,9 +371,9 @@ class LoggingWrapper:
             (see get_error_msg).
 
         """
-        self._call_logger(msg, 'error')
+        self._log_with_color(super().error, msg, 'error', *args, **kwargs)
 
-    def exception(self, msg):
+    def exception(self, msg, *args, **kwargs):
         """Log a message with the EXCEPTION log level.
 
         Parameters
@@ -374,9 +384,9 @@ class LoggingWrapper:
             ``sqlite3.IntegrityError``, which will be converted to a string
             (see get_error_msg).
         """
-        self._call_logger(msg, 'exception')
+        self._log_with_color(super().exception, msg, 'exception', *args, **kwargs)
 
-    def critical(self, msg):
+    def critical(self, msg, *args, **kwargs):
         """Log a message with the EXCEPTION log level.
 
         Parameters
@@ -387,4 +397,4 @@ class LoggingWrapper:
             ``sqlite3.IntegrityError``, which will be converted to a string
             (see get_error_msg).
         """
-        self._call_logger(msg, 'critical')
+        self._log_with_color(super().critical, msg, 'critical', *args, **kwargs)

@@ -14,6 +14,7 @@ browser.
 
 """
 
+import ipdb
 import logging
 import os
 import sys
@@ -72,41 +73,33 @@ class WebCache:
 
     """
 
-    headers = {'User-Agent': "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    HEADERS = {'User-Agent': "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
                              "(KHTML, like Gecko) Chrome/44.0.2403.157 "
                              "Safari/537.36c",
                'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,"
                          "image/webp,*/*;q=0.8"}
     """
     The information added to the **HTTP GET** request that a user's browser 
-    sends to a Web server containing the details of what the browser wants and 
+    sends to a Web server containing the details of what the browser wants and
     will accept back from the server.
-    """
-    _cache_name = "cache"
-    """
-    TODO
-    """
-    _cache_dirpath = "~/.cache/pyutils_webcache"
-    """
-    TODO
     """
 
     def __init__(self, http_get_timeout=5, delay_between_requests=8,
-                 headers=headers, expire_after=300,
-                 cache_dirpath=_cache_dirpath):
+                 headers=HEADERS, expire_after=300, cache_name="cache"):
         self.http_get_timeout = http_get_timeout
         self.delay_between_requests = delay_between_requests
         self.headers = headers
         self.expire_after = expire_after
-        self._cache_dirpath = os.path.expanduser(cache_dirpath)
+        self.cache_name = cache_name
         self.logger = logging.getLogger(__name__)
         # Experimental option: add color to log messages
         if os.environ.get('COLOR_LOGS'):
             self.logger = LoggingWrapper(self.logger,
                                          os.environ.get('COLOR_LOGS'))
-        # Setup cache
-        self._cache_filename = os.path.join(self._cache_dirpath, "cache")
-        self._setup_cache()
+        # Install cache
+        requests_cache.install_cache(self.cache_name,
+                                     backend='sqlite',
+                                     expire_after=self.expire_after)
         self._cache = requests_cache.get_cache()
         # Establish a session to be used for the GET requests
         # IMPORTANT: the session must be established after installing the cache
@@ -117,28 +110,6 @@ class WebCache:
         self._req_session.headers = self.headers
         self._last_request_time = -sys.float_info.max
         self.response = None
-
-    def _setup_cache(self):
-        """TODO
-        """
-        try:
-            # Create cache directory
-            create_dir(self._cache_dirpath)
-        except FileExistsError:
-            self.logger.debug("Cache directory already exists: "
-                              "{}".format(self._cache_dirpath))
-        except PermissionError as e:
-            self.logger.exception(e)
-            self.logger.warning("The cache directory couldn't be created!")
-            # TODO: abort program or follow with no cache?
-            raise
-        else:
-            self.logger.info("Cache directory created: "
-                             "{}".format(self._cache_dirpath))
-        # Install cache
-        requests_cache.install_cache(self._cache_filename,
-                                     backend='sqlite',
-                                     expire_after=self.expire_after)
 
     def cache_webpage(self, url):
         """TODO

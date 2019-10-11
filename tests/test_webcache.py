@@ -20,7 +20,6 @@ class TestFunctions(TestBase):
     test_name = "webcache"
     delay_between_requests = 2
     webcache = None
-    cache_dirpath = None
     test_url = "https://en.wikipedia.org/wiki/Programming_language"
 
     @classmethod
@@ -30,16 +29,17 @@ class TestFunctions(TestBase):
         super().setUpClass()
         # Create instance of WebCache by specifying the cache directory which
         # should be in the data temp directory
-        cache_dirpath = os.path.join(cls.data_tmpdir, "webcache")
+        cache_name = os.path.join(cls.data_tmpdir, "webcache")
         cls.webcache = WebCache(delay_between_requests=cls.delay_between_requests,
-                                cache_dirpath=cache_dirpath)
+                                cache_name=cache_name)
         # Cache the test webpage
         cls.webcache.cache_webpage(cls.test_url)
         # Since it is the first time the webpage is requested, it shouldn't
         # come from cache
         assert not cls.webcache.response.from_cache, \
             "The test webpage came from cache"
-        print("Test webpage from cache: ", cls.webcache.response.from_cache)
+        print("Test webpage retrieved from cache: ",
+              cls.webcache.response.from_cache)
 
     def get_webpage(self, url, expected_status_code=None, test_from_cache=False):
         """TODO
