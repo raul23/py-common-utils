@@ -231,7 +231,6 @@ class ColoredLogger(Logger):
 
     def _add_removed_handlers(self):
         """Re-add the removed handlers back to the logger.
-
         """
         for h in self._removed_handlers:
             self.addHandler(h)

@@ -24,11 +24,11 @@ class TestColoredLogging(TestBase):
         """
         super().setUpClass()
         # Setup logging
+        cls.logger = logging.getLogger(__name__)
+        cls.logger.setLevel(logging.DEBUG)
         # Setup a console handler
         ch = logging.StreamHandler()
         ch.setLevel(logging.DEBUG)
-        cls.logger = logging.getLogger(__name__)
-        cls.logger.setLevel(logging.DEBUG)
         cls.logger.addHandler(ch)
         # Setup a file handler
         cls.log_filepath = os.path.join(cls.data_tmpdir, 'colored.log')
@@ -37,7 +37,8 @@ class TestColoredLogging(TestBase):
         cls.logger = logging.getLogger(__name__)
         cls.logger.setLevel(logging.DEBUG)
         cls.logger.addHandler(fh)
-        cls.logger.warning("Testing in the <color>{}</color> environment".format(cls.logger._env))
+        cls.logger.warning("Testing in the <color>{}</color> "
+                           "environment".format(cls.logger._env))
 
     @classmethod
     def tearDownClass(cls):
@@ -66,6 +67,22 @@ class TestColoredLogging(TestBase):
         self.assertTrue(output == expected_output, msg)
         self.logger.info("The log message has the expected ANSI escape "
                          "sequence for coloring the message")
+
+    def test_add_removed_handlers(self):
+        """TODO
+        """
+        print("Testing _add_removed_handlers()...")
+        logger = logging.getLogger("test")
+        logger.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        logger._removed_handlers.append(ch)
+        logger._add_removed_handlers()
+        nb_handlers = len(logger.handlers)
+        msg = "There should be only one handler but there are {} " \
+              "handlers".format(nb_handlers)
+        self.assertTrue(nb_handlers == 1, msg)
+        logger.info("The console handler was successfully added")
 
     def test_all_logging_methods(self):
         """TODO
