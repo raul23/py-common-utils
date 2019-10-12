@@ -119,12 +119,13 @@ class TestColoredLogging(TestBase):
     def test_keep_everything_but(self):
         """TODO
         """
-        self.logger.info("\nTesting <color>_keep_everything_but</color>...")
+        self.logger.info("\nTesting <color>_keep_everything_but</color> "
+                         "(StreamHandler)...")
         # Setup test logger
-        keep_logger = self.setup_test_logging(name="test_keep",
+        keep_logger = self.setup_test_logging(name="test_keep_everything_but",
                                               console_handler=True,
                                               file_handler=True)
-        # Remove all handlers but the file handler
+        # Keep only the file handler. The rests of handlers should be removed
         keep_logger._keep_everything_but(handlers_to_remove=[logging.StreamHandler])
         # Assert that there is only one file handler in the test logger
         nb_handlers = len(keep_logger.handlers)
@@ -137,6 +138,30 @@ class TestColoredLogging(TestBase):
               "'{}'".format(h, logging.FileHandler)
         self.assertIsInstance(h, logging.FileHandler, msg)
         self.logger.info("Only the FileHandler is left in the logger")
+
+    # @unittest.skip("test_remove_everything_but()")
+    def test_remove_everything_but(self):
+        """TODO
+        """
+        self.logger.info("\nTesting <color>_remove_everything_but</color> "
+                         "(StreamHandler)...")
+        # Setup test logger
+        remove_logger = self.setup_test_logging(name="test_remove_everything_but",
+                                                console_handler=True,
+                                                file_handler=True)
+        # Remove all handlers but the console handler
+        remove_logger._remove_everything_but(handlers_to_keep=[logging.StreamHandler])
+        # Assert that there is only one console handler in the test logger
+        nb_handlers = len(remove_logger.handlers)
+        msg = "There should be one handler in keep_logger but there are " \
+              "{} handlers".format(nb_handlers)
+        self.assertTrue(nb_handlers == 1, msg)
+        # Make sure that the handler left is a console handler
+        h = remove_logger.handlers[0]
+        msg = "The remaining handler '{}' is not of the expected type " \
+              "'{}'".format(h, logging.StreamHandler)
+        self.assertIsInstance(h, logging.StreamHandler, msg)
+        self.logger.info("Only the StreamHandler is left in the logger")
 
     # @unittest.skip("test_remove_handler()")
     def test_remove_handler(self):
