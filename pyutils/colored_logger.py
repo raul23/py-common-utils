@@ -190,47 +190,63 @@ class ColoredLogger(Logger):
             The name of the log level, e.g. 'debug' and 'info'.
 
         """
-        # IMPORTANT: Only the console handler gets colored messages. The file
-        # handler doesn't.
-        # Get the log message with color code for the console handler
-        c_msg = self._add_color_to_msg(msg, level)
-        # Remove all tags from the original log message
-        msg = self._remove_all_tags_from_msg(msg)
-        # If msg is an Exception, process the Exception to build the
-        # error message as a string
-        msg = get_error_msg(msg) if isinstance(msg, Exception) else msg
-        # Disable the other non-console handlers when logging in the console.
-        # Hence, the color code will not appear in the log file.
-        # Remove non-console handlers from the logger
-        self._remove_everything_but(handlers_to_keep=[StreamHandler])
-        # NOTE: it is possible that no console handlers are to be found
-        # since the user might have set the logger to log to a file only
-        # for example.
-        # Log the colored message in the console
-        if self.handlers:
-            # Call the message-logging function, e.g. logger.info()
-            logging_fnc(c_msg, *args, **kwargs)
-        # Re-add the removed non-console handlers back to the logger
-        self._add_removed_handlers()
-        # Remove the console handlers from the logger since we are now
-        # going to log with non-console handlers
-        # IMPORTANT: take type of NullHandlers ... TODO: explain
-        # isinstance(NullHandler, NullHandler) = False
-        # type(NullHandler) is NullHandler = False
-        # But
-        # isinstance(StreamHandler OBJECT, StreamHandler) = True
-        # type(StreamHandler OBJECT) is StreamHandler = True
-        # Reason: NullHandler is a class not an object
-        self._keep_everything_but(
-            handlers_to_remove=[type(NullHandler), StreamHandler])
-        # Log the non-colored message with the non-console handlers
-        if self.handlers:
+        if self._found_tags(msg):  # log msg with color
+            # IMPORTANT: Only the console handler gets colored messages. The
+            # other handlers don't, such as the file handler.
+            #
+            # Get the log message with color codes
+            colored_msg = self._add_color_to_msg(msg, level)
+            # Get the raw message without color tags
+            raw_msg = self._remove_all_tags(msg)
+            # If msg is an Exception, process the Exception to build the
+            # error message as a string
+            if isinstance(raw_msg, Exception):
+                raw_msg = get_error_msg(raw_msg)
+            # IMPORTANT: Disable the other non-console handlers when logging in
+            # the console. Hence, the color codes will not appear in the log
+            # file.
+            #
+            # Remove non-console handlers from the logger
+            self._remove_everything_but(handlers_to_keep=[StreamHandler])
+            # NOTE: it is possible that no console handlers are to be found
+            # since the user might have set the logger to log to a file only
+            # for example.
+            #
+            # Log the colored message in the console
+            if self.handlers:
+                # Call the message-logging function, e.g. logger.info()
+                logging_fnc(colored_msg, *args, **kwargs)
+            # Add the removed non-console handlers back to the logger
+            self._add_handlers_back()
+            # IMPORTANT: take type of NullHandlers ... TODO: explain
+            # isinstance(NullHandler, NullHandler) = False
+            # type(NullHandler) is NullHandler = False
+            # But
+            # isinstance(StreamHandler OBJECT, StreamHandler) = True
+            # type(StreamHandler OBJECT) is StreamHandler = True
+            # Reason: NullHandler is a class not an object
+            #
+            # Remove the console handlers and Nullhandler from the logger since
+            # we are now going to log with non-console handlers
+            self._keep_everything_but(
+                handlers_to_remove=[type(NullHandler), StreamHandler])
+            # Log the non-colored message with the non-console handlers
+            if self.handlers:
+                logging_fnc(raw_msg, *args, **kwargs)
+            # Add the handlers back to the logger
+            self._add_handlers_back()
+        else:  # log msg without color
+            # TODO: explain why we remove NullHandler. If you don't, you get
+            # the following error
+            # AttributeError: type object 'NullHandler' has no attribute 'level'
+            self._keep_everything_but(
+                handlers_to_remove=[type(NullHandler)])
             logging_fnc(msg, *args, **kwargs)
-        # Re-add the removed console handlers back to the logger
-        self._add_removed_handlers()
+            # Add the removed handlers back to the logger
+            self._add_handlers_back()
 
-    def _add_removed_handlers(self):
-        """Re-add the removed handlers back to the logger.
+    def _add_handlers_back(self):
+        """Add the removed handlers back to the logger.
         """
         for h in self._removed_handlers:
             self.addHandler(h)
@@ -283,22 +299,6 @@ class ColoredLogger(Logger):
             if not type(h) in handlers_to_keep:
                 self._remove_handler(h)
 
-    def _remove_all_tags_from_msg(self, msg):
-        """TODO
-
-        Parameters
-        ----------
-        msg
-
-        Returns
-        -------
-
-        """
-        tags = ["<log>", "</log>", "<color>", "</color>"]
-        for t in tags:
-            msg = msg.replace(t, "")
-        return msg
-
     def _add_color_to_msg(self, msg, level):
         """Add color to the log message.
 
@@ -325,9 +325,9 @@ class ColoredLogger(Logger):
         https://stackoverflow.com/a/45924203`_.
 
         """
-        level = level.upper()
-        color = self._level_to_color[level]
-        if "<color>" in msg and "</color" in msg:
+        if self._found_tags(msg):  # with color
+            level = level.upper()
+            color = self._level_to_color[level]
             msg = "<log>{}</log>".format(msg)
             root = ET.fromstring(msg)
             for color_tag in root.findall("color"):
@@ -336,9 +336,49 @@ class ColoredLogger(Logger):
             msg = ET.tostring(root).decode()
             msg = msg.replace("<log>", "").replace("</log>", "")
             msg = msg.replace("<color>", "").replace("</color>", "")
+            # Return log message with colors
             return msg
+        else:  # no color
+            # return _levelToColoredMessage[level].format(color, msg)
+            # Return log message without colors
+            return msg
+
+    @staticmethod
+    def _found_tags(msg):
+        """TODO
+
+        Parameters
+        ----------
+        msg : str
+
+        Returns
+        -------
+        bool
+            TODO
+
+        """
+        if "<color>" in msg and "</color" in msg:
+            return True
         else:
-            return _levelToColoredMessage[level].format(color, msg)
+            return False
+
+    @staticmethod
+    def _remove_all_tags(msg):
+        """TODO
+
+        Parameters
+        ----------
+        msg : st
+
+        Returns
+        -------
+        msg : str
+
+        """
+        tags = ["<log>", "</log>", "<color>", "</color>"]
+        for t in tags:
+            msg = msg.replace(t, "")
+        return msg
 
     # Logging methods start here
     def debug(self, msg, *args, **kwargs):

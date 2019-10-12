@@ -38,7 +38,7 @@ class TestColoredLogging(TestBase):
         cls.logger.setLevel(logging.DEBUG)
         cls.logger.addHandler(fh)
         cls.logger.warning("Testing in the <color>{}</color> "
-                           "environment".format(cls.logger._env))
+                           "environment\n".format(cls.logger._env))
 
     @classmethod
     def tearDownClass(cls):
@@ -48,46 +48,50 @@ class TestColoredLogging(TestBase):
         log = read_file(cls.log_filepath)
         super().tearDownClass()
         # Check the log file
-        if log.count("<color>") and log.count("</color>"):
+        if "<color>" in log or "</color>" in log:
             raise AssertionError("Tags were found in the log file")
         if log.count("\033"):
             raise AssertionError("Color codes were found in the log file")
 
+    # @unittest.skip("test_add_color_to_msg()")
     def test_add_color_to_msg(self):
         """TODO
         """
-        print("Testing _add_color_to_msg()...")
+        self.logger.info("Testing <color>_add_color_to_msg()</color>...")
         log_msg = "test"
+        log_msg_with_tags = "<color>{}</color>".format(log_msg)
         log_level = "DEBUG"
         debug_color = self.logger._level_to_color[log_level]
         expected_output = "\x1b[{}m{}\x1b[0m".format(debug_color, log_msg)
-        output = self.logger._add_color_to_msg(log_msg, log_level)
+        output = self.logger._add_color_to_msg(log_msg_with_tags, log_level)
         msg = "The log message '{}' is not as expected '{}'".format(
             output, expected_output)
         self.assertTrue(output == expected_output, msg)
         self.logger.info("The log message has the expected ANSI escape "
                          "sequence for coloring the message")
 
+    # @unittest.skip("test_add_removed_handlers()")
     def test_add_removed_handlers(self):
         """TODO
         """
-        print("Testing _add_removed_handlers()...")
-        logger = logging.getLogger("test")
-        logger.setLevel(logging.DEBUG)
+        self.logger.info("\nTesting <color>_add_removed_handlers()</color>...")
+        add_logger = logging.getLogger("test_add")
+        add_logger.setLevel(logging.DEBUG)
         ch = logging.StreamHandler()
         ch.setLevel(logging.DEBUG)
-        logger._removed_handlers.append(ch)
-        logger._add_removed_handlers()
-        nb_handlers = len(logger.handlers)
+        add_logger._removed_handlers.append(ch)
+        add_logger._add_handlers_back()
+        nb_handlers = len(add_logger.handlers)
         msg = "There should be only one handler but there are {} " \
               "handlers".format(nb_handlers)
         self.assertTrue(nb_handlers == 1, msg)
-        logger.info("The console handler was successfully added")
+        self.logger.info("The console handler was successfully added")
 
+    # @unittest.skip("test_all_logging_methods()")
     def test_all_logging_methods(self):
         """TODO
         """
-        print("\nTesting all logging methods...")
+        self.logger.info("\nTesting all logging methods...")
         # IMPORTANT: TODO capture logs, logs to console and file not shown
         with self.assertLogs(self.logger, "DEBUG") as cm:
             self.logger.debug("DEBUG")
@@ -105,6 +109,23 @@ class TestColoredLogging(TestBase):
                            'CRITICAL:tests.test_colored_logger:FATAL']
         self.assertListEqual(cm.output, expected_output)
         self.logger.info("All logging methods logged the expected messages")
+
+    # @unittest.skip("test_remove_handler()")
+    def test_remove_handler(self):
+        """TODO
+        """
+        self.logger.info("\nTesting <color>_remove_handler()</color>...")
+        remove_logger = logging.getLogger("test_remove")
+        remove_logger.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        remove_logger.addHandler(ch)
+        remove_logger._remove_handler(ch)
+        nb_handlers = len(remove_logger.handlers)
+        msg = "There should be no handler but there are {} " \
+              "handlers".format(nb_handlers)
+        self.assertTrue(nb_handlers == 0, msg)
+        self.logger.info("The console handler was successfully removed")
 
 
 if __name__ == '__main__':
