@@ -6,7 +6,7 @@ import os
 from tempfile import TemporaryDirectory
 import unittest
 
-from .data.logging_cfg import logging_cfg_dict
+from .data.logging import logging_cfg_dict
 from pyutils.dbutils import create_db
 from pyutils.genutils import create_dir, delete_folder_contents
 
@@ -20,11 +20,13 @@ class TestBase(unittest.TestCase):
     _main_tmpdir = None
     data_tmpdir = None
     sandbox_tmpdir = None
-    # DB-related files
+    # DB-related stuff
     schema_filepath = "tests/data/music.sql"
     db_filepath = None
-    # Logging-related data
-    logging_cfg_path = "tests/data/logging_cfg.yaml"
+    CREATE_TEST_DATABASE = False
+    # Logging-related stuff
+    ini_logging_cfg_path = "tests/data/logging.ini"
+    yaml_logging_cfg_path = "tests/data/logging.yaml"
     logging_cfg_dict = logging_cfg_dict
 
     @classmethod
@@ -47,9 +49,11 @@ class TestBase(unittest.TestCase):
               "==================================== #")
         print("Setting up {} tests...".format(cls.test_name))
         cls.setup_tmp_dirs()
-        # Create SQLite db
-        cls.db_filepath = os.path.join(cls.data_tmpdir, "db.sqlite")
-        create_db(cls.db_filepath, cls.schema_filepath)
+        if cls.CREATE_TEST_DATABASE:
+            # Create SQLite db
+            cls.db_filepath = os.path.join(cls.data_tmpdir, "db.sqlite")
+            create_db(cls.db_filepath, cls.schema_filepath)
+            print("SQLite database created: ", cls.db_filepath)
 
     @classmethod
     def tearDown(cls):

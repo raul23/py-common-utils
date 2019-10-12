@@ -16,4 +16,4 @@ This command is executed at the root of the project directory.
 """
 
 from pyutils import install_colored_logger
-install_colored_logger(terminal="UNIX")
+install_colored_logger()

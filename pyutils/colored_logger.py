@@ -44,6 +44,7 @@ the module name or the level name).
 """
 
 import logging
+import os
 from logging import getLevelName, Logger, StreamHandler, NOTSET
 
 from pyutils.logutils import get_error_msg
@@ -53,7 +54,6 @@ import ipdb
 # WARN = WARNING and FATAL = CRITICAL
 _levels = ['CRITICAL', 'FATAL', 'ERROR', 'WARN', 'WARNING', 'INFO', 'DEBUG',
            'NOTSET']
-_terminals = ['UNIX', 'PYCHARM']
 
 # TODO: explain, incl. CRITICAL different code than other levels (highlight)
 _levelToColoredMessage = {
@@ -67,8 +67,8 @@ _levelToColoredMessage = {
 }
 _levelToColoredMessage['WARN'] = _levelToColoredMessage['WARNING']
 
-# Color codes for the log levels on the standard Unix Terminal
-_unixLevelToColor = {
+# Color codes for the log levels in the production environment
+_prodLevelToColorCode = {
     'NOTSET':    36,    # Blue
     'DEBUG':     36,    # Blue
     'INFO':      32,    # Green
@@ -77,10 +77,10 @@ _unixLevelToColor = {
     'EXCEPTION': 31,    # Red
     'CRITICAL':  31     # Red highlighted
 }
-_unixLevelToColor['WARN'] = _unixLevelToColor['WARNING']
+_prodLevelToColorCode['WARN'] = _prodLevelToColorCode['WARNING']
 
-# Color codes for the log levels on the PyCharm Terminal
-_pycharmLevelToColor = {
+# Color codes for the log levels in the development environment (Pycharm)
+_devLevelToColorCode = {
     'NOTSET':    34,    # Blue
     'DEBUG':     34,    # Blue
     'INFO':      36,    # Blue aqua
@@ -89,12 +89,12 @@ _pycharmLevelToColor = {
     'EXCEPTION': 31,    # Red
     'CRITICAL':  31     # Red highlighted
 }
-_pycharmLevelToColor['WARN'] = _pycharmLevelToColor['WARNING']
+_devLevelToColorCode['WARN'] = _devLevelToColorCode['WARNING']
 
 # TODO: explain
-_terminalToColorCodes = {
-    'UNIX': _unixLevelToColor,
-    'PYCHARM': _pycharmLevelToColor
+_envToColorCodes = {
+    'PROD': _prodLevelToColorCode,
+    'DEV': _devLevelToColorCode
 }
 
 
@@ -162,40 +162,11 @@ class ColoredLogger(Logger):
 
     """
 
-    TERMINAL_USED = "UNIX"
-
-    def __init__(self, name, level=NOTSET, terminal_used=TERMINAL_USED):
-        ipdb.set_trace()
+    def __init__(self, name, level=NOTSET):
         super().__init__(name, level)
-        self.terminal = terminal_used
-        self.level_to_color = _terminalToColorCodes[self.terminal]
+        self._env = "DEV" if bool(os.environ.get("PYCHARM_HOSTED")) else "PROD"
+        self._level_to_color = _envToColorCodes[self._env]
         self._removed_handlers = []
-
-    def _change_terminal(self, terminal):
-        self.terminal = self.TERMINAL_USED = terminal
-        if terminal not in _terminals:
-            _terminals.append(terminal)
-        self.level_to_color = _terminalToColorCodes[self.terminal]
-
-    def __repr__(self):
-        level = getLevelName(self.getEffectiveLevel())
-        return '<%s %s (%s)>' % (self.__class__.__name__, self.name, level)
-
-    def set_level_colors(self, level_colors, terminal="UNIX"):
-        """TODO
-
-        Parameters
-        ----------
-        level_colors : dict
-        terminal : str, optional
-
-        """
-        self.terminal = terminal
-        self.level_to_color = level_colors
-        # TODO: sanity check on level_colors
-        if terminal not in _terminals:
-            _terminals.append(terminal)
-        _terminalToColorCodes[terminal] = self.level_to_color
 
     def _log_with_color(self, logging_fnc, msg, level, *args, **kwargs):
         """Call the specified logging function by adding color to the messages.
@@ -273,7 +244,8 @@ class ColoredLogger(Logger):
         """
         self._removed_handlers = []
         for h in self.handlers:
-            if type(h) is StreamHandler:
+            # if type(h) is StreamHandler:
+            if isinstance(h, StreamHandler):
                 # Remove the console handler and save it to re-add it again
                 # afterward
                 self._remove_handler(h)
@@ -284,11 +256,7 @@ class ColoredLogger(Logger):
         """
         self._removed_handlers = []
         for h in self.handlers:
-            # TODO: not working if I use isinstance(h, logging.StreamHandler)?
-            # If h is of type logging.StreamHandler, both
-            # isinstance(h, logging.StreamHandler) and
-            # isinstance(h, logging.FileHandler) equal to True
-            if not type(h) is StreamHandler:
+            if not isinstance(h, StreamHandler):
                 # Remove the non-console handler and save it to re-add it again
                 # afterward
                 self._remove_handler(h)
@@ -320,7 +288,7 @@ class ColoredLogger(Logger):
 
         """
         level = level.upper()
-        color = self.level_to_color[level]
+        color = self._level_to_color[level]
         return _levelToColoredMessage[level].format(color, msg)
 
     # Logging methods start here
@@ -398,3 +366,7 @@ class ColoredLogger(Logger):
             (see get_error_msg).
         """
         self._log_with_color(super().critical, msg, 'critical', *args, **kwargs)
+
+    def __repr__(self):
+        level = getLevelName(self.getEffectiveLevel())
+        return '<%s %s (%s)>' % (self.__class__.__name__, self.name, level)

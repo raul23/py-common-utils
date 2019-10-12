@@ -8,7 +8,6 @@ import logging
 import unittest
 
 from .utils import TestBase
-# from pyutils import install_colored_logger
 
 logging.getLogger(__name__)  # .addHandler(logging.NullHandler)
 
@@ -21,15 +20,12 @@ class TestColoredLogging(TestBase):
         """TODO
         """
         super().setUpClass()
-        # Setup logging with the .ini config file
-        # logger.warning("test")
-        # install_colored_logger(__name__)
+        # Setup logging
         ch = logging.StreamHandler()
         ch.setLevel(logging.DEBUG)
         cls.logger = logging.getLogger(__name__)
         cls.logger.setLevel(logging.DEBUG)
         cls.logger.addHandler(ch)
-        cls.logger.warning("WARNING")
 
     def test_logging(self):
         self.logger.info("INFO")

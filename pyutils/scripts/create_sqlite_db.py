@@ -14,7 +14,9 @@ import argparse
 from pyutils.dbutils import create_db
 
 
-# TODO: explain
+# TODO: Add as hidden option
+# see https://docs.python.org/3.7/library/argparse.html#module-argparse
+# argparse.SUPPRESS
 PAUSE = 3
 
 
