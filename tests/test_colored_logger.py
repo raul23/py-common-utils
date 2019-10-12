@@ -15,7 +15,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler)
 
 
 class TestColoredLogging(TestBase):
-    test_name = "colored_logging"
+    test_name = "colored_logger"
     log_filepath = None
 
     @classmethod
@@ -38,7 +38,7 @@ class TestColoredLogging(TestBase):
         cls.logger.setLevel(logging.DEBUG)
         cls.logger.addHandler(fh)
         cls.logger.warning("Testing in the <color>{}</color> "
-                           "environment\n".format(cls.logger._env))
+                           "environment".format(cls.logger._env))
 
     @classmethod
     def tearDownClass(cls):
@@ -57,7 +57,7 @@ class TestColoredLogging(TestBase):
     def test_add_color_to_msg(self):
         """TODO
         """
-        self.logger.info("Testing <color>_add_color_to_msg()</color>...")
+        self.logger.info("\nTesting <color>_add_color_to_msg()</color>...")
         log_msg = "test"
         log_msg_with_tags = "<color>{}</color>".format(log_msg)
         log_level = "DEBUG"
@@ -70,17 +70,21 @@ class TestColoredLogging(TestBase):
         self.logger.info("The log message has the expected ANSI escape "
                          "sequence for coloring the message")
 
-    # @unittest.skip("test_add_removed_handlers()")
-    def test_add_removed_handlers(self):
+    # @unittest.skip("test_add_handlers_back()")
+    def test_add_handlers_back(self):
         """TODO
         """
         self.logger.info("\nTesting <color>_add_removed_handlers()</color>...")
-        add_logger = logging.getLogger("test_add")
-        add_logger.setLevel(logging.DEBUG)
+        # Setup test logger
+        add_logger = self.setup_test_logging(name="test_add")
+        # Setup console handler without adding it to the test logger
         ch = logging.StreamHandler()
         ch.setLevel(logging.DEBUG)
+        # Add the handler to the logger's list of removed handlers
         add_logger._removed_handlers.append(ch)
+        # Add the handler to the logger from the logger's list of removed handlers
         add_logger._add_handlers_back()
+        # Assert that there is only one handler in the logger
         nb_handlers = len(add_logger.handlers)
         msg = "There should be only one handler but there are {} " \
               "handlers".format(nb_handlers)
@@ -91,7 +95,8 @@ class TestColoredLogging(TestBase):
     def test_all_logging_methods(self):
         """TODO
         """
-        self.logger.info("\nTesting all logging methods...")
+        self.logger.info("\nTesting <color>all logging methods</color>...")
+        # TODO: explain
         # IMPORTANT: TODO capture logs, logs to console and file not shown
         with self.assertLogs(self.logger, "DEBUG") as cm:
             self.logger.debug("DEBUG")
@@ -110,22 +115,78 @@ class TestColoredLogging(TestBase):
         self.assertListEqual(cm.output, expected_output)
         self.logger.info("All logging methods logged the expected messages")
 
+    # @unittest.skip("test_keep_everything_but()")
+    def test_keep_everything_but(self):
+        """TODO
+        """
+        self.logger.info("\nTesting <color>_keep_everything_but</color>...")
+        # Setup test logger
+        keep_logger = self.setup_test_logging(name="test_keep",
+                                              console_handler=True,
+                                              file_handler=True)
+        # Remove all handlers but the file handler
+        keep_logger._keep_everything_but(handlers_to_remove=[logging.StreamHandler])
+        # Assert that there is only one file handler in the test logger
+        nb_handlers = len(keep_logger.handlers)
+        msg = "There should be one handler in keep_logger but there are " \
+              "{} handlers".format(nb_handlers)
+        self.assertTrue(nb_handlers == 1, msg)
+        # Make sure that the handler left is a file handler
+        h = keep_logger.handlers[0]
+        msg = "The remaining handler '{}' is not of the expected type " \
+              "'{}'".format(h, logging.FileHandler)
+        self.assertIsInstance(h, logging.FileHandler, msg)
+        self.logger.info("Only the FileHandler is left in the logger")
+
     # @unittest.skip("test_remove_handler()")
     def test_remove_handler(self):
         """TODO
         """
         self.logger.info("\nTesting <color>_remove_handler()</color>...")
-        remove_logger = logging.getLogger("test_remove")
-        remove_logger.setLevel(logging.DEBUG)
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
-        remove_logger.addHandler(ch)
+        # Setup test logger
+        remove_logger = self.setup_test_logging(name="test_remove",
+                                                console_handler=True)
+        msg = "There should only be one handler in remove_logger"
+        self.assertTrue(len(remove_logger.handlers) == 1, msg)
+        # Remove the handler from the test logger
+        ch = remove_logger.handlers[0]
         remove_logger._remove_handler(ch)
+        # Assert that there should be no handler in the test logger
         nb_handlers = len(remove_logger.handlers)
-        msg = "There should be no handler but there are {} " \
-              "handlers".format(nb_handlers)
+        msg = "There should be no handler in remove_logger but there are " \
+              "{} handlers".format(nb_handlers)
         self.assertTrue(nb_handlers == 0, msg)
         self.logger.info("The console handler was successfully removed")
+
+    def setup_test_logging(self, name, console_handler=False, file_handler=False):
+        """TODO
+
+        Parameters
+        ----------
+        name
+        console_handler
+        file_handler
+
+        Returns
+        -------
+        logger
+
+        """
+        # Setup logger
+        logger = logging.getLogger(name)
+        logger.setLevel(logging.DEBUG)
+        if console_handler:
+            # Setup console handler
+            ch = logging.StreamHandler()
+            ch.setLevel(logging.DEBUG)
+            logger.addHandler(ch)
+        if file_handler:
+            # Setup file handler
+            log_filepath = os.path.join(self.sandbox_tmpdir, 'test.log')
+            fh = logging.FileHandler(log_filepath)
+            fh.setLevel(logging.DEBUG)
+            logger.addHandler(fh)
+        return logger
 
 
 if __name__ == '__main__':
