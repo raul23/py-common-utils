@@ -7,7 +7,6 @@
 import logging
 import os
 import unittest
-import ipdb
 
 from .utils import TestBase
 from pyutils.genutils import read_file

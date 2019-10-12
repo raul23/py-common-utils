@@ -50,7 +50,6 @@ import xml.etree.ElementTree as ET
 from logging import getLevelName, Logger, NullHandler, StreamHandler, NOTSET
 
 from pyutils.logutils import get_error_msg
-import ipdb
 
 
 # WARN = WARNING and FATAL = CRITICAL
