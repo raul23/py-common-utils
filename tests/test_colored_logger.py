@@ -115,11 +115,25 @@ class TestColoredLogging(TestBase):
         self.assertListEqual(cm.output, expected_output)
         self.logger.info("All logging methods logged the expected messages")
 
+    # @unittest.skip("test_found_tags()")
+    def test_found_tags(self):
+        """TODO
+        """
+        self.logger.info("\nTesting <color>_found_tags()</color>...")
+        log_msg1 = "Hello, <color>World</color>!"
+        log_msg2 = "Hello, World!"
+        found = self.logger._found_tags(log_msg1)
+        msg = "No tags were found in the log message: {}".format(log_msg1)
+        self.assertTrue(found, msg)
+        found = self.logger._found_tags(log_msg2)
+        msg = "Tags were found in the log message: {}".format(log_msg2)
+        self.assertFalse(found, msg)
+
     # @unittest.skip("test_keep_everything_but()")
     def test_keep_everything_but(self):
         """TODO
         """
-        self.logger.info("\nTesting <color>_keep_everything_but</color> "
+        self.logger.info("\nTesting <color>_keep_everything_but()</color> "
                          "(StreamHandler)...")
         # Setup test logger
         keep_logger = self.setup_test_logging(name="test_keep_everything_but",
@@ -139,11 +153,22 @@ class TestColoredLogging(TestBase):
         self.assertIsInstance(h, logging.FileHandler, msg)
         self.logger.info("Only the FileHandler is left in the logger")
 
+    # @unittest.skip("test_remove_all_tags()")
+    def test_remove_all_tags(self):
+        """TODO
+        """
+        self.logger.info("\nTesting <color>_remove_all_tags()</color>...")
+        log_msg = "<log>Hello, <color>World</color>!</log>"
+        raw_log_msg = self.logger._remove_all_tags(log_msg)
+        found = self.logger._found_tags(raw_log_msg)
+        msg = "Tags were found in the log message: {}".format(raw_log_msg)
+        self.assertFalse(found, msg)
+
     # @unittest.skip("test_remove_everything_but()")
     def test_remove_everything_but(self):
         """TODO
         """
-        self.logger.info("\nTesting <color>_remove_everything_but</color> "
+        self.logger.info("\nTesting <color>_remove_everything_but()</color> "
                          "(StreamHandler)...")
         # Setup test logger
         remove_logger = self.setup_test_logging(name="test_remove_everything_but",

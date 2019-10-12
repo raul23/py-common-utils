@@ -99,6 +99,17 @@ _envToColorCodes = {
 }
 
 
+def generate_tags():
+    tags = []
+    for name in _tag_names:
+        tags.extend(["<{}>".format(name), "</{}>".format(name)])
+    return tags
+
+
+_tag_names = ["log", "color"]
+_tags = generate_tags()
+
+
 def list_to_str(list_):
     """Convert a list of strings into a single string.
 
@@ -357,10 +368,10 @@ class ColoredLogger(Logger):
             TODO
 
         """
-        if "<color>" in msg and "</color" in msg:
-            return True
-        else:
-            return False
+        for tag in _tags:
+            if tag in msg:
+                return True
+        return False
 
     @staticmethod
     def _remove_all_tags(msg):
@@ -375,8 +386,7 @@ class ColoredLogger(Logger):
         msg : str
 
         """
-        tags = ["<log>", "</log>", "<color>", "</color>"]
-        for t in tags:
+        for t in _tags:
             msg = msg.replace(t, "")
         return msg
 
