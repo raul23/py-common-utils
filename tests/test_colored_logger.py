@@ -56,13 +56,16 @@ class TestColoredLogging(TestBase):
         """TODO
         """
         print("Testing _add_color_to_msg()...")
-        expected_output = "\x1b[34mtest\x1b[0m"
+        if self.logger._env == "PROD":
+            expected_output = "\x1b[36mtest\x1b[0m"
+        else:
+            expected_output = "\x1b[34mtest\x1b[0m"
         output = self.logger._add_color_to_msg("test", "DEBUG")
         msg = "The log message '{}' is not as expected '{}'".format(
             output, expected_output)
         self.assertTrue(output == expected_output, msg)
         self.logger.info("The log message has the expected ANSI escape "
-                         "sequence for coloring the console output")
+                         "sequence for coloring the message")
 
     def test_all_logging_methods(self):
         """TODO
