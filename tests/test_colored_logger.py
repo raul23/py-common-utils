@@ -56,11 +56,11 @@ class TestColoredLogging(TestBase):
         """TODO
         """
         print("Testing _add_color_to_msg()...")
-        if self.logger._env == "PROD":
-            expected_output = "\x1b[36mtest\x1b[0m"
-        else:
-            expected_output = "\x1b[34mtest\x1b[0m"
-        output = self.logger._add_color_to_msg("test", "DEBUG")
+        log_msg = "test"
+        log_level = "DEBUG"
+        debug_color = self.logger._level_to_color[log_level]
+        expected_output = "\x1b[{}m{}\x1b[0m".format(debug_color, log_msg)
+        output = self.logger._add_color_to_msg(log_msg, log_level)
         msg = "The log message '{}' is not as expected '{}'".format(
             output, expected_output)
         self.assertTrue(output == expected_output, msg)
