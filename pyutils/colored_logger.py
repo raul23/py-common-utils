@@ -43,9 +43,11 @@ the module name or the level name).
 
 """
 
+import copy
 import logging
 import os
-from logging import getLevelName, Logger, StreamHandler, NOTSET
+import xml.etree.ElementTree as ET
+from logging import getLevelName, Logger, NullHandler, StreamHandler, NOTSET
 
 from pyutils.logutils import get_error_msg
 import ipdb
@@ -189,17 +191,19 @@ class ColoredLogger(Logger):
             The name of the log level, e.g. 'debug' and 'info'.
 
         """
+        # IMPORTANT: Only the console handler gets colored messages. The file
+        # handler doesn't.
+        # Get the log message with color code for the console handler
+        c_msg = self._add_color_to_msg(msg, level)
+        # Remove all tags from the original log message
+        msg = self._remove_all_tags_from_msg(msg)
         # If msg is an Exception, process the Exception to build the
         # error message as a string
         msg = get_error_msg(msg) if isinstance(msg, Exception) else msg
-        # IMPORTANT: Only the console handler gets colored messages. The file
-        # handler don't.
-        # Get the log message with color code for the console handler
-        c_msg = self._add_color_to_msg(msg, level)
         # Disable the other non-console handlers when logging in the console.
         # Hence, the color code will not appear in the log file.
         # Remove non-console handlers from the logger
-        self._remove_non_console_handlers()
+        self._remove_everything_but(handlers_to_keep=[StreamHandler])
         # NOTE: it is possible that no console handlers are to be found
         # since the user might have set the logger to log to a file only
         # for example.
@@ -211,7 +215,15 @@ class ColoredLogger(Logger):
         self._add_removed_handlers()
         # Remove the console handlers from the logger since we are now
         # going to log with non-console handlers
-        self._remove_console_handlers()
+        # IMPORTANT: take type of NullHandlers ... TODO: explain
+        # isinstance(NullHandler, NullHandler) = False
+        # type(NullHandler) is NullHandler = False
+        # But
+        # isinstance(StreamHandler OBJECT, StreamHandler) = True
+        # type(StreamHandler OBJECT) is StreamHandler = True
+        # Reason: NullHandler is a class not an object
+        self._keep_everything_but(
+            handlers_to_remove=[type(NullHandler), StreamHandler])
         # Log the non-colored message with the non-console handlers
         if self.handlers:
             logging_fnc(msg, *args, **kwargs)
@@ -238,28 +250,56 @@ class ColoredLogger(Logger):
         self._removed_handlers.append(h)
         self.removeHandler(h)
 
-    def _remove_console_handlers(self):
+    def _keep_everything_but(self, handlers_to_remove):
         """TODO
 
+        Parameters
+        ----------
+        handlers_to_remove : list of Handlers
+
         """
+        if not isinstance(handlers_to_remove, list):
+            raise TypeError("handlers_to_remove must be a list")
         self._removed_handlers = []
-        for h in self.handlers:
-            # if type(h) is StreamHandler:
-            if isinstance(h, StreamHandler):
-                # Remove the console handler and save it to re-add it again
-                # afterward
+        # IMPORTANT: TODO you are iterating throughout handlers which you are also
+        # removing items from. Thus it is better to work on a copy of handlers
+        # If you don't, there will items you won't process.
+        handlers = copy.copy(self.handlers)
+        for i, h in enumerate(handlers):
+            if type(h) in handlers_to_remove:
                 self._remove_handler(h)
 
-    def _remove_non_console_handlers(self):
+    def _remove_everything_but(self, handlers_to_keep):
         """TODO
 
+        Parameters
+        ----------
+        handlers_to_keep : list of Handlers
+
         """
+        if not isinstance(handlers_to_keep, list):
+            raise TypeError("handlers_to_keep must be a list")
         self._removed_handlers = []
-        for h in self.handlers:
-            if not isinstance(h, StreamHandler):
-                # Remove the non-console handler and save it to re-add it again
-                # afterward
+        handlers = copy.copy(self.handlers)
+        for h in handlers:
+            if not type(h) in handlers_to_keep:
                 self._remove_handler(h)
+
+    def _remove_all_tags_from_msg(self, msg):
+        """TODO
+
+        Parameters
+        ----------
+        msg
+
+        Returns
+        -------
+
+        """
+        tags = ["<log>", "</log>", "<color>", "</color>"]
+        for t in tags:
+            msg = msg.replace(t, "")
+        return msg
 
     def _add_color_to_msg(self, msg, level):
         """Add color to the log message.
@@ -289,7 +329,18 @@ class ColoredLogger(Logger):
         """
         level = level.upper()
         color = self._level_to_color[level]
-        return _levelToColoredMessage[level].format(color, msg)
+        if "<color>" in msg and "</color" in msg:
+            msg = "<log>{}</log>".format(msg)
+            root = ET.fromstring(msg)
+            for color_tag in root.findall("color"):
+                colored_msg = _levelToColoredMessage[level]
+                color_tag.text = colored_msg.format(color, color_tag.text)
+            msg = ET.tostring(root).decode()
+            msg = msg.replace("<log>", "").replace("</log>", "")
+            msg = msg.replace("<color>", "").replace("</color>", "")
+            return msg
+        else:
+            return _levelToColoredMessage[level].format(color, msg)
 
     # Logging methods start here
     def debug(self, msg, *args, **kwargs):
@@ -326,6 +377,8 @@ class ColoredLogger(Logger):
 
         """
         self._log_with_color(super().warning, msg, 'warning', *args, **kwargs)
+    # Deprecated method
+    warn = warning
 
     def error(self, msg, *args, **kwargs):
         """Log a message with the ERROR log level.
@@ -366,6 +419,7 @@ class ColoredLogger(Logger):
             (see get_error_msg).
         """
         self._log_with_color(super().critical, msg, 'critical', *args, **kwargs)
+    fatal = critical
 
     def __repr__(self):
         level = getLevelName(self.getEffectiveLevel())

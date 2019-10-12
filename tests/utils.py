@@ -12,7 +12,6 @@ from pyutils.genutils import create_dir, delete_folder_contents
 
 
 class TestBase(unittest.TestCase):
-
     # TODO
     test_name = "TestBase"
     # Temporary directories
@@ -32,14 +31,12 @@ class TestBase(unittest.TestCase):
     @classmethod
     def setUp(cls):
         """TODO
-
         """
         print()
 
     @classmethod
     def setUpClass(cls):
         """TODO
-
         """
         # TODO: fix long print
         print("\n# ========================================================="
@@ -58,7 +55,6 @@ class TestBase(unittest.TestCase):
     @classmethod
     def tearDown(cls):
         """TODO
-
         """
         print("Cleanup...")
         # Cleanup temporary directories
@@ -69,7 +65,6 @@ class TestBase(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         """TODO
-
         """
         print("\n\nFinal cleanup...")
         # Delete the temporary directory
@@ -79,7 +74,6 @@ class TestBase(unittest.TestCase):
     @classmethod
     def setup_tmp_dirs(cls):
         """TODO
-
         """
         # Create main temporary directory
         cls._main_tmpdir_obj = TemporaryDirectory()
