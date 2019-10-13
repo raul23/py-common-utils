@@ -24,6 +24,8 @@ def get_error_msg(exc):
     It converts an error message of type :exc:`Exception` (e.g.
     :exc:`sqlite3.IntegrityError`) into a string to then be logged.
 
+    TODO: give an example of how the string would look like
+
     Parameters
     ----------
     exc : Exception

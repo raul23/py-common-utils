@@ -50,6 +50,7 @@ import xml.etree.ElementTree as ET
 from logging import getLevelName, Logger, NullHandler, StreamHandler, NOTSET
 
 from pyutils.logutils import get_error_msg
+import ipdb
 
 
 # WARN = WARNING and FATAL = CRITICAL
@@ -108,23 +109,6 @@ def generate_tags():
 
 _tag_names = ["log", "color"]
 _tags = generate_tags()
-
-
-def list_to_str(list_):
-    """Convert a list of strings into a single string.
-
-    Parameters
-    ----------
-    list_ : list of str
-        List of strings to be converted into a single string.
-
-    Returns
-    -------
-    str_ : str
-        The converted string.
-
-    """
-    return ", ".join(map(lambda a: "'{}'".format(a), list_))
 
 
 class ColoredLogger(Logger):
@@ -201,6 +185,10 @@ class ColoredLogger(Logger):
             The name of the log level, e.g. 'debug' and 'info'.
 
         """
+        # If msg is an Exception, process the Exception to build the
+        # error message as a string
+        if isinstance(msg, Exception):
+            msg = get_error_msg(msg)
         if self._found_tags(msg):  # log msg with color
             # IMPORTANT: Only the console handler gets colored messages. The
             # other handlers don't, such as the file handler.
@@ -209,10 +197,6 @@ class ColoredLogger(Logger):
             colored_msg = self._add_color_to_msg(msg, level)
             # Get the raw message without color tags
             raw_msg = self._remove_all_tags(msg)
-            # If msg is an Exception, process the Exception to build the
-            # error message as a string
-            if isinstance(raw_msg, Exception):
-                raw_msg = get_error_msg(raw_msg)
             # IMPORTANT: Disable the other non-console handlers when logging in
             # the console. Hence, the color codes will not appear in the log
             # file.
@@ -391,6 +375,7 @@ class ColoredLogger(Logger):
         return msg
 
     # Logging methods start here
+    # TODO: add support for log(self, level, msg, *args, **kwargs) in logging
     def debug(self, msg, *args, **kwargs):
         """Log a message with the 'debug' log level.
 

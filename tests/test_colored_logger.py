@@ -104,15 +104,22 @@ class TestColoredLogging(TestBase):
             self.logger.warning("WARNING")
             # Deprecated method
             self.logger.warn("WARN")
+            try:
+                test = "abc " + 123
+            except TypeError as e:
+                self.logger.exception(e, exc_info=True)
             self.logger.critical("CRITICAL")
             self.logger.fatal("FATAL")
-        expected_output = ['DEBUG:tests.test_colored_logger:DEBUG',
-                           'INFO:tests.test_colored_logger:INFO',
-                           'WARNING:tests.test_colored_logger:WARNING',
-                           'WARNING:tests.test_colored_logger:WARN',
-                           'CRITICAL:tests.test_colored_logger:CRITICAL',
-                           'CRITICAL:tests.test_colored_logger:FATAL']
-        self.assertListEqual(cm.output, expected_output)
+        expected_messages = [
+            'DEBUG', 'INFO', 'WARNING', 'WARN', 'CRITICAL', 'FATAL'
+        ]
+        message = [r.message for r in cm.records if "TypeError" not in r.message]
+        self.assertListEqual(message, expected_messages)
+        exc_msg = [r.message for r in cm.records if "TypeError" in r.message]
+        msg = "There should only be one exception message"
+        self.assertTrue(len(exc_msg) == 1, msg)
+        exc_msg = exc_msg[0]
+        self.logger.error("Exception message: <color>{}</color>".format(exc_msg))
         self.logger.info("All logging methods logged the expected messages")
 
     # @unittest.skip("test_found_tags()")
