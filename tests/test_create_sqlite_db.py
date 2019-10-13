@@ -53,8 +53,8 @@ class TestFunctions(TestBase):
         print("\nTesting case 2 of main()...")
         sys.argv = ['create_sqlite_db.py',
                     '-d', self.db_filepath,
-                    '-s', self.schema_filepath]
-        create_sqlite_db.PAUSE = 0
+                    '-s', self.schema_filepath,
+                    '-p', 0]
         retcode = create_sqlite_db.main()
         msg = "Something very odd! Return code is {}".format(retcode)
         self.assertTrue(retcode == 1, msg)
@@ -72,8 +72,8 @@ class TestFunctions(TestBase):
         print("\nTesting case 3 of main()...")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', self.db_filepath,
-                    '-s', self.schema_filepath]
-        create_sqlite_db.PAUSE = 0
+                    '-s', self.schema_filepath,
+                    '-p', 0]
         retcode = create_sqlite_db.main()
         msg = "Something very odd! Return code is {}".format(retcode)
         self.assertTrue(retcode == 0, msg)
@@ -92,7 +92,8 @@ class TestFunctions(TestBase):
         print("\nTesting case 4 of main()...")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', self.db_filepath,
-                    '-s', '/bad/schema/path.sql']
+                    '-s', '/bad/schema/path.sql',
+                    '-p', 0]
         with self.assertRaises(IOError) as cm:
             create_sqlite_db.main()
         print("Raised an IOError as expected:", cm.exception)
