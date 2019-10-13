@@ -77,7 +77,7 @@ class TestFunctions(TestBase):
 
         """
         print("\nTesting case 1 of setup_logging()...")
-        self.setup_logging_for_testing(self.logging_cfg_path)
+        self.setup_logging_for_testing(self.yaml_logging_cfg_path)
 
     # @unittest.skip("test_setup_logging_case_2()")
     def test_setup_logging_case_2(self):

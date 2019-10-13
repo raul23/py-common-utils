@@ -17,6 +17,7 @@ from pyutils.scripts import create_sqlite_db
 class TestFunctions(TestBase):
     # TODO
     test_name = "create_sqlite_db"
+    CREATE_TEST_DATABASE = True
 
     # @unittest.skip("test_main_case_1()")
     def test_main_case_1(self):
@@ -94,7 +95,7 @@ class TestFunctions(TestBase):
                     '-s', '/bad/schema/path.sql']
         with self.assertRaises(IOError) as cm:
             create_sqlite_db.main()
-        print("Raised an IOError as expected: ", cm.exception)
+        print("Raised an IOError as expected:", cm.exception)
 
     # @unittest.skip("test_main_case_5()")
     def test_main_case_5(self):
@@ -112,7 +113,7 @@ class TestFunctions(TestBase):
                     '-s', self.schema_filepath]
         with self.assertRaises(sqlite3.OperationalError) as cm:
             create_sqlite_db.main()
-        print("Raised a sqlite3.OperationalError as expected: ", cm.exception)
+        print("Raised a sqlite3.OperationalError as expected:", cm.exception)
 
 
 if __name__ == '__main__':

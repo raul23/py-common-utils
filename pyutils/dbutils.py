@@ -16,8 +16,8 @@ from logging import NullHandler
 from pyutils.exceptions import SQLSanityCheckError
 
 
-logging.getLogger(__name__).addHandler(NullHandler())
 logger = logging.getLogger(__name__)
+logger.addHandler(NullHandler())
 
 
 def connect_db(db_path, autocommit=False):

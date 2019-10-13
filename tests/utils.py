@@ -14,6 +14,8 @@ from pyutils.genutils import create_dir, delete_folder_contents
 class TestBase(unittest.TestCase):
     # TODO
     test_name = "TestBase"
+    CREATE_TEST_DATABASE = False
+
     # Temporary directories
     _main_tmpdir_obj = None
     _main_tmpdir = None
@@ -22,7 +24,6 @@ class TestBase(unittest.TestCase):
     # DB-related stuff
     schema_filepath = "tests/data/music.sql"
     db_filepath = None
-    CREATE_TEST_DATABASE = False
     # Logging-related stuff
     ini_logging_cfg_path = "tests/data/logging.ini"
     yaml_logging_cfg_path = "tests/data/logging.yaml"

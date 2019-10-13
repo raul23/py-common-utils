@@ -38,7 +38,7 @@ class TestFunctions(TestBase):
         # come from cache
         assert not cls.webcache.response.from_cache, \
             "The test webpage came from cache"
-        print("Test webpage retrieved from cache: ",
+        print("Test webpage retrieved from cache:",
               cls.webcache.response.from_cache)
 
     def get_webpage(self, url, expected_status_code=None, test_from_cache=False):
@@ -92,7 +92,7 @@ class TestFunctions(TestBase):
 
         """
         print("Testing case 1 of get_webpage()...")
-        print("Retrieving the test webpage: ", self.test_url)
+        print("Retrieving the test webpage:", self.test_url)
         self.get_webpage(self.test_url, test_from_cache=True)
 
     # @unittest.skip("test_get_webpage_case_2()")
@@ -108,7 +108,7 @@ class TestFunctions(TestBase):
         """
         print("\nTesting case 2 of get_webpage()...")
         new_url = "https://en.wikipedia.org/wiki/Algorithm"
-        print("Retrieving the webpage: ", new_url)
+        print("Retrieving the webpage:", new_url)
         self.get_webpage(new_url, 200, test_from_cache=False)
 
     # @unittest.skip("test_get_webpage_case_3()")
@@ -123,10 +123,10 @@ class TestFunctions(TestBase):
         """
         print("\nTesting case 3 of get_webpage()...")
         bad_url = "https://en.wikipedia.org/wiki/bad_url"
-        print("Retrieving the webpage: ", bad_url)
+        print("Retrieving the webpage:", bad_url)
         with self.assertRaises(pyutils.exceptions.HTTP404Error) as cm:
             self.get_webpage(bad_url, test_from_cache=False)
-        print("Raised an HTTP404Error exception as expected: ", cm.exception)
+        print("Raised an HTTP404Error exception as expected:", cm.exception)
 
     # @unittest.skip("test_get_webpage_case_4()")
     def test_get_webpage_case_4(self):
@@ -140,11 +140,11 @@ class TestFunctions(TestBase):
         """
         print("\nTesting case 4 of get_webpage()...")
         bad_url = "https://thisurldoesntexistatall.com"
-        print("Retrieving the webpage: ", bad_url)
+        print("Retrieving the webpage:", bad_url)
         with self.assertRaises(requests.exceptions.RequestException) as cm:
             self.get_webpage(bad_url, test_from_cache=False)
         print("Raised an 'requests.exceptions.RequestException' exception as "
-              "expected: ", cm.exception)
+              "expected:", cm.exception)
 
 
 if __name__ == '__main__':

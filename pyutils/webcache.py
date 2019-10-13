@@ -14,7 +14,6 @@ browser.
 
 """
 
-import ipdb
 import logging
 import os
 import sys
@@ -29,8 +28,6 @@ except ImportError as e:
                       "install {}".format(e.name, e.name))
 
 from pyutils.exceptions import HTTP404Error
-from pyutils.genutils import create_dir
-from pyutils.logging_wrapper import LoggingWrapper
 
 
 # Setup default logging with handler that does nothing
@@ -92,10 +89,6 @@ class WebCache:
         self.expire_after = expire_after
         self.cache_name = cache_name
         self.logger = logging.getLogger(__name__)
-        # Experimental option: add color to log messages
-        if os.environ.get('COLOR_LOGS'):
-            self.logger = LoggingWrapper(self.logger,
-                                         os.environ.get('COLOR_LOGS'))
         # Install cache
         requests_cache.install_cache(self.cache_name,
                                      backend='sqlite',

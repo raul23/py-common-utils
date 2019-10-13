@@ -15,11 +15,11 @@ from pyutils.dbutils import connect_db, create_db
 class TestFunctions(TestBase):
     # TODO
     test_name = "dbutils"
+    CREATE_TEST_DATABASE = True
 
     # @unittest.skip("test_connect_db_case_1()")
     def test_connect_db_case_1(self):
         """Test that connect_db() can connect to a SQLite database.
-
         """
         print("Testing case 1 of connect_db()...")
         conn = connect_db(self.db_filepath)
@@ -30,9 +30,7 @@ class TestFunctions(TestBase):
     @unittest.skip("test_connect_db_case_2()")
     def test_connect_db_case_2(self):
         """Test connect_db() with autocommit=False.
-
         TODO
-
         """
         # TODO
         print("\nTesting case 2 of connect_db()...")
@@ -44,9 +42,7 @@ class TestFunctions(TestBase):
     @unittest.skip("test_connect_db_case_3()")
     def test_connect_db_case_3(self):
         """Test connect_db() with autocommit=True.
-
         TODO
-
         """
         # TODO
         print("\nTesting case 3 of connect_db()...")
@@ -160,7 +156,7 @@ class TestFunctions(TestBase):
         with self.assertRaises(IOError) as cm:
             create_db(db_filepath, '/bad/schema/path.sql')
         print("The database couldn't be created because no schema was given")
-        print("Raised an IOError as expected: ", cm.exception)
+        print("Raised an IOError as expected:", cm.exception)
 
     # @unittest.skip("test_create_db_case_5()")
     def test_create_db_case_5(self):
@@ -176,7 +172,7 @@ class TestFunctions(TestBase):
             create_db("/bad/db/path.sqlite", self.schema_filepath)
         print("The database couldn't be created because a wrong db path was "
               "given")
-        print("Raised a sqlite3.OperationalError as expected: ", cm.exception)
+        print("Raised a sqlite3.OperationalError as expected:", cm.exception)
 
 
 if __name__ == '__main__':

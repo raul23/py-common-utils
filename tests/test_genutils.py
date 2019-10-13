@@ -122,7 +122,7 @@ class TestFunctions(TestBase):
             dirpath = os.path.join(self.sandbox_tmpdir, "testdir")
             create_dir(dirpath)
             create_dir(dirpath)
-        print("Raised a FileExistsError exception as expected: ", cm.exception)
+        print("Raised a FileExistsError exception as expected:", cm.exception)
 
     def test_create_dir_case_3(self):
         """Test create_dir() with no permission to write in a directory.
@@ -140,7 +140,7 @@ class TestFunctions(TestBase):
         os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError) as cm:
             create_dir(os.path.join(test1_dirpath, "testdir2"))
-        print("Raised a PermissionError exception as expected: ", cm.exception)
+        print("Raised a PermissionError exception as expected:", cm.exception)
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
 
@@ -193,7 +193,7 @@ class TestFunctions(TestBase):
         os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError) as cm:
             create_timestamped_dir(os.path.join(test1_dirpath, "testdir2"))
-        print("Raised a PermissionError exception as expected: ", cm.exception)
+        print("Raised a PermissionError exception as expected:", cm.exception)
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
 
@@ -417,7 +417,7 @@ class TestFunctions(TestBase):
                 remove_subdirs=True,
                 delete_recursively=False)
         except OSError as e:
-            print("Raised an OSError exception as expected: ", e)
+            print("Raised an OSError exception as expected:", e)
         else:
             self.fail("An OSError exception was not raised as expected")
 
@@ -544,8 +544,8 @@ class TestFunctions(TestBase):
         msg = "File creation date ('{}') not as expected " \
               "('{}')".format(creation, now)
         self.assertTrue(now[:19] == creation[:19], msg)
-        print("Current time: ", now)
-        print("Valid file creation date: ", creation)
+        print("Current time:", now)
+        print("Valid file creation date:", creation)
 
     # @unittest.skip("test_load_yaml()")
     def test_load_yaml(self):
@@ -588,7 +588,7 @@ class TestFunctions(TestBase):
         # Write text to a file on disk
         with self.assertRaises(OSError) as cm:
             read_file("/bad/file/path.txt")
-        print("Raised an OSError exception as expected: ", cm.exception)
+        print("Raised an OSError exception as expected:", cm.exception)
 
     # @unittest.skip("test_run_cmd_date()")
     def test_run_cmd_date(self):
@@ -599,7 +599,7 @@ class TestFunctions(TestBase):
 
         """
         print("\nTesting run_cmd(cmd='date')...")
-        print("Command output: ")
+        print("Command output:")
         self.assertTrue(run_cmd("date") == 0)
 
     # @unittest.skip("test_run_cmd_pwd()")
@@ -611,7 +611,7 @@ class TestFunctions(TestBase):
 
         """
         print("\nTesting run_cmd(cmd='pwd')...")
-        print("Command output: ")
+        print("Command output:")
         self.assertTrue(run_cmd("pwd") == 0)
 
     # @unittest.skip("test_read_file_case_1()")
