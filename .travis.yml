@@ -7,5 +7,5 @@ python:
 
 install: pip install -r requirements_travis.txt
 
-# script: python -m unittest discover
-script: python -m unittest tests/test_colored_logger.py
+script: python -m unittest discover
+# script: python -m unittest tests/test_colored_logger.py
