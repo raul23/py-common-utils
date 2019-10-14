@@ -6,7 +6,6 @@ command-line options.
 """
 
 import os
-import sqlite3
 import sys
 import unittest
 
@@ -27,7 +26,7 @@ class TestFunctions(TestBase):
         # Clear all handlers from the loggers
         dbutils.logger.handlers = []
         create_sqlite_db.logger.handlers = []
-        print()
+        super().setUp()
 
     # @unittest.skip("test_main_case_1()")
     def test_main_case_1(self):
@@ -89,27 +88,6 @@ class TestFunctions(TestBase):
         self.assertTrue(retcode == 0, msg)
         print("The database was overwritten as expected")
 
-    def assert_log(self, error_class):
-        """TODO
-
-        Parameters
-        ----------
-        error_class : str
-
-        """
-        with self.assertLogs(dbutils.logger, 'INFO') as cm:
-            create_sqlite_db.main()
-        found = False
-        output = None
-        for o in cm.output:
-            if o.find(error_class) != -1:
-                found = True
-                output = o
-                break
-        msg = "'{}' not found in logs".format(error_class)
-        self.assertTrue(found and output, msg)
-        print("Log emitted as expected:", output)
-
     # @unittest.skip("test_main_case_4()")
     def test_main_case_4(self):
         """Test that main() can't create a database when a schema that doesn't
@@ -133,8 +111,8 @@ class TestFunctions(TestBase):
         doesn't exist is given.
 
         Case 5 tests that :meth:`~pyutils.scripts.create_sqlite_db.main()`
-        raises a :exc:`sqlite3.OperationalError` when a database path that
-        doesn't exist is given in the command-line.
+        logs a :exc:`sqlite3.OperationalError` exception when a database path
+        that doesn't exist is given in the command-line.
 
         """
         print("\nTesting case 5 of main()...")
@@ -142,6 +120,27 @@ class TestFunctions(TestBase):
                     '-d', '/bad/db/path.sqlite',
                     '-s', self.schema_filepath]
         self.assert_log("OperationalError")
+
+    def assert_log(self, error_class):
+        """TODO
+
+        Parameters
+        ----------
+        error_class : str
+
+        """
+        with self.assertLogs(dbutils.logger, 'INFO') as cm:
+            create_sqlite_db.main()
+        found = False
+        output = None
+        for o in cm.output:
+            if o.find(error_class) != -1:
+                found = True
+                output = o
+                break
+        msg = "'{}' not found in logs".format(error_class)
+        self.assertTrue(found and output, msg)
+        print("Log emitted as expected:", output)
 
 
 if __name__ == '__main__':
