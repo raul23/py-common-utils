@@ -36,6 +36,11 @@ class TestBase(unittest.TestCase):
     logging_cfg_dict = logging_cfg_dict
 
     @classmethod
+    def setUp(cls):
+        """TODO
+        """
+
+    @classmethod
     def setUpClass(cls):
         """TODO
         """
@@ -68,7 +73,8 @@ class TestBase(unittest.TestCase):
             cls.db_filepath = os.path.join(cls.data_tmpdir, "db.sqlite")
             # NOTE: the logging is silenced for create_db
             create_db(cls.db_filepath, cls.schema_filepath)
-            cls.logger.info("SQLite database created: " + cls.db_filepath)
+            cls.logger.warning("<color>SQLite database created:</color> "
+                               "{}".format(cls.db_filepath))
         else:
             cls.logger.warning("<color>Database not used</color>")
         cls.logger.warning("ADD_FILE_HANDLER: <color>{}"

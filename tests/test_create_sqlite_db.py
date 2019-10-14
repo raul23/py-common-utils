@@ -38,6 +38,7 @@ class TestFunctions(TestBase):
         in the command-line.
 
         """
+        self.logger.warning("\n<color>test_main_case_1()</color>")
         self.logger.info("Testing <color>case 1 of main()</color>...")
         db_filepath = os.path.join(self.sandbox_tmpdir, "db.sqlite")
         sys.argv = ['create_sqlite_db.py', '-o',
@@ -59,7 +60,8 @@ class TestFunctions(TestBase):
         command-line.
 
         """
-        self.logger.info("\nTesting <color>case 2 of main()</color>...")
+        self.logger.warning("\n\n<color>test_main_case_2()</color>")
+        self.logger.info("Testing <color>case 2 of main()</color>...")
         sys.argv = ['create_sqlite_db.py',
                     '-d', self.db_filepath,
                     '-s', self.schema_filepath,
@@ -78,7 +80,8 @@ class TestFunctions(TestBase):
         command-line.
 
         """
-        self.logger.info("\nTesting <color>case 3 of main()</color>...")
+        self.logger.warning("\n\n<color>test_main_case_3()</color>")
+        self.logger.info("Testing <color>case 3 of main()</color>...")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', self.db_filepath,
                     '-s', self.schema_filepath,
@@ -98,7 +101,8 @@ class TestFunctions(TestBase):
         is given in the command-line.
 
         """
-        self.logger.info("\nTesting <color>case 4 of main()</color>...")
+        self.logger.warning("\n\n<color>test_main_case_4()</color>")
+        self.logger.info("Testing <color>case 4 of main()</color>...")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', self.db_filepath,
                     '-s', '/bad/schema/path.sql',
@@ -120,7 +124,8 @@ class TestFunctions(TestBase):
         that doesn't exist is given in the command-line.
 
         """
-        self.logger.info("\nTesting <color>case 5 of main()</color>...")
+        self.logger.warning("\n\n<color>test_main_case_5()</color>")
+        self.logger.info("Testing <color>case 5 of main()</color>...")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', '/bad/db/path.sqlite',
                     '-s', self.schema_filepath]
