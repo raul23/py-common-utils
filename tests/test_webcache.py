@@ -53,7 +53,8 @@ class TestFunctions(TestBase):
         from cache and not retrieved through a HTTP request.
 
         """
-        self.logger.info("\nTesting <color>case 1 of get_webpage()</color> "
+        self.logger.warning("\n<color>test_get_webpage_case_1()</color>")
+        self.logger.info("Testing <color>case 1 of get_webpage()</color> "
                          "where a webpage is returned from cache...")
         self.logger.info("Retrieving the test webpage: " + self.test_url)
         self.get_webpage(self.test_url, test_from_cache=True)
@@ -69,7 +70,8 @@ class TestFunctions(TestBase):
         from cache and not retrieved through a HTTP request.
 
         """
-        self.logger.info("\n\nTesting <color>case 2 of get_webpage()</color> "
+        self.logger.warning("\n\n<color>test_get_webpage_case_2()</color>")
+        self.logger.info("Testing <color>case 2 of get_webpage()</color> "
                          "where a new webpage must be cached...")
         new_url = "https://en.wikipedia.org/wiki/Algorithm"
         self.logger.info("Retrieving the webpage: " + new_url)
@@ -85,7 +87,8 @@ class TestFunctions(TestBase):
         resource that doesn't exist but you can still connect to the server.
 
         """
-        self.logger.info("\n\nTesting <color>case 3 of get_webpage()</color> "
+        self.logger.warning("\n\n<color>test_get_webpage_case_3()</color>")
+        self.logger.info("Testing <color>case 3 of get_webpage()</color> "
                          "when an URL is not found...")
         bad_url = "https://en.wikipedia.org/wiki/bad_url"
         self.logger.info("Retrieving the webpage: " + bad_url)
@@ -104,7 +107,8 @@ class TestFunctions(TestBase):
         i.e. no server could be reached.
 
         """
-        self.logger.info("\n\nTesting <color>case 4 of get_webpage()</color> "
+        self.logger.warning("\n\n<color>test_get_webpage_case_4()</color>")
+        self.logger.info("Testing <color>case 4 of get_webpage()</color> "
                          "when an URL doesn't exist...")
         bad_url = "https://thisurldoesntexistatall.com"
         self.logger.info("Retrieving the webpage: " + bad_url)

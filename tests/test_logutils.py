@@ -24,7 +24,8 @@ class TestFunctions(TestBase):
         an error message from an exception.
 
         """
-        self.logger.info("\nTesting <color>get_error_msg()</color>...")
+        self.logger.warning("\n<color>test_get_error_msg()</color>")
+        self.logger.info("Testing <color>get_error_msg()</color>...")
         exc = IOError("The file doesn't exist")
         error_msg = get_error_msg(exc)
         expected = "[OSError] The file doesn't exist"
@@ -42,7 +43,8 @@ class TestFunctions(TestBase):
         Case 1 tests that :meth:`~pyutils.logutils.setup_logging` TODO ...
 
         """
-        self.logger.info("\n\nTesting <color>case 1 of setup_logging()</color> "
+        self.logger.warning("\n\n<color>test_setup_logging_case_1()</color>")
+        self.logger.info("Testing <color>case 1 of setup_logging()</color> "
                          "with a YAML logging config file...")
         self.setup_logging_for_testing(self.yaml_logging_cfg_path)
 
@@ -53,7 +55,8 @@ class TestFunctions(TestBase):
         Case 2 tests that :meth:`~pyutils.logutils.setup_logging` TODO ...
 
         """
-        self.logger.info("\n\nTesting <color>case 2 of setup_logging()</color> "
+        self.logger.warning("\n\n<color>test_setup_logging_case_2()</color>")
+        self.logger.info("Testing <color>case 2 of setup_logging()</color> "
                          "with a logging config dict...")
         self.setup_logging_for_testing(self.logging_cfg_dict)
 
@@ -65,7 +68,8 @@ class TestFunctions(TestBase):
         :exc:`OSError` exception when the logging config file doesn't exist.
 
         """
-        self.logger.info("\n\nTesting <color>case 3 of setup_logging()</color> "
+        self.logger.warning("\n\n<color>test_setup_logging_case_3()</color>")
+        self.logger.info("Testing <color>case 3 of setup_logging()</color> "
                          "when a config file doesn't exist...")
         with self.assertRaises(OSError) as cm:
             setup_logging_from_cfg("bad_logging_config.yaml")
@@ -82,7 +86,8 @@ class TestFunctions(TestBase):
         e.g. a logging handler's class is written incorrectly.
 
         """
-        self.logger.info("\n\nTesting <color>case 4 of setup_logging()</color> "
+        self.logger.warning("\n\n<color>test_setup_logging_case_4()</color>")
+        self.logger.info("Testing <color>case 4 of setup_logging()</color> "
                          "with an invalid config dict...")
         # Corrupt a logging handler's class
         # NOTE: if I use copy instead of deepcopy, logging_cfg will also
@@ -106,7 +111,8 @@ class TestFunctions(TestBase):
         :meth:`~pyutils.logutils.setup_logging`.
 
         """
-        self.logger.info("\n\nTesting <color>case 5 of setup_logging()</color>...")
+        self.logger.warning("\n\n<color>test_setup_logging_case_5()</color>")
+        self.logger.info("Testing <color>case 5 of setup_logging()</color>...")
         # Remove a key from the logging config dict
         corrupted_cfg = deepcopy(self.logging_cfg_dict)
         expected_missing_key = 'handlers'
