@@ -20,7 +20,7 @@ class TestColoredLogging(TestBase):
     log_filepath = None
     ADD_FILE_HANDLER = True
     LOGGING_FILENAME = "colored.log"
-    SHOW_FIRST_CHARS_IN_LOG = 2000
+    SHOW_FIRST_CHARS_IN_LOG = 1000
 
     # @unittest.skip("test_add_color_to_msg()")
     def test_add_color_to_msg(self):
