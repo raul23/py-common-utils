@@ -7,14 +7,14 @@ Every functions in :mod:`~pyutils.logutils` are tested here.
 from copy import deepcopy
 import logging
 import unittest
-# Custom modules
+
 from .utils import TestBase
-from pyutils.logutils import get_error_msg, setup_logging
+from pyutils.logutils import get_error_msg, setup_logging_from_cfg
 
 
 class TestFunctions(TestBase):
     # TODO
-    test_name = "logutils"
+    test_module_name = "logutils"
 
     # @unittest.skip("test_get_error_msg()")
     def test_get_error_msg(self):
@@ -24,14 +24,15 @@ class TestFunctions(TestBase):
         an error message from an exception.
 
         """
-        print("Testing get_error_msg()...")
+        self.logger.info("Testing <color>get_error_msg()</color>...")
         exc = IOError("The file doesn't exist")
         error_msg = get_error_msg(exc)
         expected = "[OSError] The file doesn't exist"
         msg = "The error message '{}' is different from the expected one " \
               "'{}'".format(error_msg, expected)
         self.assertTrue(error_msg == expected, msg)
-        print("The error message is the expected one")
+        self.logger.info("<color>The error message is the expected one:</color> "
+                         "{}".format(error_msg))
 
     def setup_logging_for_testing(self, logging_cfg):
         """Setup logging for testing from a logging config file or dict.
@@ -49,9 +50,9 @@ class TestFunctions(TestBase):
         :meth:`test_setup_logging_case_2`.
 
         """
-        # NOTE: if I put the next line inside the with, it will complain that
-        # the expected log was not triggered on 'scripts.scraper'
-        ret_cfg_dict = setup_logging(logging_cfg)
+        # NOTE: if I put the next line in the context manager, it will complain
+        # that the expected log was not triggered on 'scripts.scraper'
+        ret_cfg_dict = setup_logging_from_cfg(logging_cfg)
         logger = logging.getLogger('scripts.scraper')
         with self.assertLogs(logger, 'INFO') as cm:
             logger.info('first message')
@@ -59,14 +60,14 @@ class TestFunctions(TestBase):
         self.assertEqual(cm.output[0],
                          'INFO:scripts.scraper:first message',
                          msg)
-        print("Log emitted as expected")
+        self.logger.info("<color>Log emitted as expected</color>")
         msg = "The returned logging config dict doesn't have the expected keys"
         self.assertSequenceEqual(list(ret_cfg_dict.keys()),
                                  list(self.logging_cfg_dict),
                                  msg)
         how = "dict" if isinstance(logging_cfg, dict) else "file"
-        print("Successfully setup logging with the logging config "
-              "{}!".format(how))
+        self.logger.info("Successfully setup logging with the logging config "
+                         "{}!".format(how))
 
     # @unittest.skip("test_setup_logging_case_1()")
     def test_setup_logging_case_1(self):
@@ -76,7 +77,8 @@ class TestFunctions(TestBase):
         Case 1 tests that :meth:`~pyutils.logutils.setup_logging` TODO ...
 
         """
-        print("\nTesting case 1 of setup_logging()...")
+        self.logger.info("\nTesting <color>case 1 of setup_logging()</color> "
+                         "with a YAML logging config file...")
         self.setup_logging_for_testing(self.yaml_logging_cfg_path)
 
     # @unittest.skip("test_setup_logging_case_2()")
@@ -86,7 +88,8 @@ class TestFunctions(TestBase):
         Case 2 tests that :meth:`~pyutils.logutils.setup_logging` TODO ...
 
         """
-        print("\nTesting case 2 of setup_logging()...")
+        self.logger.info("\nTesting <color>case 2 of setup_logging()</color> "
+                         "with a logging config dict...")
         self.setup_logging_for_testing(self.logging_cfg_dict)
 
     # @unittest.skip("test_setup_logging_case_3()")
@@ -97,10 +100,12 @@ class TestFunctions(TestBase):
         :exc:`OSError` exception when the logging config file doesn't exist.
 
         """
-        print("\nTesting case 3 of setup_logging()...")
-        with self.assertRaises(OSError):
-            setup_logging("bad_logging_config.yaml")
-        print("Raised an OSError exception as expected")
+        self.logger.info("\nTesting <color>case 3 of setup_logging()</color> "
+                         "when a config file doesn't exist...")
+        with self.assertRaises(OSError) as cm:
+            setup_logging_from_cfg("bad_logging_config.yaml")
+        self.logger.info("<color>Raised an OSError exception as expected:"
+                         "</color> {}".format(get_error_msg(cm.exception)))
 
     # @unittest.skip("test_setup_logging_case_4()")
     def test_setup_logging_case_4(self):
@@ -112,16 +117,18 @@ class TestFunctions(TestBase):
         e.g. a logging handler's class is written incorrectly.
 
         """
-        print("\nTesting case 4 of setup_logging()...")
+        self.logger.info("\nTesting <color>case 4 of setup_logging()</color> "
+                         "with an invalid config dict...")
         # Corrupt a logging handler's class
         # NOTE: if I use copy instead of deepcopy, logging_cfg will also
         # reflect the corrupted handler's class
         corrupted_cfg = deepcopy(self.logging_cfg_dict)
         corrupted_cfg['handlers']['console']['class'] = 'bad.handler.class'
         # Setup logging with the corrupted config dict
-        with self.assertRaises(ValueError):
-            setup_logging(corrupted_cfg)
-        print("Raised a ValueError exception as expected")
+        with self.assertRaises(ValueError) as cm:
+            setup_logging_from_cfg(corrupted_cfg)
+        self.logger.info("<color>Raised a ValueError exception as expected:"
+                         "</color> {}".format(get_error_msg(cm.exception)))
 
     # @unittest.skip("test_setup_logging_case_5()")
     def test_setup_logging_case_5(self):
@@ -134,19 +141,20 @@ class TestFunctions(TestBase):
         :meth:`~pyutils.logutils.setup_logging`.
 
         """
-        print("\nTesting case 5 of setup_logging()...")
+        self.logger.info("\nTesting <color>case 5 of setup_logging()</color>...")
         # Remove a key from the logging config dict
         corrupted_cfg = deepcopy(self.logging_cfg_dict)
         expected_missing_key = 'handlers'
         del corrupted_cfg[expected_missing_key]
         # Setup logging with the corrupted config dict
         with self.assertRaises(KeyError) as cm:
-            setup_logging(corrupted_cfg)
+            setup_logging_from_cfg(corrupted_cfg)
         missing_key = cm.exception.args[0]
         msg = "The actual missing key ('{}') is not the expected one " \
               "('{}')".format(missing_key, expected_missing_key)
         self.assertTrue(expected_missing_key == missing_key, msg)
-        print("Raised a KeyError exception as expected")
+        self.logger.info("<color>Raised a KeyError exception as expected:"
+                         "</color> {}".format(get_error_msg(cm.exception)))
 
 
 if __name__ == '__main__':

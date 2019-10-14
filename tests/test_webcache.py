@@ -17,7 +17,7 @@ from pyutils.webcache import WebCache
 
 class TestFunctions(TestBase):
     # TODO
-    test_name = "webcache"
+    test_module_name = "webcache"
     delay_between_requests = 2
     webcache = None
     test_url = "https://en.wikipedia.org/wiki/Programming_language"

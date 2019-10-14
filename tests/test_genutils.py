@@ -18,6 +18,7 @@ from pyutils.genutils import convert_utctime_to_local_tz, create_dir, \
     create_timestamped_dir, delete_folder_contents, dumps_json, dump_pickle, \
     get_creation_date, load_json, load_pickle, load_yaml, read_file, run_cmd, \
     write_file
+from pyutils.logutils import get_error_msg
 
 
 class TestFunctions(TestBase):
@@ -133,7 +134,8 @@ class TestFunctions(TestBase):
             dirpath = os.path.join(self.sandbox_tmpdir, "testdir")
             create_dir(dirpath)
             create_dir(dirpath)
-        print("Raised a FileExistsError exception as expected:", cm.exception)
+        self.logger.info("<color>Raised a FileExistsError exception as expected:"
+                         "</color> {}".format(get_error_msg(cm.exception)))
 
     def test_create_dir_case_3(self):
         """Test create_dir() with no permission to write in a directory.
@@ -152,8 +154,8 @@ class TestFunctions(TestBase):
         os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError) as cm:
             create_dir(os.path.join(test1_dirpath, "testdir2"))
-        self.logger.info("Raised a PermissionError exception as expected: "
-                         "{}".format(cm.exception.__str__()))
+        self.logger.info("<color>Raised a PermissionError exception as expected:"
+                         "</color> {}".format(get_error_msg(cm.exception)))
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
 
@@ -208,8 +210,9 @@ class TestFunctions(TestBase):
         os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError) as cm:
             create_timestamped_dir(os.path.join(test1_dirpath, "testdir2"))
-        self.logger.info("<color>Raised a PermissionError exception as "
-                         "expected:</color> {}".format(cm.exception.__str__()))
+        self.logger.info(
+            "<color>Raised a PermissionError exception as expected:</color> "
+            "{}".format(get_error_msg(cm.exception)))
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
 
@@ -443,7 +446,7 @@ class TestFunctions(TestBase):
                 delete_recursively=False)
         except OSError as e:
             self.logger.info("Raised an OSError exception as expected: "
-                             "{}".format(e.__str__()))
+                             "{}".format(get_error_msg(e)))
         else:
             self.fail("An OSError exception was not raised as expected")
 
@@ -620,7 +623,7 @@ class TestFunctions(TestBase):
         with self.assertRaises(OSError) as cm:
             read_file("/bad/file/path.txt")
         self.logger.info("<color>Raised an OSError exception as expected:"
-                         "</color> {}".format(cm.exception.__str__()))
+                         "</color> {}".format(get_error_msg(cm.exception)))
 
     # @unittest.skip("test_run_cmd_date()")
     def test_run_cmd_date(self):

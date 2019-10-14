@@ -17,7 +17,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler)
 
 class TestColoredLogging(TestBase):
     # TODO
-    test_name = "colored_logger"
+    test_module_name = "colored_logger"
     log_filepath = None
 
     @classmethod
