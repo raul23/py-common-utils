@@ -22,7 +22,7 @@ from pyutils.genutils import convert_utctime_to_local_tz, create_dir, \
 
 class TestFunctions(TestBase):
     # TODO
-    test_name = "genutils"
+    test_module_name = "genutils"
 
     def test_convert_utctime_to_local_tz_case_1(self):
         """Test that convert_utctime_to_local_tz() returns a valid time.
@@ -40,26 +40,32 @@ class TestFunctions(TestBase):
         :obj:`time.struct_time`
 
         """
-        print("Testing case 1 of convert_utctime_to_local_tz()...")
+        self.logger.info("Testing <color>case 1 of "
+                         "convert_utctime_to_local_tz()</color>")
         # Case 1: utc_time is not None
         time_tuple = (2019, 10, 4, 6, 29, 19, 5, 277, 0)
         stime = time.struct_time(time_tuple)
         output = convert_utctime_to_local_tz(stime)
         # TODO: explain
-        if tzlocal.get_localzone().zone == 'UTC':
-            # tzlocal couldn't find any timezone configuration and thus
-            # defaulted to UTC
+        local_timezone = tzlocal.get_localzone().zone
+        if local_timezone == 'UTC':
+            self.logger.warning("<color>tzlocal couldn't find any timezone "
+                                "configuration and thus defaulted to UTC"
+                                "</color>")
             expected = '2019-10-04 06:29:19+00:00'
             msg = "Returned local datetime {} is different than expected " \
                   "{}".format(output, expected)
             self.assertTrue(output == expected, msg)
         else:
+            self.logger.info("<color>Timezone found:</color> " + local_timezone)
             expected = '2019-10-04 ??:29:19???:00'
             exp1 = output[0:11] == expected[0:11]
             exp2 = output[13:19] == expected[13:19]
             msg = "UTC time '{}' was incorrectly converted into the local " \
                   "time as '{}'".format(str(datetime(*stime[:7])), output)
             self.assertTrue(exp1 and exp2, msg)
+        self.logger.info("Returned local datetime as expected: "
+                         "{}".format(output))
 
     def test_convert_utctime_to_local_tz_case_2(self):
         """Test convert_utctime_to_local_tz() when no UTC time is given.
@@ -77,7 +83,9 @@ class TestFunctions(TestBase):
         the timezone for the current time.
 
         """
-        print("\nTesting case 2 of convert_utctime_to_local_tz()...")
+        self.logger.info("\nTesting <color>case 2 of "
+                         "convert_utctime_to_local_tz()</color> when no UTC "
+                         "is given...")
         # Case 2: utc_time is None
         # By default, if no argument is given, utc_time is None
         output = convert_utctime_to_local_tz()
@@ -90,6 +98,8 @@ class TestFunctions(TestBase):
         # MM-DD where the MM can take values in [01-12] and DD in [01-31]
         regex = r"^\d{4}(-\d{2}){2} (\d{2}:){2}\d{2}[-|+]\d{2}:\d{2}$"
         self.assertRegex(output, regex)
+        self.logger.info("Returned local datetime as expected: "
+                         "{}".format(output))
 
     def test_create_dir_case_1(self):
         """Test that create_dir() actually creates a directory.
@@ -98,7 +108,7 @@ class TestFunctions(TestBase):
         disk by the function :meth:`~pyutils.genutils.create_dir()`.
 
         """
-        print("\nTesting case 1 of create_dir()...")
+        self.logger.info("\nTesting <color>case 1 of create_dir()</color>...")
         dirpath = os.path.join(self.sandbox_tmpdir, "testdir")
         msg = "The test directory {} couldn't be created".format(dirpath)
         try:
@@ -107,7 +117,7 @@ class TestFunctions(TestBase):
             self.fail("{} : {}".format(msg, e))
         else:
             self.assertTrue(os.path.isdir(dirpath), msg)
-            print("The test directory was created")
+            self.logger.info("The test directory was created")
 
     def test_create_dir_case_2(self):
         """Test create_dir() when the directory already exists.
@@ -117,7 +127,8 @@ class TestFunctions(TestBase):
         when we try to create a directory that already exists on disk.
 
         """
-        print("\nTesting case 2 of create_dir() ...")
+        self.logger.info("\nTesting <color>case 2 of create_dir()</color> when "
+                         "a directory already exists...")
         with self.assertRaises(FileExistsError) as cm:
             dirpath = os.path.join(self.sandbox_tmpdir, "testdir")
             create_dir(dirpath)
@@ -133,14 +144,16 @@ class TestFunctions(TestBase):
         permission.
 
         """
-        print("\nTesting case 3 of create_dir() ...")
+        self.logger.info("\nTesting <color>case 3 of create_dir()</color> with "
+                         "no write permission...")
         test1_dirpath = os.path.join(self.sandbox_tmpdir, "testdir1")
         create_dir(test1_dirpath)
         # TODO: Only works on macOS/Linux:
         os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError) as cm:
             create_dir(os.path.join(test1_dirpath, "testdir2"))
-        print("Raised a PermissionError exception as expected:", cm.exception)
+        self.logger.info("Raised a PermissionError exception as expected: "
+                         "{}".format(cm.exception.__str__()))
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
 
@@ -165,7 +178,8 @@ class TestFunctions(TestBase):
         timestamped directory name (with the seconds and all).
 
         """
-        print("\nTesting case 1 of create_timestamped_dir()...")
+        self.logger.info("\nTesting <color>case 1 of create_timestamped_dir()"
+                         "</color>...")
         msg = "The timestamped directory couldn't be created"
         try:
             dirpath = create_timestamped_dir(self.sandbox_tmpdir)
@@ -173,7 +187,7 @@ class TestFunctions(TestBase):
             self.fail("{} : {}".format(msg, e))
         else:
             self.assertTrue(os.path.isdir(dirpath), msg)
-            print("The timestamped directory was created")
+            self.logger.info("The timestamped directory was created")
 
     # @unittest.skip("test_create_timestamped_dir_case_2()")
     def test_create_timestamped_dir_case_2(self):
@@ -186,14 +200,16 @@ class TestFunctions(TestBase):
         directory without the write permission.
 
         """
-        print("\nTesting case 2 of create_timestamped_dir() ...")
+        self.logger.info("\nTesting <color>case 2 of create_timestamped_dir()"
+                         "</color> with no write permission...")
         test1_dirpath = os.path.join(self.sandbox_tmpdir, "testdir1")
         create_dir(test1_dirpath)
         # TODO: Only works on macOS/Linux:
         os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError) as cm:
             create_timestamped_dir(os.path.join(test1_dirpath, "testdir2"))
-        print("Raised a PermissionError exception as expected:", cm.exception)
+        self.logger.info("<color>Raised a PermissionError exception as "
+                         "expected:</color> {}".format(cm.exception.__str__()))
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
 
@@ -283,7 +299,9 @@ class TestFunctions(TestBase):
         Case 1 sets `remove_subdirs` to True and `delete_recursively` to False.
 
         """
-        print("\nTesting case 1 of delete_folder_contents()...")
+        self.logger.info("\nTesting <color>case 1 of delete_folder_contents()"
+                         "</color> where everything in a folder must be "
+                         "removed...")
         # Create the main test directory along with subdirectories and files
         dirpath = self.populate_folder()
         # Delete the whole content of the main test directory
@@ -291,7 +309,7 @@ class TestFunctions(TestBase):
         # Test that the main test directory is empty
         msg = "The folder {} couldn't be cleared".format(dirpath)
         self.assertTrue(len(os.listdir(dirpath)) == 0, msg)
-        print("The folder {} is empty".format(dirpath))
+        self.logger.info("The folder {} is empty".format(dirpath))
 
     # @unittest.skip("test_delete_folder_contents_case_2()")
     def test_delete_folder_contents_case_2(self):
@@ -312,7 +330,10 @@ class TestFunctions(TestBase):
         Case 2 sets `remove_subdirs` to False and `delete_recursively` to False.
 
         """
-        print("\nTesting case 2 of delete_folder_contents()...")
+        self.logger.info("\nTesting <color>case 2 of delete_folder_contents()"
+                         "</color> where everything in a folder must be "
+                         "removed except the subdirectories and their "
+                         "contents...")
         # Create the main test directory along with subdirectories and files
         dirpath = self.populate_folder()
         # Delete everything in the main test directory, except subdirectories
@@ -326,8 +347,8 @@ class TestFunctions(TestBase):
             else:
                 msg = "There is a subdirectory that is empty"
                 self.assertTrue(len(files) > 0, msg)
-        print("No files found at the top and the subdirectories are not "
-              "empty".format(dirpath))
+        self.logger.info("No files found at the top and the subdirectories are "
+                         "not empty".format(dirpath))
 
     # @unittest.skip("test_delete_folder_contents_case_3()")
     def test_delete_folder_contents_case_3(self):
@@ -348,7 +369,9 @@ class TestFunctions(TestBase):
         Case 3 sets `remove_subdirs` to False and `delete_recursively` to True.
 
         """
-        print("\nTesting case 3 of delete_folder_contents()...")
+        self.logger.info("\nTesting <color>case 3 of delete_folder_contents()"
+                         "</color> where every text files are removed even in "
+                         "the subdirectories...")
         # Create the main test directory along with subdirectories and files
         dirpath = self.populate_folder()
         # Delete all text files recursively in the main test directory, except
@@ -360,8 +383,8 @@ class TestFunctions(TestBase):
         for root, dirs, files in os.walk(dirpath):
             msg = "There is still a file in the main test directory"
             self.assertTrue(len(files) == 0, msg)
-        print("All subdirectories are empty including the main "
-              "directory".format(dirpath))
+        self.logger.info("All subdirectories are empty including the main "
+                         "directory".format(dirpath))
 
     # @unittest.skip("test_delete_folder_contents_case_4()")
     def test_delete_folder_contents_case_4(self):
@@ -384,7 +407,8 @@ class TestFunctions(TestBase):
         `remove_subdirs` set to True and `delete_recursively` to False.
 
         """
-        print("\nTesting case 4 of delete_folder_contents()...")
+        self.logger.info("\nTesting <color>case 4 of delete_folder_contents()"
+                         "</color> where delete_recursively is True ...")
         # Create the main test directory along with subdirectories and files
         dirpath = self.populate_folder()
         # Delete everything recursively in the main test directory
@@ -394,7 +418,7 @@ class TestFunctions(TestBase):
         # Test that the main test directory is empty
         msg = "The folder {} couldn't be cleared".format(dirpath)
         self.assertTrue(len(os.listdir(dirpath)) == 0, msg)
-        print("The folder {} is empty".format(dirpath))
+        self.logger.info("The folder {} is empty".format(dirpath))
 
     # @unittest.skip("test_delete_folder_contents_case_5()")
     def test_delete_folder_contents_case_5(self):
@@ -409,7 +433,8 @@ class TestFunctions(TestBase):
         populate_folder : populates a folder with text files and subdirectories.
 
         """
-        print("\nTesting case 5 of delete_folder_contents()...")
+        self.logger.info("\nTesting <color>case 5 of delete_folder_contents()"
+                         "</color> when a folder path doesn't exist...")
         try:
             # Delete everything in the directory that doesn't exist
             delete_folder_contents(
@@ -417,7 +442,8 @@ class TestFunctions(TestBase):
                 remove_subdirs=True,
                 delete_recursively=False)
         except OSError as e:
-            print("Raised an OSError exception as expected:", e)
+            self.logger.info("Raised an OSError exception as expected: "
+                             "{}".format(e.__str__()))
         else:
             self.fail("An OSError exception was not raised as expected")
 
@@ -433,7 +459,8 @@ class TestFunctions(TestBase):
         :meth:`~pyutils.genutils.load_pickle` are tested at the same time.
 
         """
-        print("\nTesting dump_pickle() and load_pickle()...")
+        self.logger.info("\nTesting <color>dump_pickle() and load_pickle()"
+                         "</color>...")
         data1 = {
             'key1': 'value1',
             'key2': 'value2',
@@ -448,7 +475,7 @@ class TestFunctions(TestBase):
         data2 = load_pickle(filepath)
         msg = "The data that was saved on disk is corrupted"
         self.assertDictEqual(data1, data2, msg)
-        print("The pickled data was saved and loaded correctly")
+        self.logger.info("The pickled data was saved and loaded correctly")
 
     # @unittest.skip("test_dumps_and_load_json_case_1()")
     def test_dumps_and_load_json_case_1(self):
@@ -466,7 +493,8 @@ class TestFunctions(TestBase):
         :meth:`~pyutils.genutils.load_json` are tested at the same time.
 
         """
-        print("\nTesting case 1 of dumps_json() and load_json()...")
+        self.logger.info("\nTesting <color>case 1 of dumps_json() and load_json()"
+                         "</color>...")
         data1 = {
             'key1': 'value1',
             'key3': {
@@ -484,8 +512,8 @@ class TestFunctions(TestBase):
         # Test that the keys from the JSON data are sorted
         # NOTE: Only the keys at level 1 of the JSON dict are tested
         self.assertSequenceEqual(sorted(data1.keys()), list(data2.keys()))
-        print("The JSON data was saved and loaded correctly with its keys "
-              "sorted")
+        self.logger.info("The JSON data was saved and loaded correctly with "
+                         "its keys sorted")
 
     # @unittest.skip("test_dumps_and_load_json_case_2()")
     def test_dumps_and_load_json_case_2(self):
@@ -500,7 +528,9 @@ class TestFunctions(TestBase):
         :meth:`~pyutils.genutils.load_json` are tested at the same time.
 
         """
-        print("\nTesting case 2 of dumps_json() and load_json()...")
+        self.logger.info("\nTesting <color>case 2 of dumps_json() and "
+                         "load_json()</color> where the keys must not be "
+                         "sorted...")
         data1 = {
             'key1': 'value1',
             'key3': {
@@ -518,8 +548,8 @@ class TestFunctions(TestBase):
         # Test that the keys from the JSON data are not sorted
         # NOTE: Only the keys at level 1 of the JSON dict are tested
         self.assertSequenceEqual(list(data1.keys()), list(data2.keys()))
-        print("The JSON data was saved and loaded correctly with its keys not "
-              "sorted")
+        self.logger.info("The JSON data was saved and loaded correctly with "
+                         "its keys not sorted")
 
     # @unittest.skip("test_get_creation_date()")
     def test_get_creation_date(self):
@@ -530,7 +560,7 @@ class TestFunctions(TestBase):
         comparing the creation date of a file and the current date and time.
 
         """
-        print("\nTesting get_creation_date()...")
+        self.logger.info("\nTesting <color>get_creation_date()</color>...")
         # Write file to disk
         filepath = os.path.join(self.sandbox_tmpdir, "file.txt")
         write_file(filepath, "Hello, World!\n")
@@ -544,8 +574,8 @@ class TestFunctions(TestBase):
         msg = "File creation date ('{}') not as expected " \
               "('{}')".format(creation, now)
         self.assertTrue(now[:19] == creation[:19], msg)
-        print("Current time:", now)
-        print("Valid file creation date:", creation)
+        self.logger.info("Current time: " + now)
+        self.logger.info("Valid file creation date: " + creation)
 
     # @unittest.skip("test_load_yaml()")
     def test_load_yaml(self):
@@ -556,7 +586,7 @@ class TestFunctions(TestBase):
         original data.
 
         """
-        print("\nTesting load_yaml()...")
+        self.logger.info("\nTesting <color>load_yaml()</color>...")
         # Write YAML data to a file on disk
         data1 = {
             'key1': 'value1',
@@ -573,7 +603,7 @@ class TestFunctions(TestBase):
         data2 = load_yaml(filepath)
         msg = "The YAML data that was saved on disk is corrupted"
         self.assertDictEqual(data1, data2, msg)
-        print("The YAML data was saved and loaded correctly")
+        self.logger.info("The YAML data was saved and loaded correctly")
 
     # @unittest.skip("test_read_file()")
     def test_read_file(self):
@@ -584,11 +614,13 @@ class TestFunctions(TestBase):
         exception when a file doesn't exist.
 
         """
-        print("\nTesting read_file()...")
+        self.logger.info("\nTesting <color>read_file()</color> when a file "
+                         "doesn't exist...")
         # Write text to a file on disk
         with self.assertRaises(OSError) as cm:
             read_file("/bad/file/path.txt")
-        print("Raised an OSError exception as expected:", cm.exception)
+        self.logger.info("<color>Raised an OSError exception as expected:"
+                         "</color> {}".format(cm.exception.__str__()))
 
     # @unittest.skip("test_run_cmd_date()")
     def test_run_cmd_date(self):
@@ -598,8 +630,8 @@ class TestFunctions(TestBase):
         successfully execute a shell command.
 
         """
-        print("\nTesting run_cmd(cmd='date')...")
-        print("Command output:")
+        self.logger.info("\nTesting <color>run_cmd(cmd='date')</color>...")
+        self.logger.info("<color>Command output:</color>")
         self.assertTrue(run_cmd("date") == 0)
 
     # @unittest.skip("test_run_cmd_pwd()")
@@ -610,8 +642,8 @@ class TestFunctions(TestBase):
         successfully execute a shell command.
 
         """
-        print("\nTesting run_cmd(cmd='pwd')...")
-        print("Command output:")
+        self.logger.info("\nTesting <color>run_cmd(cmd='pwd')</color>...")
+        self.logger.info("<color>Command output:</color>")
         self.assertTrue(run_cmd("pwd") == 0)
 
     # @unittest.skip("test_read_file_case_1()")
@@ -626,7 +658,7 @@ class TestFunctions(TestBase):
         :meth:`~pyutils.genutils.read_file` are tested at the same time.
 
         """
-        print("\nTesting write_file() and read_file()...")
+        self.logger.info("\nTesting <color>write_file() and read_file()</color>...")
         # Write text to a file on disk
         text1 = "Hello World!\n"
         filepath = os.path.join(self.sandbox_tmpdir, "file.txt")
@@ -635,7 +667,7 @@ class TestFunctions(TestBase):
         text2 = read_file(filepath)
         msg = "The text that was saved on disk is corrupted"
         self.assertTrue(text1 == text2, msg)
-        print("The text was saved and read correctly")
+        self.logger.info("The text was saved and read correctly")
 
     # TODO: test write_file with overwrite=False
 
