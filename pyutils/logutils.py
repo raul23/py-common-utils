@@ -12,6 +12,7 @@ genutils : module that defines many general and useful functions.
 
 """
 
+import copy
 from datetime import datetime
 import logging.config
 
@@ -115,7 +116,8 @@ def setup_logging_from_cfg(logging_config):
 
 
 def setup_basic_logger(name, add_console_handler=False, add_file_handler=False,
-                       log_filepath="debug.log", handlers_to_remove=None):
+                       log_filepath="debug.log", remove_all_handlers=False,
+                       handlers_to_remove=None):
     """TODO
 
     Parameters
@@ -124,6 +126,7 @@ def setup_basic_logger(name, add_console_handler=False, add_file_handler=False,
     add_console_handler
     add_file_handler
     log_filepath
+    remove_all_handlers
     handlers_to_remove
 
     Returns
@@ -132,9 +135,11 @@ def setup_basic_logger(name, add_console_handler=False, add_file_handler=False,
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    if handlers_to_remove:
-        for h in handlers_to_remove:
-            logger.removeHandler(h)
+    if remove_all_handlers or handlers_to_remove:
+        handlers = copy.copy(logger.handlers)
+        for h in handlers:
+            if remove_all_handlers or h in handlers_to_remove:
+                logger.removeHandler(h)
     if add_console_handler:
         # Setup console handler
         ch = logging.StreamHandler()

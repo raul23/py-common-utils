@@ -9,7 +9,7 @@ import unittest
 
 from .data.logging import logging_cfg_dict
 from pyutils.dbutils import create_db
-from pyutils.genutils import create_dir, delete_folder_contents
+from pyutils.genutils import create_dir, delete_folder_contents, read_file
 from pyutils.logutils import setup_basic_logger
 
 
@@ -19,6 +19,7 @@ class TestBase(unittest.TestCase):
     CREATE_TEST_DATABASE = False
     ADD_FILE_HANDLER = False
     LOGGING_FILENAME = "debug.log"
+    SHOW_FIRST_CHARS_IN_LOG = 1000
 
     # Temporary directories
     _main_tmpdir_obj = None
@@ -30,7 +31,7 @@ class TestBase(unittest.TestCase):
     db_filepath = None
     # Logging-related stuff
     logger = None
-    logging_filepath = None
+    log_filepath = None
     ini_logging_cfg_path = "tests/data/logging.ini"
     yaml_logging_cfg_path = "tests/data/logging.yaml"
     logging_cfg_dict = logging_cfg_dict
@@ -53,15 +54,15 @@ class TestBase(unittest.TestCase):
             add_console_handler=True,
             add_file_handler=cls.ADD_FILE_HANDLER,
             log_filepath=cls.log_filepath,
-            handlers_to_remove=[logging.NullHandler]
+            remove_all_handlers=True
         )
         # IMPORTANT: no printing before
         # Print name of module to be tested
-        line_equals = "# {} #".format("=" * 92)
+        line_equals = "{}".format("=" * 92)
         line_name = "{}<color>{}</color>".format(" " * 37, cls.test_module_name)
-        cls.logger.info(line_equals)
+        cls.logger.info("\n# {} #".format(line_equals))
         cls.logger.info(line_name)
-        cls.logger.info(line_equals)
+        cls.logger.info("# {} #".format(line_equals))
         cls.logger.info("<color>Setting up {} tests...</color>".format(
             cls.test_module_name))
         # Print info about directories created
@@ -79,6 +80,8 @@ class TestBase(unittest.TestCase):
             cls.logger.warning("<color>Database not used</color>")
         cls.logger.warning("ADD_FILE_HANDLER: <color>{}"
                            "</color>".format(cls.ADD_FILE_HANDLER))
+        cls.logger.warning("SHOW_FIRST_CHARS_IN_LOG: <color>{}"
+                           "</color>".format(cls.SHOW_FIRST_CHARS_IN_LOG))
         cls.logger.warning("Testing in the <color>{}</color> "
                            "environment".format(cls.logger._env))
 
@@ -96,10 +99,30 @@ class TestBase(unittest.TestCase):
     def tearDownClass(cls):
         """TODO
         """
-        cls.logger.info("\n\n<color>Final cleanup...</color>")
+        cls.logger.info("\n")
+        if cls.ADD_FILE_HANDLER and cls.log_filepath:
+            # Read the log file before it is deleted
+            log = read_file(cls.log_filepath).strip("\n")
+            # Check the log file
+            if "<color>" in log or "</color>" in log:
+                raise AssertionError("Tags were found in the log file")
+            if log.count("\033"):
+                raise AssertionError("Color codes were found in the log file")
+            cls.logger.warning("<color>Content of the log file (first {} chars):"
+                               "</color>".format(cls.SHOW_FIRST_CHARS_IN_LOG))
+            cls.logger.info(log[:cls.SHOW_FIRST_CHARS_IN_LOG])
+            line_dashes = "{}".format("-" * 70)
+            cls.logger.info("{}\n".format(line_dashes))
+        cls.logger.info("<color>Final cleanup...</color>")
         # Delete the temporary directory
         cls._main_tmpdir_obj.cleanup()
-        cls.logger.info("All temporary directories deleted")
+        cls.logger.warning("<color>All temporary directories deleted</color>")
+        # Close all handlers, especially if it is a file handler, or you might
+        # get the following error:
+        # "ResourceWarning: unclosed file <_io.TextIOWrapper
+        # name='...colored.log' mode='a' encoding='UTF-8'>"
+        for h in cls.logger.handlers:
+            h.close()
 
     @classmethod
     def setup_tmp_dirs(cls):

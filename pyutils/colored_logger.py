@@ -278,6 +278,7 @@ class ColoredLogger(Logger):
         # IMPORTANT: TODO you are iterating throughout handlers which you are also
         # removing items from. Thus it is better to work on a copy of handlers
         # If you don't, there will items you won't process.
+        # TODO: check also logutils.setup_basic_logger where I don't use 'type(h) in' but just 'h in'
         handlers = copy.copy(self.handlers)
         for i, h in enumerate(handlers):
             if type(h) in handlers_to_remove:

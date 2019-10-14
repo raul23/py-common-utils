@@ -9,7 +9,6 @@ import os
 import unittest
 
 from .utils import TestBase
-from pyutils.genutils import read_file
 from pyutils.logutils import setup_basic_logger
 
 logging.getLogger(__name__).addHandler(logging.NullHandler)
@@ -21,23 +20,7 @@ class TestColoredLogging(TestBase):
     log_filepath = None
     ADD_FILE_HANDLER = True
     LOGGING_FILENAME = "colored.log"
-    SHOW_FIRST_CHARS_IN_LOG = 1000
-
-    @classmethod
-    def tearDownClass(cls):
-        """TODO
-        """
-        # Read the log file before it is deleted
-        log = read_file(cls.log_filepath)
-        super().tearDownClass()
-        # Check the log file
-        if "<color>" in log or "</color>" in log:
-            raise AssertionError("Tags were found in the log file")
-        if log.count("\033"):
-            raise AssertionError("Color codes were found in the log file")
-        cls.logger.warning("\n<color>Content of the log file (first {} chars):"
-                           "</color>".format(cls.SHOW_FIRST_CHARS_IN_LOG))
-        cls.logger.info(log[:cls.SHOW_FIRST_CHARS_IN_LOG])
+    SHOW_FIRST_CHARS_IN_LOG = 2000
 
     # @unittest.skip("test_add_color_to_msg()")
     def test_add_color_to_msg(self):
