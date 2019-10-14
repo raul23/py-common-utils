@@ -12,13 +12,14 @@ import requests
 
 import pyutils.exceptions
 from .utils import TestBase
+from pyutils.logutils import get_error_msg
 from pyutils.webcache import WebCache
 
 
 class TestFunctions(TestBase):
     # TODO
     test_module_name = "webcache"
-    delay_between_requests = 2
+    delay_between_requests = 1
     webcache = None
     test_url = "https://en.wikipedia.org/wiki/Programming_language"
 
@@ -38,8 +39,8 @@ class TestFunctions(TestBase):
         # come from cache
         assert not cls.webcache.response.from_cache, \
             "The test webpage came from cache"
-        print("Test webpage retrieved from cache:",
-              cls.webcache.response.from_cache)
+        cls.logger.info("<color>Test webpage retrieved from cache:</color> "
+                        "{}".format(cls.webcache.response.from_cache))
 
     def get_webpage(self, url, expected_status_code=None, test_from_cache=False):
         """TODO
@@ -66,19 +67,21 @@ class TestFunctions(TestBase):
                 self.assertTrue(self.webcache.response.from_cache, msg)
                 msg = "It took too long to get the webpage from cache"
                 self.assertTrue(duration < 0.1, msg)
-                print("The webpage came from cache")
+                self.logger.info("<color>The webpage came from cache</color>")
             else:  # Get webpage from an HTTP request
                 msg = "The webpage cam from cache"
                 self.assertFalse(self.webcache.response.from_cache, msg)
-                print("The webpage was retrieved from a HTTP request")
-                print("It took {} seconds to get the webpage".format(duration))
+                self.logger.info("<color>The webpage was retrieved from an HTTP "
+                                 "request</color>")
+                self.logger.info("It took {} seconds to get the "
+                                 "webpage".format(duration))
         finally:
             status_code = self.webcache.response.status_code
             if expected_status_code:
                 msg = "Status code '{}' not as expected '{}'".format(
                     status_code, expected_status_code)
                 self.assertTrue(status_code == expected_status_code, msg)
-            print("Status code is ", status_code)
+            self.logger.info("Status code is {}".format(status_code))
 
     # @unittest.skip("test_get_webpage_case_1()")
     def test_get_webpage_case_1(self):
@@ -91,8 +94,9 @@ class TestFunctions(TestBase):
         from cache and not retrieved through a HTTP request.
 
         """
-        print("Testing case 1 of get_webpage()...")
-        print("Retrieving the test webpage:", self.test_url)
+        self.logger.info("Testing <color>case 1 of get_webpage()</color> "
+                         "where a webpage is returned from cache...")
+        self.logger.info("Retrieving the test webpage: " + self.test_url)
         self.get_webpage(self.test_url, test_from_cache=True)
 
     # @unittest.skip("test_get_webpage_case_2()")
@@ -106,9 +110,10 @@ class TestFunctions(TestBase):
         from cache and not retrieved through a HTTP request.
 
         """
-        print("\nTesting case 2 of get_webpage()...")
+        self.logger.info("\nTesting <color>case 2 of get_webpage()</color> "
+                         "where a new webpage must be cached...")
         new_url = "https://en.wikipedia.org/wiki/Algorithm"
-        print("Retrieving the webpage:", new_url)
+        self.logger.info("Retrieving the webpage: " + new_url)
         self.get_webpage(new_url, 200, test_from_cache=False)
 
     # @unittest.skip("test_get_webpage_case_3()")
@@ -121,12 +126,14 @@ class TestFunctions(TestBase):
         resource that doesn't exist but you can still connect to the server.
 
         """
-        print("\nTesting case 3 of get_webpage()...")
+        self.logger.info("\nTesting <color>case 3 of get_webpage()</color> when "
+                         "an URL is not found...")
         bad_url = "https://en.wikipedia.org/wiki/bad_url"
-        print("Retrieving the webpage:", bad_url)
+        self.logger.info("Retrieving the webpage: " + bad_url)
         with self.assertRaises(pyutils.exceptions.HTTP404Error) as cm:
             self.get_webpage(bad_url, test_from_cache=False)
-        print("Raised an HTTP404Error exception as expected:", cm.exception)
+        self.logger.info("<color>Raised an HTTP404Error exception as expected:"
+                         "</color> {}".format(get_error_msg(cm.exception)))
 
     # @unittest.skip("test_get_webpage_case_4()")
     def test_get_webpage_case_4(self):
@@ -138,13 +145,15 @@ class TestFunctions(TestBase):
         i.e. no server could be reached.
 
         """
-        print("\nTesting case 4 of get_webpage()...")
+        self.logger.info("\nTesting <color>case 4 of get_webpage()</color> "
+                         "when an URL doesn't exist...")
         bad_url = "https://thisurldoesntexistatall.com"
-        print("Retrieving the webpage:", bad_url)
+        self.logger.info("Retrieving the webpage: " + bad_url)
         with self.assertRaises(requests.exceptions.RequestException) as cm:
             self.get_webpage(bad_url, test_from_cache=False)
-        print("Raised an 'requests.exceptions.RequestException' exception as "
-              "expected:", cm.exception)
+        self.logger.info(
+            "<color>Raised a 'requests.exceptions.RequestException' exception "
+            "as expected:</color> {}".format(get_error_msg(cm.exception)))
 
 
 if __name__ == '__main__':

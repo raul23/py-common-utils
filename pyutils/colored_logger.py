@@ -46,8 +46,14 @@ the module name or the level name).
 import copy
 import logging
 import os
-import xml.etree.ElementTree as ET
+# import xml.etree.ElementTree as E
 from logging import getLevelName, Logger, NullHandler, StreamHandler, NOTSET
+
+try:
+    from lxml import html
+except ImportError:
+    raise ImportError("lxml not found. You can install it with: pip install "
+                      "lxml")
 
 from pyutils.logutils import get_error_msg
 
@@ -182,9 +188,9 @@ class ColoredLogger(Logger):
             ``Exception`` object, e.g. ``TypeError`` or
             ``sqlite3.IntegrityError``, which will be converted to a string
             (see get_error_msg). The message should be an ``Exception`` if the
-            log level is 'error', 'exception' or 'critical'.
+            log level is 'ERROR', 'exception' or 'critical'.
         level : str
-            The name of the log level, e.g. 'debug' and 'info'.
+            The name of the log level, e.g. 'DEBUG' and 'INFO'.
 
         """
         msg = self._preprocess_msg(msg)
@@ -294,7 +300,7 @@ class ColoredLogger(Logger):
                 self._remove_handler(h)
 
     def _add_color_to_msg(self, msg, level):
-        """Add color to the log message.
+        """Add color to the log message. TODO
 
         Add color to the log message based on the log level (e.g. by default
         the debug messages are displayed in green).
@@ -304,8 +310,8 @@ class ColoredLogger(Logger):
         msg : str
             The message to be logged.
         level : str
-            The name of the log level associated with log message, e.g. 'debug'
-            or 'info'.
+            The name of the log level associated with log message, e.g. 'DEBUG'
+            or 'INFO'.
 
         Notes
         -----
@@ -319,23 +325,34 @@ class ColoredLogger(Logger):
         https://stackoverflow.com/a/45924203`_.
 
         """
-        if self._found_tags(msg):  # with color
-            level = level.upper()
-            color = self._level_to_color[level]
-            msg = "<log>{}</log>".format(msg)
-            root = ET.fromstring(msg)
-            for color_tag in root.findall("color"):
-                colored_msg = _levelToColoredMessage[level]
-                color_tag.text = colored_msg.format(color, color_tag.text)
-            msg = ET.tostring(root).decode()
-            msg = msg.replace("<log>", "").replace("</log>", "")
-            msg = msg.replace("<color>", "").replace("</color>", "")
-            # Return log message with colors
-            return msg
-        else:  # no color
-            # return _levelToColoredMessage[level].format(color, msg)
-            # Return log message without colors
-            return msg
+        # TODO: explain
+        level_color_code = self._level_to_color[level]
+        msg = "<log>{}</log>".format(msg)
+        # NOTE: Use lxml.html.fromstring() since it is more forgiving of
+        # invalid HTML, e.g. <color>test </color><urllib3.connection...>
+        # Ref: https://stackoverflow.com/a/24439467
+        #
+        # NOTE: check also into using html.parser.HTMLParser
+        # Ref.: https://docs.python.org/3/library/html.parser.html
+        #
+        # root = ET.fromstring(msg)  # With ET
+        root = html.fromstring(msg)  # Wtih html
+        for color_tag in root.findall("color"):
+            colored_msg = _levelToColoredMessage[level]
+            # NOTE: must escape control characters or will get a ValueError:
+            # "All strings must be XML compatible: Unicode or ASCII, no NULL
+            # bytes or control characters"
+            colored_msg = colored_msg.replace("\x1b", "\\x1b")  # With html
+            color_tag.text = colored_msg.format(level_color_code,
+                                                color_tag.text)
+        # msg = ET.tostring(root).decode()  # With ET
+        msg = html.tostring(root).decode()  # With html
+        # Cleanup msg from any tags and escape characters (With html)
+        msg = msg.replace("<log>", "").replace("</log>", "")
+        msg = msg.replace("<color>", "").replace("</color>", "")
+        msg = msg.replace("\\x1b", "\x1b")  # With html
+        # Return log message with color
+        return msg
 
     def _preprocess_msg(self, msg):
         """TODO
@@ -411,7 +428,7 @@ class ColoredLogger(Logger):
             The message to be logged.
 
         """
-        self._log_with_color(super().debug, msg, 'debug', *args, **kwargs)
+        self._log_with_color(super().debug, msg, 'DEBUG', *args, **kwargs)
 
     def info(self, msg, *args, **kwargs):
         """Log a message with the INFO log level.
@@ -424,7 +441,7 @@ class ColoredLogger(Logger):
             The message to be logged in a console and file.
 
         """
-        self._log_with_color(super().info, msg, 'info', *args, **kwargs)
+        self._log_with_color(super().info, msg, 'INFO', *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
         """Log a message with the WARNING log level.
@@ -435,7 +452,8 @@ class ColoredLogger(Logger):
             The message to be logged.
 
         """
-        self._log_with_color(super().warning, msg, 'warning', *args, **kwargs)
+        self._log_with_color(super().warning, msg, 'WARNING', *args, **kwargs)
+
     # Deprecated method
     warn = warning
 
@@ -451,7 +469,7 @@ class ColoredLogger(Logger):
             (see get_error_msg).
 
         """
-        self._log_with_color(super().error, msg, 'error', *args, **kwargs)
+        self._log_with_color(super().error, msg, 'ERROR', *args, **kwargs)
 
     def exception(self, msg, *args, **kwargs):
         """Log a message with the EXCEPTION log level.
@@ -464,7 +482,7 @@ class ColoredLogger(Logger):
             ``sqlite3.IntegrityError``, which will be converted to a string
             (see get_error_msg).
         """
-        self._log_with_color(super().exception, msg, 'exception', *args, **kwargs)
+        self._log_with_color(super().exception, msg, 'EXCEPTION', *args, **kwargs)
 
     def critical(self, msg, *args, **kwargs):
         """Log a message with the EXCEPTION log level.
@@ -477,7 +495,8 @@ class ColoredLogger(Logger):
             ``sqlite3.IntegrityError``, which will be converted to a string
             (see get_error_msg).
         """
-        self._log_with_color(super().critical, msg, 'critical', *args, **kwargs)
+        self._log_with_color(super().critical, msg, 'CRITICAL', *args, **kwargs)
+
     fatal = critical
 
     def __repr__(self):

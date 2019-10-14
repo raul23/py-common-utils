@@ -155,6 +155,7 @@ class WebCache:
         else:
             # Add in function
             # TODO: explain delay computations
+            # TODO: add a delay only with requests from the same domain
             current_delay = time.time() - self._last_request_time
             diff_between_delays = \
                 current_delay - self.delay_between_requests
