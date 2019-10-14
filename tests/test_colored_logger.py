@@ -10,6 +10,7 @@ import unittest
 
 from .utils import TestBase
 from pyutils.genutils import read_file
+from pyutils.logutils import setup_logger_and_handlers
 
 logging.getLogger(__name__).addHandler(logging.NullHandler)
 
@@ -25,19 +26,12 @@ class TestColoredLogging(TestBase):
         """
         super().setUpClass()
         # Setup logging
-        cls.logger = logging.getLogger(__name__)
-        cls.logger.setLevel(logging.DEBUG)
-        # Setup a console handler
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
-        cls.logger.addHandler(ch)
-        # Setup a file handler
         cls.log_filepath = os.path.join(cls.data_tmpdir, 'colored.log')
-        fh = logging.FileHandler(cls.log_filepath)
-        fh.setLevel(logging.DEBUG)
-        cls.logger = logging.getLogger(__name__)
-        cls.logger.setLevel(logging.DEBUG)
-        cls.logger.addHandler(fh)
+        cls.logger = setup_logger_and_handlers(
+            name=__name__,
+            add_console_handler=True,
+            add_file_handler=True,
+            log_filepath=cls.log_filepath)
         cls.logger.warning("Testing in the <color>{}</color> "
                            "environment".format(cls.logger._env))
 
@@ -77,7 +71,7 @@ class TestColoredLogging(TestBase):
         """
         self.logger.info("\nTesting <color>_add_removed_handlers()</color>...")
         # Setup test logger
-        add_logger = self.setup_test_logging(name="test_add")
+        add_logger = setup_logger_and_handlers(name="test_add")
         # Setup console handler without adding it to the test logger
         ch = logging.StreamHandler()
         ch.setLevel(logging.DEBUG)
@@ -144,11 +138,15 @@ class TestColoredLogging(TestBase):
         self.logger.info("\nTesting <color>_keep_everything_but()</color> "
                          "(StreamHandler)...")
         # Setup test logger
-        keep_logger = self.setup_test_logging(name="test_keep_everything_but",
-                                              console_handler=True,
-                                              file_handler=True)
+        log_filepath = os.path.join(self.sandbox_tmpdir, 'test.log')
+        keep_logger = setup_logger_and_handlers(
+            name="test_keep_everything_but",
+            add_console_handler=True,
+            add_file_handler=True,
+            log_filepath=log_filepath)
         # Keep only the file handler. The rests of handlers should be removed
-        keep_logger._keep_everything_but(handlers_to_remove=[logging.StreamHandler])
+        keep_logger._keep_everything_but(
+            handlers_to_remove=[logging.StreamHandler])
         # Assert that there is only one file handler in the test logger
         nb_handlers = len(keep_logger.handlers)
         msg = "There should be one handler in keep_logger but there are " \
@@ -179,11 +177,15 @@ class TestColoredLogging(TestBase):
         self.logger.info("\nTesting <color>_remove_everything_but()</color> "
                          "(StreamHandler)...")
         # Setup test logger
-        remove_logger = self.setup_test_logging(name="test_remove_everything_but",
-                                                console_handler=True,
-                                                file_handler=True)
+        log_filepath = os.path.join(self.sandbox_tmpdir, 'test.log')
+        remove_logger = setup_logger_and_handlers(
+            name="test_remove_everything_but",
+            add_console_handler=True,
+            add_file_handler=True,
+            log_filepath=log_filepath)
         # Remove all handlers but the console handler
-        remove_logger._remove_everything_but(handlers_to_keep=[logging.StreamHandler])
+        remove_logger._remove_everything_but(
+            handlers_to_keep=[logging.StreamHandler])
         # Assert that there is only one console handler in the test logger
         nb_handlers = len(remove_logger.handlers)
         msg = "There should be one handler in keep_logger but there are " \
@@ -202,8 +204,11 @@ class TestColoredLogging(TestBase):
         """
         self.logger.info("\nTesting <color>_remove_handler()</color>...")
         # Setup test logger
-        remove_logger = self.setup_test_logging(name="test_remove",
-                                                console_handler=True)
+        log_filepath = os.path.join(self.sandbox_tmpdir, 'test.log')
+        remove_logger = setup_logger_and_handlers(
+            name="test_remove",
+            add_console_handler=True,
+            log_filepath=log_filepath)
         msg = "There should only be one handler in remove_logger"
         self.assertTrue(len(remove_logger.handlers) == 1, msg)
         # Remove the handler from the test logger
@@ -215,36 +220,6 @@ class TestColoredLogging(TestBase):
               "{} handlers".format(nb_handlers)
         self.assertTrue(nb_handlers == 0, msg)
         self.logger.info("The console handler was successfully removed")
-
-    def setup_test_logging(self, name, console_handler=False, file_handler=False):
-        """TODO
-
-        Parameters
-        ----------
-        name
-        console_handler
-        file_handler
-
-        Returns
-        -------
-        logger
-
-        """
-        # Setup logger
-        logger = logging.getLogger(name)
-        logger.setLevel(logging.DEBUG)
-        if console_handler:
-            # Setup console handler
-            ch = logging.StreamHandler()
-            ch.setLevel(logging.DEBUG)
-            logger.addHandler(ch)
-        if file_handler:
-            # Setup file handler
-            log_filepath = os.path.join(self.sandbox_tmpdir, 'test.log')
-            fh = logging.FileHandler(log_filepath)
-            fh.setLevel(logging.DEBUG)
-            logger.addHandler(fh)
-        return logger
 
 
 if __name__ == '__main__':

@@ -11,13 +11,17 @@ import logging
 import os
 import sqlite3
 import time
-from logging import NullHandler
 
 from pyutils.exceptions import SQLSanityCheckError
+from pyutils.logutils import get_error_msg
 
 
 logger = logging.getLogger(__name__)
-logger.addHandler(NullHandler())
+logger.addHandler(logging.NullHandler)
+
+
+# TODO
+SLEEP = 2
 
 
 def connect_db(db_path, autocommit=False):
@@ -48,8 +52,8 @@ def connect_db(db_path, autocommit=False):
 
     .. [1] `7.0 Transaction Control At The SQL Level
        <https://www.sqlite.org/lockingv3.html>`_.
-    .. [2] `Controlling Transactions
-       <https://docs.python.org/3/library/sqlite3.html#controlling-transactions>`_.
+    .. [2] `Controlling Transactions (Python docs)
+       <https://bit.ly/2mg5Hie>`_.
 
     """
     # TODO: add reference
@@ -67,13 +71,10 @@ def connect_db(db_path, autocommit=False):
         return conn
 
 
-def create_db(db_filepath, schema_filepath, overwrite_db=False, pause=2,
-              **kwargs):
+def create_db(db_filepath, schema_filepath, overwrite_db=False, **kwargs):
     """Create a SQLite database.
 
-    A schema file is needed for creating the database. If an existing SQLite
-    database will be overwritten, the user is given `pause` seconds to stop the
-    program before the database is overwritten.
+    A schema file is needed for creating the database.
 
     Parameters
     ----------
@@ -85,11 +86,6 @@ def create_db(db_filepath, schema_filepath, overwrite_db=False, pause=2,
         Whether the database will be overwritten. The user is given some time
         to stop the script before the database is overwritten (the default value
         is False which means the db will not be overwritten).
-    pause: int, optional
-        Number of seconds to give to the user for deciding if the database
-        should be overwritten. The user can stop the program within the `pause`
-        seconds before the database is overwritten (the default value is 2
-        seconds).
     **kwargs
         TODO
 
@@ -106,36 +102,41 @@ def create_db(db_filepath, schema_filepath, overwrite_db=False, pause=2,
     sqlite3.OperationalError
         Raised if TODO ...
 
-
     """
-    # TODO: add verbose option
     db_filepath = os.path.expanduser(db_filepath)
     schema_filepath = os.path.expanduser(schema_filepath)
     db_exists = os.path.exists(db_filepath)
 
     if overwrite_db and db_exists:
-        logger.warning("{} will be overwritten ...".format(db_filepath))
+        logger.warning(
+            "<color>{} will be overwritten ...</color>".format(db_filepath))
+        # TODO: ask user to confirm and emit signal after 5 seconds to stop the
+        # program if no answer is given
+        #
         # Exit program before delay expires or the database is overwritten
-        time.sleep(pause)
+        time.sleep(SLEEP)
         os.remove(db_filepath)
 
     if not db_exists or overwrite_db:
-        logger.info("Creating database '{}'".format(db_filepath))
+        status = 1
         try:
             with sqlite3.connect(db_filepath) as conn:
                 f = open(schema_filepath, 'rt')
                 schema = f.read()
                 conn.executescript(schema)
                 f.close()
-        except IOError:
-            raise
-        except sqlite3.OperationalError:
-            raise
+        except IOError as e:
+            logger.error("<color>{}</color>".format(get_error_msg(e)))
+        except sqlite3.OperationalError as e:
+            logger.error("<color>{}</color>".format(get_error_msg(e)))
         else:
-            logger.info("Database created!")
-            return 0
+            logger.info("<color>Database created!</color>")
+            status = 0
+        finally:
+            return status
     else:
-        logger.warning("Database '{}' already exists!".format(db_filepath))
+        logger.warning(
+            "<color>Database '{}' already exists!</color>".format(db_filepath))
         return 1
 
 

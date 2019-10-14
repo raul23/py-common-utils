@@ -101,13 +101,15 @@ _envToColorCodes = {
 
 def generate_tags():
     tags = []
-    for name in _tag_names:
+    for name in _tagNames:
         tags.extend(["<{}>".format(name), "</{}>".format(name)])
     return tags
 
 
-_tag_names = ["log", "color"]
+_tagNames = ["log", "color"]
 _tags = generate_tags()
+
+_disableColoring = False
 
 
 class ColoredLogger(Logger):
@@ -162,6 +164,7 @@ class ColoredLogger(Logger):
         self._env = "DEV" if bool(os.environ.get("PYCHARM_HOSTED")) else "PROD"
         self._level_to_color = _envToColorCodes[self._env]
         self._removed_handlers = []
+        self._disabled = False
 
     def _log_with_color(self, logging_fnc, msg, level, *args, **kwargs):
         """Call the specified logging function by adding color to the messages.
@@ -184,10 +187,7 @@ class ColoredLogger(Logger):
             The name of the log level, e.g. 'debug' and 'info'.
 
         """
-        # If msg is an Exception, process the Exception to build the
-        # error message as a string
-        if isinstance(msg, Exception):
-            msg = get_error_msg(msg)
+        msg = self._preprocess_msg(msg)
         if self._found_tags(msg):  # log msg with color
             # IMPORTANT: Only the console handler gets colored messages. The
             # other handlers don't, such as the file handler.
@@ -337,6 +337,28 @@ class ColoredLogger(Logger):
             # Return log message without colors
             return msg
 
+    def _preprocess_msg(self, msg):
+        """TODO
+
+        Parameters
+        ----------
+        msg : str
+
+        Returns
+        -------
+        msg : str
+
+        """
+        if isinstance(msg, Exception):
+            # If msg is an Exception, process the Exception to build the error
+            # message as a string
+            msg = get_error_msg(msg)
+        self._disabled = True if _disableColoring else self._disabled
+        if self._disabled:  # coloring disabled
+            # Remove all tags
+            msg = self._remove_all_tags(msg)
+        return msg
+
     @staticmethod
     def _found_tags(msg):
         """TODO
@@ -372,6 +394,11 @@ class ColoredLogger(Logger):
         for t in _tags:
             msg = msg.replace(t, "")
         return msg
+
+    def disable_color(self):
+        """TODO
+        """
+        self._disabled = True
 
     # Logging methods start here
     # TODO: add support for log(self, level, msg, *args, **kwargs) in logging

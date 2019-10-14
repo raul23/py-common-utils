@@ -42,7 +42,7 @@ def get_error_msg(exc):
     return error_msg
 
 
-def setup_logging(logging_config):
+def setup_logging_from_cfg(logging_config):
     """Setup logging from a YAML configuration file or logging dictionary.
 
     Loggers can be setup through a YAML logging configuration file or logging
@@ -112,3 +112,37 @@ def setup_logging(logging_config):
         raise
     else:
         return config_dict
+
+
+def setup_basic_logger(name, add_console_handler=False, add_file_handler=False,
+                       log_filepath="debug.log", handlers_to_remove=None):
+    """TODO
+
+    Parameters
+    ----------
+    name
+    add_console_handler
+    add_file_handler
+    log_filepath
+    handlers_to_remove
+
+    Returns
+    -------
+
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    if handlers_to_remove:
+        for h in handlers_to_remove:
+            logger.removeHandler(h)
+    if add_console_handler:
+        # Setup console handler
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        logger.addHandler(ch)
+    if add_file_handler:
+        # Setup file handler
+        fh = logging.FileHandler(log_filepath)
+        fh.setLevel(logging.DEBUG)
+        logger.addHandler(fh)
+    return logger

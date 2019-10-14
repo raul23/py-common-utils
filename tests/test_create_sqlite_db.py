@@ -9,7 +9,8 @@ import os
 import sqlite3
 import sys
 import unittest
-# Custom modules
+
+import pyutils.dbutils as dbutils
 from .utils import TestBase
 from pyutils.scripts import create_sqlite_db
 
@@ -18,6 +19,15 @@ class TestFunctions(TestBase):
     # TODO
     test_name = "create_sqlite_db"
     CREATE_TEST_DATABASE = True
+
+    @classmethod
+    def setUp(cls):
+        """TODO
+        """
+        # Clear all handlers from the loggers
+        dbutils.logger.handlers = []
+        create_sqlite_db.logger.handlers = []
+        print()
 
     # @unittest.skip("test_main_case_1()")
     def test_main_case_1(self):
@@ -54,7 +64,7 @@ class TestFunctions(TestBase):
         sys.argv = ['create_sqlite_db.py',
                     '-d', self.db_filepath,
                     '-s', self.schema_filepath,
-                    '-p', 0]
+                    '-sleep', 0]
         retcode = create_sqlite_db.main()
         msg = "Something very odd! Return code is {}".format(retcode)
         self.assertTrue(retcode == 1, msg)
@@ -73,30 +83,49 @@ class TestFunctions(TestBase):
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', self.db_filepath,
                     '-s', self.schema_filepath,
-                    '-p', 0]
+                    '-sleep', 0]
         retcode = create_sqlite_db.main()
         msg = "Something very odd! Return code is {}".format(retcode)
         self.assertTrue(retcode == 0, msg)
         print("The database was overwritten as expected")
+
+    def assert_log(self, error_class):
+        """TODO
+
+        Parameters
+        ----------
+        error_class : str
+
+        """
+        with self.assertLogs(dbutils.logger, 'INFO') as cm:
+            create_sqlite_db.main()
+        found = False
+        output = None
+        for o in cm.output:
+            if o.find(error_class) != -1:
+                found = True
+                output = o
+                break
+        msg = "'{}' not found in logs".format(error_class)
+        self.assertTrue(found and output, msg)
+        print("Log emitted as expected:", output)
 
     # @unittest.skip("test_main_case_4()")
     def test_main_case_4(self):
         """Test that main() can't create a database when a schema that doesn't
         exist is given.
 
-        Case 4 tests that :meth:`~pyutils.scripts.create_sqlite_db.main()` raises
-        an :exc:`IOError` when a schema that doesn't exist is given in the
-        command-line.
+        Case 4 tests that :meth:`~pyutils.scripts.create_sqlite_db.main()` logs
+        a :exc:`FileNotFoundError` exception when a schema that doesn't exist
+        is given in the command-line.
 
         """
         print("\nTesting case 4 of main()...")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', self.db_filepath,
                     '-s', '/bad/schema/path.sql',
-                    '-p', 0]
-        with self.assertRaises(IOError) as cm:
-            create_sqlite_db.main()
-        print("Raised an IOError as expected:", cm.exception)
+                    '-sleep', 0]
+        self.assert_log("FileNotFoundError")
 
     # @unittest.skip("test_main_case_5()")
     def test_main_case_5(self):
@@ -112,9 +141,7 @@ class TestFunctions(TestBase):
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', '/bad/db/path.sqlite',
                     '-s', self.schema_filepath]
-        with self.assertRaises(sqlite3.OperationalError) as cm:
-            create_sqlite_db.main()
-        print("Raised a sqlite3.OperationalError as expected:", cm.exception)
+        self.assert_log("OperationalError")
 
 
 if __name__ == '__main__':
