@@ -17,6 +17,8 @@ class TestBase(unittest.TestCase):
     # TODO
     test_module_name = None
     CREATE_TEST_DATABASE = False
+    ADD_FILE_HANDLER = False
+    LOGGING_FILENAME = "debug.log"
 
     # Temporary directories
     _main_tmpdir_obj = None
@@ -28,42 +30,51 @@ class TestBase(unittest.TestCase):
     db_filepath = None
     # Logging-related stuff
     logger = None
+    logging_filepath = None
     ini_logging_cfg_path = "tests/data/logging.ini"
     yaml_logging_cfg_path = "tests/data/logging.yaml"
     logging_cfg_dict = logging_cfg_dict
 
     @classmethod
-    def setUp(cls):
-        """TODO
-        """
-        print()
-
-    @classmethod
     def setUpClass(cls):
         """TODO
         """
+        # Setup temporary directories
+        cls.setup_tmp_dirs()
         # Setup logging for TestFunctions
+        cls.log_filepath = os.path.join(cls.data_tmpdir, cls.LOGGING_FILENAME)
         cls.logger = setup_basic_logger(
             name=__name__,
             add_console_handler=True,
+            add_file_handler=cls.ADD_FILE_HANDLER,
+            log_filepath=cls.log_filepath,
             handlers_to_remove=[logging.NullHandler]
         )
+        # IMPORTANT: no printing before
         # Print name of module to be tested
         line_equals = "# {} #".format("=" * 92)
         line_name = "{}<color>{}</color>".format(" " * 37, cls.test_module_name)
-        cls.logger.info("\n" + line_equals)
+        cls.logger.info(line_equals)
         cls.logger.info(line_name)
         cls.logger.info(line_equals)
         cls.logger.info("<color>Setting up {} tests...</color>".format(
             cls.test_module_name))
-        # Setup temporary directories
-        cls.setup_tmp_dirs()
+        # Print info about directories created
+        cls.logger.info("Main temporary directory created: " + cls._main_tmpdir)
+        cls.logger.info("Sandbox directory created: " + cls.sandbox_tmpdir)
+        cls.logger.info("Data directory created: " + cls.data_tmpdir)
+        # Create SQLite db
         if cls.CREATE_TEST_DATABASE:
-            # Create SQLite db
             cls.db_filepath = os.path.join(cls.data_tmpdir, "db.sqlite")
             # NOTE: the logging is silenced for create_db
             create_db(cls.db_filepath, cls.schema_filepath)
             cls.logger.info("SQLite database created: " + cls.db_filepath)
+        else:
+            cls.logger.warning("<color>Database not used</color>")
+        cls.logger.warning("ADD_FILE_HANDLER: <color>{}"
+                           "</color>".format(cls.ADD_FILE_HANDLER))
+        cls.logger.warning("Testing in the <color>{}</color> "
+                           "environment".format(cls.logger._env))
 
     @classmethod
     def tearDown(cls):
@@ -91,15 +102,12 @@ class TestBase(unittest.TestCase):
         # Create main temporary directory
         cls._main_tmpdir_obj = TemporaryDirectory()
         cls._main_tmpdir = cls._main_tmpdir_obj.name
-        cls.logger.info("Main temporary directory created: " + cls._main_tmpdir)
         # Create sandbox directory where the methods can write
         cls.sandbox_tmpdir = create_dir(
              os.path.join(cls._main_tmpdir, "sandbox"))
-        cls.logger.info("Sandbox directory created: " + cls.sandbox_tmpdir)
         # Create a directory for data files (e.g. SQLite database) useful
         # for performing the tests
         cls.data_tmpdir = create_dir(os.path.join(cls._main_tmpdir, "data"))
-        cls.logger.info("Data directory created: " + cls.data_tmpdir)
 
     def assert_logs(self, logger, level, str_to_find, fnc, *args, **kwargs):
         """TODO

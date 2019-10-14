@@ -14,10 +14,10 @@ import tzlocal
 import yaml
 
 from .utils import TestBase
-from pyutils.genutils import convert_utctime_to_local_tz, create_dir, \
-    create_timestamped_dir, delete_folder_contents, dumps_json, dump_pickle, \
-    get_creation_date, load_json, load_pickle, load_yaml, read_file, run_cmd, \
-    write_file
+from pyutils.genutils import (
+    convert_utctime_to_local_tz, create_dir, create_timestamped_dir,
+    delete_folder_contents, dumps_json, dump_pickle, get_creation_date,
+    load_json, load_pickle, load_yaml, read_file, run_cmd, write_file)
 from pyutils.logutils import get_error_msg
 
 
@@ -41,6 +41,8 @@ class TestFunctions(TestBase):
         :obj:`time.struct_time`
 
         """
+        self.logger.warning("<color>test_convert_utctime_to_local_tz_case_1()"
+                            "</color>")
         self.logger.info("Testing <color>case 1 of "
                          "convert_utctime_to_local_tz()</color>")
         # Case 1: utc_time is not None
@@ -84,7 +86,9 @@ class TestFunctions(TestBase):
         the timezone for the current time.
 
         """
-        self.logger.info("\nTesting <color>case 2 of "
+        self.logger.warning("\n<color>test_convert_utctime_to_local_tz_case_2()"
+                            "</color>")
+        self.logger.info("Testing <color>case 2 of "
                          "convert_utctime_to_local_tz()</color> when no UTC "
                          "is given...")
         # Case 2: utc_time is None
@@ -109,7 +113,8 @@ class TestFunctions(TestBase):
         disk by the function :meth:`~pyutils.genutils.create_dir()`.
 
         """
-        self.logger.info("\nTesting <color>case 1 of create_dir()</color>...")
+        self.logger.warning("\n<color>test_create_dir_case_1()</color>")
+        self.logger.info("Testing <color>case 1 of create_dir()</color>...")
         dirpath = os.path.join(self.sandbox_tmpdir, "testdir")
         msg = "The test directory {} couldn't be created".format(dirpath)
         try:
@@ -128,14 +133,16 @@ class TestFunctions(TestBase):
         when we try to create a directory that already exists on disk.
 
         """
-        self.logger.info("\nTesting <color>case 2 of create_dir()</color> when "
+        self.logger.warning("\n<color>test_create_dir_case_2()</color>")
+        self.logger.info("Testing <color>case 2 of create_dir()</color> when "
                          "a directory already exists...")
         with self.assertRaises(FileExistsError) as cm:
             dirpath = os.path.join(self.sandbox_tmpdir, "testdir")
             create_dir(dirpath)
             create_dir(dirpath)
-        self.logger.info("<color>Raised a FileExistsError exception as expected:"
-                         "</color> {}".format(get_error_msg(cm.exception)))
+        self.logger.info(
+            "<color>Raised a FileExistsError exception as expected:</color> "
+            "{}".format(get_error_msg(cm.exception)))
 
     def test_create_dir_case_3(self):
         """Test create_dir() with no permission to write in a directory.
@@ -146,7 +153,8 @@ class TestFunctions(TestBase):
         permission.
 
         """
-        self.logger.info("\nTesting <color>case 3 of create_dir()</color> with "
+        self.logger.warning("\n<color>test_create_dir_case_3()</color>")
+        self.logger.info("Testing <color>case 3 of create_dir()</color> with "
                          "no write permission...")
         test1_dirpath = os.path.join(self.sandbox_tmpdir, "testdir1")
         create_dir(test1_dirpath)
@@ -154,8 +162,9 @@ class TestFunctions(TestBase):
         os.chmod(test1_dirpath, 0o444)
         with self.assertRaises(PermissionError) as cm:
             create_dir(os.path.join(test1_dirpath, "testdir2"))
-        self.logger.info("<color>Raised a PermissionError exception as expected:"
-                         "</color> {}".format(get_error_msg(cm.exception)))
+        self.logger.info(
+            "<color>Raised a PermissionError exception as expected:</color> "
+            "{}".format(get_error_msg(cm.exception)))
         # Put back write permission to owner
         os.chmod(test1_dirpath, 0o744)
 
@@ -180,7 +189,9 @@ class TestFunctions(TestBase):
         timestamped directory name (with the seconds and all).
 
         """
-        self.logger.info("\nTesting <color>case 1 of create_timestamped_dir()"
+        self.logger.warning("\n<color>test_create_timestamped_dir_case_1()"
+                            "</color>")
+        self.logger.info("Testing <color>case 1 of create_timestamped_dir()"
                          "</color>...")
         msg = "The timestamped directory couldn't be created"
         try:
@@ -202,7 +213,9 @@ class TestFunctions(TestBase):
         directory without the write permission.
 
         """
-        self.logger.info("\nTesting <color>case 2 of create_timestamped_dir()"
+        self.logger.warning("\n<color>test_create_timestamped_dir_case_2()"
+                            "</color>")
+        self.logger.info("Testing <color>case 2 of create_timestamped_dir()"
                          "</color> with no write permission...")
         test1_dirpath = os.path.join(self.sandbox_tmpdir, "testdir1")
         create_dir(test1_dirpath)
@@ -302,7 +315,9 @@ class TestFunctions(TestBase):
         Case 1 sets `remove_subdirs` to True and `delete_recursively` to False.
 
         """
-        self.logger.info("\nTesting <color>case 1 of delete_folder_contents()"
+        self.logger.warning("\n<color>test_delete_folder_contents_case_1()"
+                            "</color>")
+        self.logger.info("Testing <color>case 1 of delete_folder_contents()"
                          "</color> where everything in a folder must be "
                          "removed...")
         # Create the main test directory along with subdirectories and files
@@ -333,7 +348,9 @@ class TestFunctions(TestBase):
         Case 2 sets `remove_subdirs` to False and `delete_recursively` to False.
 
         """
-        self.logger.info("\nTesting <color>case 2 of delete_folder_contents()"
+        self.logger.warning("\n<color>test_delete_folder_contents_case_2()"
+                            "</color>")
+        self.logger.info("Testing <color>case 2 of delete_folder_contents()"
                          "</color> where everything in a folder must be "
                          "removed except the subdirectories and their "
                          "contents...")
@@ -372,7 +389,9 @@ class TestFunctions(TestBase):
         Case 3 sets `remove_subdirs` to False and `delete_recursively` to True.
 
         """
-        self.logger.info("\nTesting <color>case 3 of delete_folder_contents()"
+        self.logger.warning("\n<color>test_delete_folder_contents_case_3()"
+                            "</color>")
+        self.logger.info("Testing <color>case 3 of delete_folder_contents()"
                          "</color> where every text files are removed even in "
                          "the subdirectories...")
         # Create the main test directory along with subdirectories and files
@@ -410,7 +429,9 @@ class TestFunctions(TestBase):
         `remove_subdirs` set to True and `delete_recursively` to False.
 
         """
-        self.logger.info("\nTesting <color>case 4 of delete_folder_contents()"
+        self.logger.warning("\n<color>test_delete_folder_contents_case_4()"
+                            "</color>")
+        self.logger.info("Testing <color>case 4 of delete_folder_contents()"
                          "</color> where delete_recursively is True ...")
         # Create the main test directory along with subdirectories and files
         dirpath = self.populate_folder()
@@ -436,7 +457,9 @@ class TestFunctions(TestBase):
         populate_folder : populates a folder with text files and subdirectories.
 
         """
-        self.logger.info("\nTesting <color>case 5 of delete_folder_contents()"
+        self.logger.warning("\n<color>test_delete_folder_contents_case_5()"
+                            "</color>")
+        self.logger.info("Testing <color>case 5 of delete_folder_contents()"
                          "</color> when a folder path doesn't exist...")
         try:
             # Delete everything in the directory that doesn't exist
@@ -462,7 +485,8 @@ class TestFunctions(TestBase):
         :meth:`~pyutils.genutils.load_pickle` are tested at the same time.
 
         """
-        self.logger.info("\nTesting <color>dump_pickle() and load_pickle()"
+        self.logger.warning("\n<color>test_dump_and_load_pickle()</color>")
+        self.logger.info("Testing <color>dump_pickle() and load_pickle()"
                          "</color>...")
         data1 = {
             'key1': 'value1',
@@ -496,8 +520,10 @@ class TestFunctions(TestBase):
         :meth:`~pyutils.genutils.load_json` are tested at the same time.
 
         """
-        self.logger.info("\nTesting <color>case 1 of dumps_json() and load_json()"
-                         "</color>...")
+        self.logger.warning("\n<color>test_dumps_and_load_json_case_1()"
+                            "</color>")
+        self.logger.info("Testing <color>case 1 of dumps_json() and "
+                         "load_json()</color>...")
         data1 = {
             'key1': 'value1',
             'key3': {
@@ -531,7 +557,9 @@ class TestFunctions(TestBase):
         :meth:`~pyutils.genutils.load_json` are tested at the same time.
 
         """
-        self.logger.info("\nTesting <color>case 2 of dumps_json() and "
+        self.logger.warning("\n<color>test_dumps_and_load_json_case_2()"
+                            "</color>")
+        self.logger.info("Testing <color>case 2 of dumps_json() and "
                          "load_json()</color> where the keys must not be "
                          "sorted...")
         data1 = {
@@ -563,7 +591,8 @@ class TestFunctions(TestBase):
         comparing the creation date of a file and the current date and time.
 
         """
-        self.logger.info("\nTesting <color>get_creation_date()</color>...")
+        self.logger.warning("\n<color>test_get_creation_date()</color>")
+        self.logger.info("Testing <color>get_creation_date()</color>...")
         # Write file to disk
         filepath = os.path.join(self.sandbox_tmpdir, "file.txt")
         write_file(filepath, "Hello, World!\n")
@@ -589,7 +618,8 @@ class TestFunctions(TestBase):
         original data.
 
         """
-        self.logger.info("\nTesting <color>load_yaml()</color>...")
+        self.logger.warning("\n<color>test_load_yaml()</color>")
+        self.logger.info("Testing <color>load_yaml()</color>...")
         # Write YAML data to a file on disk
         data1 = {
             'key1': 'value1',
@@ -617,7 +647,8 @@ class TestFunctions(TestBase):
         exception when a file doesn't exist.
 
         """
-        self.logger.info("\nTesting <color>read_file()</color> when a file "
+        self.logger.warning("\n<color>test_read_file()</color>")
+        self.logger.info("Testing <color>read_file()</color> when a file "
                          "doesn't exist...")
         # Write text to a file on disk
         with self.assertRaises(OSError) as cm:
@@ -633,7 +664,8 @@ class TestFunctions(TestBase):
         successfully execute a shell command.
 
         """
-        self.logger.info("\nTesting <color>run_cmd(cmd='date')</color>...")
+        self.logger.warning("\n<color>test_run_cmd_date()</color>")
+        self.logger.info("Testing <color>run_cmd(cmd='date')</color>...")
         self.logger.info("<color>Command output:</color>")
         self.assertTrue(run_cmd("date") == 0)
 
@@ -645,7 +677,8 @@ class TestFunctions(TestBase):
         successfully execute a shell command.
 
         """
-        self.logger.info("\nTesting <color>run_cmd(cmd='pwd')</color>...")
+        self.logger.warning("\n<color>test_run_cmd_pwd()</color>")
+        self.logger.info("Testing <color>run_cmd(cmd='pwd')</color>...")
         self.logger.info("<color>Command output:</color>")
         self.assertTrue(run_cmd("pwd") == 0)
 
@@ -661,7 +694,9 @@ class TestFunctions(TestBase):
         :meth:`~pyutils.genutils.read_file` are tested at the same time.
 
         """
-        self.logger.info("\nTesting <color>write_file() and read_file()</color>...")
+        self.logger.warning("\n<color>test_write_and_read_file()</color>")
+        self.logger.info("Testing <color>write_file() and read_file()"
+                         "</color>...")
         # Write text to a file on disk
         text1 = "Hello World!\n"
         filepath = os.path.join(self.sandbox_tmpdir, "file.txt")

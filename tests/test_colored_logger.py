@@ -10,7 +10,7 @@ import unittest
 
 from .utils import TestBase
 from pyutils.genutils import read_file
-from pyutils.logutils import setup_logger_and_handlers
+from pyutils.logutils import setup_basic_logger
 
 logging.getLogger(__name__).addHandler(logging.NullHandler)
 
@@ -19,21 +19,9 @@ class TestColoredLogging(TestBase):
     # TODO
     test_module_name = "colored_logger"
     log_filepath = None
-
-    @classmethod
-    def setUpClass(cls):
-        """TODO
-        """
-        super().setUpClass()
-        # Setup logging
-        cls.log_filepath = os.path.join(cls.data_tmpdir, 'colored.log')
-        cls.logger = setup_logger_and_handlers(
-            name=__name__,
-            add_console_handler=True,
-            add_file_handler=True,
-            log_filepath=cls.log_filepath)
-        cls.logger.warning("Testing in the <color>{}</color> "
-                           "environment".format(cls.logger._env))
+    ADD_FILE_HANDLER = True
+    LOGGING_FILENAME = "colored.log"
+    SHOW_FIRST_CHARS_IN_LOG = 1000
 
     @classmethod
     def tearDownClass(cls):
@@ -47,12 +35,16 @@ class TestColoredLogging(TestBase):
             raise AssertionError("Tags were found in the log file")
         if log.count("\033"):
             raise AssertionError("Color codes were found in the log file")
+        cls.logger.warning("\n<color>Content of the log file (first {} chars):"
+                           "</color>".format(cls.SHOW_FIRST_CHARS_IN_LOG))
+        cls.logger.info(log[:cls.SHOW_FIRST_CHARS_IN_LOG])
 
     # @unittest.skip("test_add_color_to_msg()")
     def test_add_color_to_msg(self):
         """TODO
         """
-        self.logger.info("\nTesting <color>_add_color_to_msg()</color>...")
+        self.logger.warning("\n<color>test_add_color_to_msg()</color>")
+        self.logger.info("Testing <color>_add_color_to_msg()</color>...")
         log_msg = "test"
         log_msg_with_tags = "<color>{}</color>".format(log_msg)
         log_level = "DEBUG"
@@ -69,9 +61,10 @@ class TestColoredLogging(TestBase):
     def test_add_handlers_back(self):
         """TODO
         """
-        self.logger.info("\nTesting <color>_add_removed_handlers()</color>...")
+        self.logger.warning("\n\n<color>test_add_handlers_back()</color>")
+        self.logger.info("Testing <color>_add_removed_handlers()</color>...")
         # Setup test logger
-        add_logger = setup_logger_and_handlers(name="test_add")
+        add_logger = setup_basic_logger(name="test_add")
         # Setup console handler without adding it to the test logger
         ch = logging.StreamHandler()
         ch.setLevel(logging.DEBUG)
@@ -90,7 +83,8 @@ class TestColoredLogging(TestBase):
     def test_all_logging_methods(self):
         """TODO
         """
-        self.logger.info("\nTesting <color>all logging methods</color>...")
+        self.logger.warning("\n\n<color>test_all_logging_methods()</color>")
+        self.logger.info("Testing <color>all logging methods</color>...")
         # TODO: explain
         # IMPORTANT: TODO capture logs, logs to console and file not shown
         with self.assertLogs(self.logger, "DEBUG") as cm:
@@ -121,7 +115,8 @@ class TestColoredLogging(TestBase):
     def test_found_tags(self):
         """TODO
         """
-        self.logger.info("\nTesting <color>_found_tags()</color>...")
+        self.logger.warning("\n\n<color>test_found_tags()</color>")
+        self.logger.info("Testing <color>_found_tags()</color>...")
         log_msg1 = "Hello, <color>World</color>!"
         log_msg2 = "Hello, World!"
         found = self.logger._found_tags(log_msg1)
@@ -135,11 +130,12 @@ class TestColoredLogging(TestBase):
     def test_keep_everything_but(self):
         """TODO
         """
-        self.logger.info("\nTesting <color>_keep_everything_but()</color> "
+        self.logger.warning("\n\n<color>test_keep_everything_but()</color>")
+        self.logger.info("Testing <color>_keep_everything_but()</color> "
                          "(StreamHandler)...")
         # Setup test logger
         log_filepath = os.path.join(self.sandbox_tmpdir, 'test.log')
-        keep_logger = setup_logger_and_handlers(
+        keep_logger = setup_basic_logger(
             name="test_keep_everything_but",
             add_console_handler=True,
             add_file_handler=True,
@@ -163,7 +159,8 @@ class TestColoredLogging(TestBase):
     def test_remove_all_tags(self):
         """TODO
         """
-        self.logger.info("\nTesting <color>_remove_all_tags()</color>...")
+        self.logger.warning("\n\n<color>test_remove_all_tags()</color>")
+        self.logger.info("Testing <color>_remove_all_tags()</color>...")
         log_msg = "<log>Hello, <color>World</color>!</log>"
         raw_log_msg = self.logger._remove_all_tags(log_msg)
         found = self.logger._found_tags(raw_log_msg)
@@ -174,11 +171,12 @@ class TestColoredLogging(TestBase):
     def test_remove_everything_but(self):
         """TODO
         """
-        self.logger.info("\nTesting <color>_remove_everything_but()</color> "
+        self.logger.warning("\n\n<color>test_remove_everything_but()</color>")
+        self.logger.info("Testing <color>_remove_everything_but()</color> "
                          "(StreamHandler)...")
         # Setup test logger
         log_filepath = os.path.join(self.sandbox_tmpdir, 'test.log')
-        remove_logger = setup_logger_and_handlers(
+        remove_logger = setup_basic_logger(
             name="test_remove_everything_but",
             add_console_handler=True,
             add_file_handler=True,
@@ -202,10 +200,11 @@ class TestColoredLogging(TestBase):
     def test_remove_handler(self):
         """TODO
         """
-        self.logger.info("\nTesting <color>_remove_handler()</color>...")
+        self.logger.warning("\n\n<color>test_remove_handler()</color>")
+        self.logger.info("Testing <color>_remove_handler()</color>...")
         # Setup test logger
         log_filepath = os.path.join(self.sandbox_tmpdir, 'test.log')
-        remove_logger = setup_logger_and_handlers(
+        remove_logger = setup_basic_logger(
             name="test_remove",
             add_console_handler=True,
             log_filepath=log_filepath)
