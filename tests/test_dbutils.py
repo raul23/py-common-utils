@@ -23,7 +23,7 @@ class TestFunctions(TestBase):
     def test_connect_db_case_1(self):
         """Test that connect_db() can connect to a SQLite database.
         """
-        self.logger.info("Testing case 1 of <color>connect_db()</color>...")
+        self.logger.info("Testing <color>case 1 of connect_db()</color>...")
         conn = connect_db(self.db_filepath)
         msg = "The returned connection is not an instance of sqlite3.Connection"
         self.assertIsInstance(conn, sqlite3.Connection, msg)
@@ -34,7 +34,7 @@ class TestFunctions(TestBase):
         """Test connect_db() with autocommit=False.
         TODO
         """
-        self.logger.info("\nTesting case 2 of <color>connect_db()</color>...")
+        self.logger.info("\nTesting <color>case 2 of connect_db()</color>...")
         conn = connect_db(self.db_filepath)
         msg = "The returned connection is not an instance of sqlite3.Connection"
         self.assertIsInstance(conn, sqlite3.Connection, msg)
@@ -46,7 +46,7 @@ class TestFunctions(TestBase):
         TODO
         """
         # TODO
-        self.logger.info("\nTesting case 3 of <color>connect_db()</color>...")
+        self.logger.info("\nTesting <color>case 3 of connect_db()</color>...")
         conn = connect_db(self.db_filepath)
         msg = "The returned connection is not an instance of sqlite3.Connection"
         self.assertIsInstance(conn, sqlite3.Connection, msg)
@@ -63,7 +63,7 @@ class TestFunctions(TestBase):
         by :meth:~pyutils.dbutils.create_db`after the database was created.
 
         """
-        self.logger.info("\nTesting case 1 of <color>create_db()</color>...")
+        self.logger.info("\nTesting <color>case 1 of create_db()</color>...")
         db_filepath = os.path.join(self.sandbox_tmpdir, "db.sqlite")
         retcode = self.assert_logs(
             logger=dbutils.logger,
@@ -88,7 +88,7 @@ class TestFunctions(TestBase):
         False.
 
         """
-        self.logger.info("\nTesting case 2 of <color>create_db()</color>...")
+        self.logger.info("\nTesting <color>case 2 of create_db()</color>...")
         self.overwrite_test_db(overwrite_db=False)
         self.logger.info("The database wasn't overwritten as expected")
 
@@ -102,7 +102,7 @@ class TestFunctions(TestBase):
         True.
 
         """
-        self.logger.info("\nTesting case 3 of <color>create_db()</color>...")
+        self.logger.info("\nTesting <color>case 3 of create_db()</color>...")
         self.overwrite_test_db(overwrite_db=True)
         self.logger.info("The database was overwritten as expected")
 
@@ -115,7 +115,7 @@ class TestFunctions(TestBase):
         IOError when the path of the schema doesn't exist.
 
         """
-        self.logger.info("\nTesting case 4 of <color>create_db()</color>...")
+        self.logger.info("\nTesting <color>case 4 of create_db()</color>...")
         db_filepath = os.path.join(self.sandbox_tmpdir, "db.sqlite")
         retcode = self.assert_logs(
             logger=dbutils.logger,
@@ -139,7 +139,7 @@ class TestFunctions(TestBase):
         IOError when the path of the database is wrong.
 
         """
-        self.logger.info("\nTesting case 5 of <color>create_db()</color>...")
+        self.logger.info("\nTesting <color>case 5 of create_db()</color>...")
         retcode = self.assert_logs(
             logger=dbutils.logger,
             level="ERROR",

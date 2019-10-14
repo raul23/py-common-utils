@@ -16,7 +16,7 @@ from pyutils.scripts import create_sqlite_db
 
 class TestFunctions(TestBase):
     # TODO
-    test_name = "create_sqlite_db"
+    test_module_name = "create_sqlite_db"
     CREATE_TEST_DATABASE = True
 
     @classmethod
@@ -38,7 +38,7 @@ class TestFunctions(TestBase):
         in the command-line.
 
         """
-        print("Testing case 1 of main()...")
+        self.logger.info("Testing <color>case 1 of main()</color>...")
         db_filepath = os.path.join(self.sandbox_tmpdir, "db.sqlite")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', db_filepath,
@@ -47,7 +47,7 @@ class TestFunctions(TestBase):
         msg = "The database couldn't be created. Return code is " \
               "{}".format(retcode)
         self.assertTrue(retcode == 0, msg)
-        print("The database was created")
+        self.logger.info("The database was created")
 
     # @unittest.skip("test_main_case_2()")
     def test_main_case_2(self):
@@ -59,7 +59,7 @@ class TestFunctions(TestBase):
         command-line.
 
         """
-        print("\nTesting case 2 of main()...")
+        self.logger.info("\nTesting <color>case 2 of main()</color>...")
         sys.argv = ['create_sqlite_db.py',
                     '-d', self.db_filepath,
                     '-s', self.schema_filepath,
@@ -67,7 +67,7 @@ class TestFunctions(TestBase):
         retcode = create_sqlite_db.main()
         msg = "Something very odd! Return code is {}".format(retcode)
         self.assertTrue(retcode == 1, msg)
-        print("The database wasn't overwritten as expected")
+        self.logger.info("The database wasn't overwritten as expected")
 
     # @unittest.skip("test_main_case_3()")
     def test_main_case_3(self):
@@ -78,7 +78,7 @@ class TestFunctions(TestBase):
         command-line.
 
         """
-        print("\nTesting case 3 of main()...")
+        self.logger.info("\nTesting <color>case 3 of main()</color>...")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', self.db_filepath,
                     '-s', self.schema_filepath,
@@ -86,7 +86,7 @@ class TestFunctions(TestBase):
         retcode = create_sqlite_db.main()
         msg = "Something very odd! Return code is {}".format(retcode)
         self.assertTrue(retcode == 0, msg)
-        print("The database was overwritten as expected")
+        self.logger.info("The database was overwritten as expected")
 
     # @unittest.skip("test_main_case_4()")
     def test_main_case_4(self):
@@ -98,12 +98,17 @@ class TestFunctions(TestBase):
         is given in the command-line.
 
         """
-        print("\nTesting case 4 of main()...")
+        self.logger.info("\nTesting <color>case 4 of main()</color>...")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', self.db_filepath,
                     '-s', '/bad/schema/path.sql',
                     '-sleep', 0]
-        self.assert_log("FileNotFoundError")
+        self.assert_logs(
+            logger=dbutils.logger,
+            level="ERROR",
+            str_to_find="FileNotFoundError",
+            fnc=create_sqlite_db.main,
+        )
 
     # @unittest.skip("test_main_case_5()")
     def test_main_case_5(self):
@@ -115,32 +120,16 @@ class TestFunctions(TestBase):
         that doesn't exist is given in the command-line.
 
         """
-        print("\nTesting case 5 of main()...")
+        self.logger.info("\nTesting <color>case 5 of main()</color>...")
         sys.argv = ['create_sqlite_db.py', '-o',
                     '-d', '/bad/db/path.sqlite',
                     '-s', self.schema_filepath]
-        self.assert_log("OperationalError")
-
-    def assert_log(self, error_class):
-        """TODO
-
-        Parameters
-        ----------
-        error_class : str
-
-        """
-        with self.assertLogs(dbutils.logger, 'INFO') as cm:
-            create_sqlite_db.main()
-        found = False
-        output = None
-        for o in cm.output:
-            if o.find(error_class) != -1:
-                found = True
-                output = o
-                break
-        msg = "'{}' not found in logs".format(error_class)
-        self.assertTrue(found and output, msg)
-        print("Log emitted as expected:", output)
+        self.assert_logs(
+            logger=dbutils.logger,
+            level="ERROR",
+            str_to_find="OperationalError",
+            fnc=create_sqlite_db.main,
+        )
 
 
 if __name__ == '__main__':
