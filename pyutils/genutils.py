@@ -364,6 +364,8 @@ def get_creation_date(filepath):
 def get_module_filename(module):
     """Get the filename of a module.
 
+    TODO
+
     Parameters
     ----------
     module
@@ -392,6 +394,7 @@ def get_qualname(module, parents=1):
 
     Returns
     -------
+    TODO
 
     """
     if not isinstance(module, type(os)):

@@ -13,7 +13,7 @@ from pyutils.logutils import setup_basic_logger
 
 class TestBase(unittest.TestCase):
     # TODO
-    TEST_MODULE_NAME = None
+    TEST_MODULE_QUALNAME = None
     CREATE_TEST_DATABASE = False
     ADD_FILE_HANDLER = False
     LOGGER_NAME = __name__
@@ -56,12 +56,12 @@ class TestBase(unittest.TestCase):
         # IMPORTANT: no printing before
         # Print name of module to be tested
         line_equals = "{}".format("=" * 92)
-        line_name = "{}<color>{}</color>".format(" " * 37, cls.TEST_MODULE_NAME)
+        line_name = "{}<color>{}</color>".format(" " * 37, cls.TEST_MODULE_QUALNAME)
         cls.logger.info("\n# {} #".format(line_equals))
         cls.logger.info(line_name)
         cls.logger.info("# {} #".format(line_equals))
         cls.logger.info("<color>Setting up {} tests...</color>".format(
-            cls.TEST_MODULE_NAME))
+            cls.TEST_MODULE_QUALNAME))
         # Print info about directories created
         cls.logger.info("Main temporary directory created: " + cls._main_tmpdir)
         cls.logger.info("Sandbox directory created: " + cls.sandbox_tmpdir)
