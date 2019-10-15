@@ -22,6 +22,7 @@ class TestBase(unittest.TestCase):
     SCHEMA_FILEPATH = None
     DB_FILENAME = "db.qlite"
 
+    ENV_TYPE = "DEV" if bool(os.environ.get("PYCHARM_HOSTED")) else "PROD"
     # Temporary directories
     _main_tmpdir_obj = None
     _main_tmpdir = None
@@ -80,7 +81,7 @@ class TestBase(unittest.TestCase):
         cls.logger.warning("SHOW_FIRST_CHARS_IN_LOG: <color>{}"
                            "</color>".format(cls.SHOW_FIRST_CHARS_IN_LOG))
         cls.logger.warning("Testing in the <color>{}</color> "
-                           "environment".format(cls.logger._env))
+                           "environment".format(cls.ENV_TYPE))
 
     @classmethod
     def tearDown(cls):

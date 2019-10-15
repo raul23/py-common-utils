@@ -559,6 +559,11 @@ def run_cmd(cmd):
         Return code which is 0 if the command was successfully completed.
         Otherwise, the return code is non-zero.
 
+    Raises
+    ------
+    FileNotFoundError
+        TODO command not recognized, e.g. `$ TextEdit {filepath}`
+
     Examples
     --------
     TODO
@@ -570,6 +575,8 @@ def run_cmd(cmd):
         retcode = subprocess.check_call(shlex.split(cmd))
     except subprocess.CalledProcessError as e:
         return e.returncode
+    except FileNotFoundError:
+        raise
     else:
         return retcode
 
