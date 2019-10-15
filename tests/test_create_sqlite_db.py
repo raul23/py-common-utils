@@ -11,6 +11,7 @@ import unittest
 
 import pyutils.dbutils as dbutils
 from .utils import TestBase
+from pyutils.genutils import get_module_filename
 from pyutils.scripts import create_sqlite_db
 
 
@@ -42,7 +43,7 @@ class TestCreateSQLiteDB(TestBase):
         self.logger.warning("\n<color>test_main_case_1()</color>")
         self.logger.info("Testing <color>case 1 of main()</color>...")
         db_filepath = os.path.join(self.sandbox_tmpdir, "db.sqlite")
-        sys.argv = ['create_sqlite_db.py', '-o',
+        sys.argv = [get_module_filename(create_sqlite_db), '-o',
                     '-d', db_filepath,
                     '-s', self.schema_filepath]
         retcode = create_sqlite_db.main()
@@ -63,7 +64,7 @@ class TestCreateSQLiteDB(TestBase):
         """
         self.logger.warning("\n\n<color>test_main_case_2()</color>")
         self.logger.info("Testing <color>case 2 of main()</color>...")
-        sys.argv = ['create_sqlite_db.py',
+        sys.argv = [get_module_filename(create_sqlite_db),
                     '-d', self.db_filepath,
                     '-s', self.schema_filepath,
                     '-sleep', 0]
@@ -83,7 +84,7 @@ class TestCreateSQLiteDB(TestBase):
         """
         self.logger.warning("\n\n<color>test_main_case_3()</color>")
         self.logger.info("Testing <color>case 3 of main()</color>...")
-        sys.argv = ['create_sqlite_db.py', '-o',
+        sys.argv = [get_module_filename(create_sqlite_db), '-o',
                     '-d', self.db_filepath,
                     '-s', self.schema_filepath,
                     '-sleep', 0]
@@ -104,7 +105,7 @@ class TestCreateSQLiteDB(TestBase):
         """
         self.logger.warning("\n\n<color>test_main_case_4()</color>")
         self.logger.info("Testing <color>case 4 of main()</color>...")
-        sys.argv = ['create_sqlite_db.py', '-o',
+        sys.argv = [get_module_filename(create_sqlite_db), '-o',
                     '-d', self.db_filepath,
                     '-s', '/bad/schema/path.sql',
                     '-sleep', 0]
@@ -127,7 +128,7 @@ class TestCreateSQLiteDB(TestBase):
         """
         self.logger.warning("\n\n<color>test_main_case_5()</color>")
         self.logger.info("Testing <color>case 5 of main()</color>...")
-        sys.argv = ['create_sqlite_db.py', '-o',
+        sys.argv = [get_module_filename(create_sqlite_db), '-o',
                     '-d', '/bad/db/path.sqlite',
                     '-s', self.schema_filepath]
         self.assert_logs(
