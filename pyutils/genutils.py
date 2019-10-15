@@ -246,6 +246,30 @@ def delete_folder_contents(folderpath, remove_subdirs=True, delete_recursively=F
         raise
 
 
+def dump_pickle(filepath, data):
+    """Write data to a pickle file.
+
+    Parameters
+    ----------
+    filepath: str
+        Path to the pickle file where data will be written.
+    data:
+        Data to be saved on disk.
+
+    Raises
+    ------
+    OSError
+        Raised if any I/O related occurs while writing the data to disk, e.g.
+        the file doesn't exist.
+
+    """
+    try:
+        with open(filepath, 'wb') as f:
+            pickle.dump(data, f)
+    except OSError:
+        raise
+
+
 def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
                ensure_ascii=False):
     """Write data to a JSON file.
@@ -288,30 +312,6 @@ def dumps_json(filepath, data, encoding='utf8', sort_keys=True,
             f.write(json.dumps(data,
                                sort_keys=sort_keys,
                                ensure_ascii=ensure_ascii))
-    except OSError:
-        raise
-
-
-def dump_pickle(filepath, data):
-    """Write data to a pickle file.
-
-    Parameters
-    ----------
-    filepath: str
-        Path to the pickle file where data will be written.
-    data:
-        Data to be saved on disk.
-
-    Raises
-    ------
-    OSError
-        Raised if any I/O related occurs while writing the data to disk, e.g.
-        the file doesn't exist.
-
-    """
-    try:
-        with open(filepath, 'wb') as f:
-            pickle.dump(data, f)
     except OSError:
         raise
 
@@ -359,6 +359,24 @@ def get_creation_date(filepath):
             # We're probably on Linux. No easy way to get creation dates here,
             # so we'll settle for when its content was last modified.
             return stat.st_mtime
+
+
+# TODO: test this function
+def get_qualname(module, parents=1):
+    """TODO
+
+    Parameters
+    ----------
+    module
+    parents : int
+
+    Returns
+    -------
+
+    """
+    if not isinstance(module, type(os)):
+        raise TypeError("'module' must be of type module")
+    return ".".join(module.__name__.split(".")[-1-parents:])
 
 
 def load_json(filepath, encoding='utf8'):
