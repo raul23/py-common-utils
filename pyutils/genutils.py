@@ -361,9 +361,29 @@ def get_creation_date(filepath):
             return stat.st_mtime
 
 
+def get_module_filename(module):
+    """Get the filename of a module.
+
+    Parameters
+    ----------
+    module
+
+    Returns
+    -------
+
+    """
+    if not isinstance(module, type(os)):
+        raise TypeError("'module' must be of type module")
+    return os.path.basename(module.__file__)
+
+
 # TODO: test this function
 def get_qualname(module, parents=1):
-    """TODO
+    """Get the qualified name of a module.
+
+    TODO: check these references
+    * https://docs.python.org/3.7/glossary.html#term-qualified-name
+    * https://stackoverflow.com/a/37568382
 
     Parameters
     ----------
