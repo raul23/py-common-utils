@@ -14,7 +14,7 @@ from .utils import TestBase
 from pyutils.scripts import create_sqlite_db
 
 
-class TestFunctions(TestBase):
+class TestCreateSQLiteDB(TestBase):
     # TODO
     test_module_name = "create_sqlite_db"
     CREATE_TEST_DATABASE = True
@@ -23,6 +23,7 @@ class TestFunctions(TestBase):
     def setUp(cls):
         """TODO
         """
+        # TODO: explain
         # Clear all handlers from the loggers
         dbutils.logger.handlers = []
         create_sqlite_db.logger.handlers = []

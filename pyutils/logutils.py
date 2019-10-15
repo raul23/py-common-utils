@@ -133,6 +133,7 @@ def setup_basic_logger(name, add_console_handler=False, add_file_handler=False,
     -------
 
     """
+    # TODO: explain
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
     if remove_all_handlers or handlers_to_remove:
