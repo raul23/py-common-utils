@@ -9,13 +9,10 @@ class HTTP404Error(Exception):
     not found."""
 
 
-# Logging error
-class LoggingSanityCheckError(Exception):
-    """Raised if the sanity check on one of the ``LoggingWrapper`` parameters
-    fails."""
-
-
 # SQL error
+# IMPORTANT
+# TODO: remove this error and its usage in dbutils.sql_sanity_check and
+# lyrics_scraping.scrapers.lyrics_scraping
 class SQLSanityCheckError(Exception):
     """Raised if one of the sanity checks on a SQL query fails: e.g. the
     query's values are not of `tuple` type or wrong number of values in the SQL
