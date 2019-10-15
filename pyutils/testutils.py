@@ -22,7 +22,8 @@ class TestBase(unittest.TestCase):
     SCHEMA_FILEPATH = None
     DB_FILENAME = "db.qlite"
 
-    ENV_TYPE = "DEV" if bool(os.environ.get("PYCHARM_HOSTED")) else "PROD"
+    env_type = "DEV" if bool(os.environ.get("PYCHARM_HOSTED")) else "PROD"
+    _meth_names = None
     # Temporary directories
     _main_tmpdir_obj = None
     _main_tmpdir = None
@@ -35,14 +36,11 @@ class TestBase(unittest.TestCase):
     log_filepath = None
 
     @classmethod
-    def setUp(cls):
-        """TODO
-        """
-
-    @classmethod
     def setUpClass(cls):
         """TODO
         """
+        cls.meth_names = [k for k in cls.__dict__.keys() if k.startswith("test")]
+        cls.meth_names.sort()
         # Setup temporary directories
         cls.setup_tmp_dirs()
         # Setup logging for Test* instance
@@ -81,7 +79,7 @@ class TestBase(unittest.TestCase):
         cls.logger.warning("SHOW_FIRST_CHARS_IN_LOG: <color>{}"
                            "</color>".format(cls.SHOW_FIRST_CHARS_IN_LOG))
         cls.logger.warning("Testing in the <color>{}</color> "
-                           "environment".format(cls.ENV_TYPE))
+                           "environment".format(cls.env_type))
 
     @classmethod
     def tearDown(cls):
@@ -171,5 +169,8 @@ class TestBase(unittest.TestCase):
     def log_test_method_name(self):
         """TODO
         """
-        self.logger.warning("\n<color>{}()</color>".format(
-            self.__dict__['_testMethodName']))
+        warning_msg = "\n<color>{}()</color>".format(self._testMethodName)
+        if self.meth_names[0] == self._testMethodName:
+            self.logger.warning(warning_msg)
+        else:
+            self.logger.warning("\n{}".format(warning_msg))
