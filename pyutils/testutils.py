@@ -74,10 +74,10 @@ class TestBase(unittest.TestCase):
                                "{}".format(cls.db_filepath))
         else:
             cls.logger.warning("<color>Database not used</color>")
-        cls.logger.warning("ADD_FILE_HANDLER: <color>{}"
-                           "</color>".format(cls.ADD_FILE_HANDLER))
-        cls.logger.warning("SHOW_FIRST_CHARS_IN_LOG: <color>{}"
-                           "</color>".format(cls.SHOW_FIRST_CHARS_IN_LOG))
+        cls.logger.warning("<color>ADD_FILE_HANDLER:</color> "
+                           "{}".format(cls.ADD_FILE_HANDLER))
+        cls.logger.warning("<color>SHOW_FIRST_CHARS_IN_LOG:</color> "
+                           "{}".format(cls.SHOW_FIRST_CHARS_IN_LOG))
         cls.logger.warning("Testing in the <color>{}</color> "
                            "environment".format(cls.env_type))
 
