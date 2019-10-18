@@ -22,7 +22,7 @@ class TestBase(unittest.TestCase):
     SCHEMA_FILEPATH = None
     DB_FILENAME = "db.qlite"
 
-    env_type = "DEV" if bool(os.environ.get("PYCHARM_HOSTED")) else "PROD"
+    env_type = "PROD" if bool(os.environ.get("PYCHARM_HOSTED")) else "PROD"
     _meth_names = None
     # Temporary directories
     _main_tmpdir_obj = None
@@ -39,6 +39,7 @@ class TestBase(unittest.TestCase):
     def setUpClass(cls):
         """TODO
         """
+        # TODO: explain
         cls.meth_names = [k for k in cls.__dict__.keys() if k.startswith("test")]
         cls.meth_names.sort()
         # Setup temporary directories
@@ -95,6 +96,7 @@ class TestBase(unittest.TestCase):
     def tearDownClass(cls):
         """TODO
         """
+        # TODO: explain
         cls.logger.info("\n")
         if cls.ADD_FILE_HANDLER and cls.log_filepath and \
                 cls.SHOW_FIRST_CHARS_IN_LOG:
@@ -135,6 +137,7 @@ class TestBase(unittest.TestCase):
         # for performing the tests
         cls.data_tmpdir = create_dir(os.path.join(cls._main_tmpdir, "data"))
 
+    # TODO: Where is it used?
     def assert_logs(self, logger, level, str_to_find, fnc, *args, **kwargs):
         """TODO
 
@@ -152,6 +155,7 @@ class TestBase(unittest.TestCase):
         retcode : int
 
         """
+        # TODO: explain
         with self.assertLogs(logger, level) as cm:
             retcode = fnc(*args, **kwargs)
         found = False
@@ -169,6 +173,7 @@ class TestBase(unittest.TestCase):
     def log_test_method_name(self):
         """TODO
         """
+        # TODO: explain
         warning_msg = "\n<color>{}()</color>".format(self._testMethodName)
         if self.meth_names[0] == self._testMethodName:
             self.logger.warning(warning_msg)

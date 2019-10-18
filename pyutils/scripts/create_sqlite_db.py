@@ -40,6 +40,7 @@ def main():
     parser.add_argument("-sleep", type=int, default=2, help=argparse.SUPPRESS)
     parser.add_argument("-dc",  "--disable_color", action="store_true",
                         default=False, help=argparse.SUPPRESS)
+    # TODO: add verbose and quiet options
     # Process command-line arguments
     args = parser.parse_args()
     # Setup logging for script

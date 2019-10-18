@@ -105,11 +105,7 @@ def setup_logging_from_cfg(logging_config):
             config_dict['handlers']['file']['filename'] = new_filename
         # Update the logging config dict with new values from config_dict
         logging.config.dictConfig(config_dict)
-    except OSError:
-        raise
-    except KeyError:
-        raise
-    except ValueError:
+    except (KeyError, OSError, ValueError):
         raise
     else:
         return config_dict

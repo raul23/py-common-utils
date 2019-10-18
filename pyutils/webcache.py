@@ -15,7 +15,6 @@ browser.
 """
 
 import logging
-import os
 import sys
 import time
 from logging import NullHandler
@@ -81,6 +80,7 @@ class WebCache:
     will accept back from the server.
     """
 
+    # TODO: add verbose option
     def __init__(self, http_get_timeout=5, delay_between_requests=8,
                  headers=HEADERS, expire_after=300, cache_name="cache"):
         self.http_get_timeout = http_get_timeout
@@ -88,6 +88,7 @@ class WebCache:
         self.headers = headers
         self.expire_after = expire_after
         self.cache_name = cache_name
+        # TODO: setup a console logger by default if verbose
         self.logger = logging.getLogger(__name__)
         # Install cache
         requests_cache.install_cache(self.cache_name,
@@ -177,8 +178,10 @@ class WebCache:
                 "404: PAGE NOT FOUND. The URL '{}' returned a 404 status "
                 "code.".format(url))
         elif response.status_code == 200:
+            # TODO: change to info()
             self.logger.debug("200: OK. Webpage successfully retrieved!")
         else:
+            # TODO: change to info()
             self.logger.debug(
                 "Request response: status code is {}".format(
                     response.status_code))
@@ -196,6 +199,7 @@ class WebCache:
 
         """
         try:
+            # TODO: change to info()
             self.logger.debug("Sending HTTP request ...")
             response = self._req_session.get(url, timeout=self.http_get_timeout)
         except requests.exceptions.RequestException:

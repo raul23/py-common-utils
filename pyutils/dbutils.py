@@ -103,6 +103,7 @@ def create_db(db_filepath, schema_filepath, overwrite_db=False, **kwargs):
         Raised if TODO ...
 
     """
+    # TODO: add verbose
     db_filepath = os.path.expanduser(db_filepath)
     schema_filepath = os.path.expanduser(schema_filepath)
     db_exists = os.path.exists(db_filepath)

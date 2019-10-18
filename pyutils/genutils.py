@@ -599,7 +599,7 @@ def write_file(filepath, data, overwrite_file=True):
     OSError
         Raised if any I/O related error occurs while reading the file, e.g. the
         file doesn't exist.
-    OverwriteFileError
+    FileExistsError
         Raised if an existing file is being overwritten and the flag to overwrite
         files is disabled.
 
