@@ -8,6 +8,7 @@ logutils : module that defines common logging functions.
 """
 
 import logging
+
 import os
 import sqlite3
 import time
@@ -71,7 +72,7 @@ def connect_db(db_path, autocommit=False):
         return conn
 
 
-def create_db(db_filepath, schema_filepath, overwrite_db=False, **kwargs):
+def create_db(db_filepath, schema_filepath, overwrite_db=False):
     """Create a SQLite database.
 
     A schema file is needed for creating the database.
@@ -86,21 +87,14 @@ def create_db(db_filepath, schema_filepath, overwrite_db=False, **kwargs):
         Whether the database will be overwritten. The user is given some time
         to stop the script before the database is overwritten (the default value
         is False which means the db will not be overwritten).
-    **kwargs
-        TODO
 
     Returns
     -------
-    int
-        Return code. TODO ...
+        retcode : int
+            TODO
 
     Raises
-    ------
-    IOError
-        Raised if there is any IOError when opening the schema file, e.g. the
-        schema file doesn't exist (OSError).
-    sqlite3.OperationalError
-        Raised if TODO ...
+        TODO
 
     """
     # TODO: add verbose
@@ -118,27 +112,24 @@ def create_db(db_filepath, schema_filepath, overwrite_db=False, **kwargs):
         time.sleep(SLEEP)
         os.remove(db_filepath)
 
+    retcode = 0
     if not db_exists or overwrite_db:
-        status = 1
         try:
             with sqlite3.connect(db_filepath) as conn:
                 f = open(schema_filepath, 'rt')
                 schema = f.read()
                 conn.executescript(schema)
                 f.close()
-        except IOError as e:
-            logger.error("<color>{}</color>".format(get_error_msg(e)))
-        except sqlite3.OperationalError as e:
-            logger.error("<color>{}</color>".format(get_error_msg(e)))
+        except (IOError, sqlite3.OperationalError):
+            # logger.error("<color>{}</color>".format(get_error_msg(e)))
+            raise
         else:
             logger.info("<color>Database created!</color>")
-            status = 0
-        finally:
-            return status
     else:
+        retcode = 1
         logger.warning(
             "<color>Database '{}' already exists!</color>".format(db_filepath))
-        return 1
+    return retcode
 
 
 def sql_sanity_check(sql, values):
