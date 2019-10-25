@@ -4,12 +4,15 @@
 import logging
 import os
 import unittest
-from collections import namedtuple
+from logging import NullHandler
 from tempfile import TemporaryDirectory
 
 from pyutils.dbutils import create_db
 from pyutils.genutils import create_dir, delete_folder_contents, read_file
 from pyutils.logutils import setup_basic_logger
+
+logger = logging.getLogger(__name__)
+logger.addHandler(NullHandler())
 
 
 class TestBase(unittest.TestCase):
@@ -21,6 +24,7 @@ class TestBase(unittest.TestCase):
     LOGGING_FILENAME = "debug.log"
     SHOW_FIRST_CHARS_IN_LOG = 1000
     SCHEMA_FILEPATH = None
+    # TODO: call it TEST_DB_FILENAME
     DB_FILENAME = "db.qlite"
 
     env_type = "DEV" if bool(os.environ.get("PYCHARM_HOSTED")) else "PROD"
@@ -48,48 +52,59 @@ class TestBase(unittest.TestCase):
         cls.meth_names.sort()
         # Setup temporary directories
         cls.setup_tmp_dirs()
-        # Setup logging for Test* instance
+        # Filepath where the log file will be saved
         cls.log_filepath = os.path.join(cls.data_tmpdir, cls.LOGGING_FILENAME)
-        cls.logger = setup_basic_logger(
+        # Setup logging for TestBase
+        setup_basic_logger(
+            name=__name__,
+            add_console_handler=True,
+            # console_format= "%(name)-42s: %(levelname)-8s %(message)s",
+            add_file_handler=cls.ADD_FILE_HANDLER,
+            log_filepath=cls.log_filepath,
+            remove_all_handlers=True)
+        # Setup logging for instance of TestBase
+        setup_basic_logger(
             name=cls.LOGGER_NAME,
             add_console_handler=True,
+            # console_format="%(name)-42s: %(levelname)-8s %(message)s",
             add_file_handler=cls.ADD_FILE_HANDLER,
             log_filepath=cls.log_filepath,
             remove_all_handlers=True)
         # IMPORTANT: no printing before
         # Print name of module to be tested
         line_equals = "{}".format("=" * 92)
-        line_name = "{}<color>{}</color>".format(" " * 37, cls.TEST_MODULE_QUALNAME)
-        cls.logger.info("\n# {} #".format(line_equals))
-        cls.logger.info(line_name)
-        cls.logger.info("# {} #".format(line_equals))
-        cls.logger.info("<color>Setting up {} tests...</color>".format(
+        line_name = "{}<color>{}</color>".format(" " * 37,
+                                                 cls.TEST_MODULE_QUALNAME)
+        logger.info("\n# {} #".format(line_equals))
+        logger.info(line_name)
+        logger.info("# {} #".format(line_equals))
+        logger.info("<color>Setting up {} tests...</color>".format(
             cls.TEST_MODULE_QUALNAME))
         # Print info about directories created
-        cls.logger.info("Main temporary directory created: " + cls._main_tmpdir)
-        cls.logger.info("Sandbox directory created: " + cls.sandbox_tmpdir)
-        cls.logger.info("Data directory created: " + cls.data_tmpdir)
+        logger.info("Main temporary directory created: " + cls._main_tmpdir)
+        logger.info("Sandbox directory created: " + cls.sandbox_tmpdir)
+        logger.info("Data directory created: " + cls.data_tmpdir)
         # Create SQLite db
         if cls.CREATE_TEST_DATABASE:
             cls.db_filepath = os.path.join(cls.data_tmpdir, cls.DB_FILENAME)
             # NOTE: the logging is silenced for create_db
             create_db(cls.db_filepath, cls.SCHEMA_FILEPATH)
-            cls.logger.warning("<color>SQLite database created:</color> "
-                               "{}".format(cls.db_filepath))
+            logger.warning("<color>SQLite database created:</color> "
+                           "{}".format(cls.db_filepath))
         else:
-            cls.logger.warning("<color>Database not used</color>")
-        cls.logger.warning("<color>ADD_FILE_HANDLER:</color> "
-                           "{}".format(cls.ADD_FILE_HANDLER))
-        cls.logger.warning("<color>SHOW_FIRST_CHARS_IN_LOG:</color> "
-                           "{}".format(cls.SHOW_FIRST_CHARS_IN_LOG))
-        cls.logger.warning("Testing in the <color>{}</color> "
-                           "environment".format(cls.env_type))
+            logger.warning("<color>Database not used</color>")
+        logger.warning("<color>ADD_FILE_HANDLER:</color> "
+                       "{}".format(cls.ADD_FILE_HANDLER))
+        logger.warning("<color>SHOW_FIRST_CHARS_IN_LOG:</color> "
+                       "{}".format(cls.SHOW_FIRST_CHARS_IN_LOG))
+        logger.warning("Testing in the <color>{}</color> "
+                       "environment".format(cls.env_type))
 
     @classmethod
     def tearDown(cls):
         """TODO
         """
-        cls.logger.info("Cleanup...")
+        logger.info("Cleanup...")
         # Cleanup temporary directories
         # TODO: explain the if...
         if cls.sandbox_tmpdir:
@@ -100,7 +115,7 @@ class TestBase(unittest.TestCase):
         """TODO
         """
         # TODO: explain
-        cls.logger.info("\n")
+        logger.info("\n")
         if cls.ADD_FILE_HANDLER and cls.log_filepath and \
                 cls.SHOW_FIRST_CHARS_IN_LOG:
             # Read the log file before it is deleted
@@ -110,20 +125,20 @@ class TestBase(unittest.TestCase):
                 raise AssertionError("Tags were found in the log file")
             if log.count("\033"):
                 raise AssertionError("Color codes were found in the log file")
-            cls.logger.warning("<color>Content of the log file (first {} chars):"
-                               "</color>".format(cls.SHOW_FIRST_CHARS_IN_LOG))
-            cls.logger.info(log[:cls.SHOW_FIRST_CHARS_IN_LOG])
+            logger.warning("<color>Content of the log file (first {} chars):"
+                           "</color>".format(cls.SHOW_FIRST_CHARS_IN_LOG))
+            logger.info(log[:cls.SHOW_FIRST_CHARS_IN_LOG])
             line_dashes = "{}".format("-" * 70)
-            cls.logger.info("{}\n".format(line_dashes))
-        cls.logger.info("<color>Final cleanup...</color>")
+            logger.info("{}\n".format(line_dashes))
+        logger.info("<color>Final cleanup...</color>")
         # Delete the temporary directory
         cls._main_tmpdir_obj.cleanup()
-        cls.logger.warning("<color>All temporary directories deleted</color>")
+        logger.warning("<color>All temporary directories deleted</color>")
         # Close all handlers, especially if it is a file handler, or you might
         # get the following error:
         # "ResourceWarning: unclosed file <_io.TextIOWrapper
         # name='...colored.log' mode='a' encoding='UTF-8'>"
-        for h in cls.logger.handlers:
+        for h in logger.handlers:
             h.close()
 
     @classmethod
@@ -170,7 +185,7 @@ class TestBase(unittest.TestCase):
                 break
         msg = "'{}' not found in logs".format(str_to_find)
         self.assertTrue(found and output, msg)
-        self.logger.info("<color>Log emitted as expected:</color> " + output)
+        logger.info("<color>Log emitted as expected:</color> " + output)
         return retcode
 
     def log_signs(self, sign='#', times=96):
@@ -183,7 +198,7 @@ class TestBase(unittest.TestCase):
 
         """
         num_signs = "<color>{}</color>".format(sign * times)
-        self.logger.info(num_signs)
+        logger.info(num_signs)
 
     def log_test_method_name(self):
         """TODO
@@ -193,9 +208,9 @@ class TestBase(unittest.TestCase):
             "\n" if self._start_newline else "",
             self._testMethodName)
         if self.meth_names[0] == self._testMethodName:
-            self.logger.warning(warning_msg)
+            logger.warning(warning_msg)
         else:
-            self.logger.warning("\n{}".format(warning_msg))
+            logger.warning("\n{}".format(warning_msg))
 
     def parse_test_method_name(self):
         """TODO
