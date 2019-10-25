@@ -540,7 +540,7 @@ def read_file(filepath):
         raise
 
 
-def run_cmd(cmd):
+def run_cmd(cmd, stderr=subprocess.STDOUT):
     """Run a command with arguments.
 
     The command is given as a string but the function will split it in order to
@@ -552,6 +552,7 @@ def run_cmd(cmd):
         Command to be executed, e.g. ::
 
             open -a TextEdit text.txt
+    stderr
 
     Returns
     -------
@@ -572,13 +573,18 @@ def run_cmd(cmd):
     try:
         # `check_call()` takes as input a list. Thus, the string command must
         # be split to get the command name and its arguments as items of a list.
-        retcode = subprocess.check_call(shlex.split(cmd))
+        # NOTE: To suppress stdout or stderr, supply a value of DEVNULL
+        #       Ref.: https://bit.ly/35NqiN0
+        """
+        retcode = subprocess.check_call(shlex.split(cmd), stderr=stderr)
+        """
+        result = subprocess.run(shlex.split(cmd), capture_output=True)
     except subprocess.CalledProcessError as e:
-        return e.returncode
+        return e
     except FileNotFoundError:
         raise
     else:
-        return retcode
+        return result
 
 
 def write_file(filepath, data, overwrite_file=True):
