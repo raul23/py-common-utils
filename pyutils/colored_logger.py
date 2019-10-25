@@ -56,6 +56,7 @@ except ImportError:
                       "lxml")
 
 from pyutils.logutils import get_error_msg
+import ipdb
 
 
 # WARN = WARNING and FATAL = CRITICAL
@@ -250,7 +251,7 @@ class ColoredLogger(Logger):
         """
         for h in self._removed_handlers:
             self.addHandler(h)
-        self._removed_handlers = []
+        self._removed_handlers.clear()
 
     def _remove_handler(self, h):
         """Remove a handler from the logger.
@@ -274,7 +275,7 @@ class ColoredLogger(Logger):
         """
         if not isinstance(handlers_to_remove, list):
             raise TypeError("handlers_to_remove must be a list")
-        self._removed_handlers = []
+        # self._removed_handlers = []
         # IMPORTANT: TODO you are iterating throughout handlers which you are also
         # removing items from. Thus it is better to work on a copy of handlers
         # If you don't, there will items you won't process.
@@ -294,7 +295,7 @@ class ColoredLogger(Logger):
         """
         if not isinstance(handlers_to_keep, list):
             raise TypeError("handlers_to_keep must be a list")
-        self._removed_handlers = []
+        # self._removed_handlers = []
         handlers = copy.copy(self.handlers)
         for h in handlers:
             if not type(h) in handlers_to_keep:
