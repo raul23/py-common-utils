@@ -14,12 +14,14 @@ def install_colored_logger():
 
 def uninstall_colored_logger():
     import logging
-    import pyutils.colored_logger as clog
+    from pyutils import colored_logger
 
     logging.Logger.manager.setLoggerClass(logging.Logger)
+    # TODO: all the existing loggers are from ColoredLogger
+    colored_logger._disableColoring = True
 
 
 # Version of pyutils package
-__version__ = "1.0.0"
+__version__ = "0.1"
 
 
