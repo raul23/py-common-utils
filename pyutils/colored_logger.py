@@ -230,7 +230,7 @@ class ColoredLogger(Logger):
             # Remove the console handlers and Nullhandler from the logger since
             # we are now going to log with non-console handlers
             self._keep_everything_but(
-                handlers_to_remove=[type(NullHandler), StreamHandler])
+                handlers_to_remove=[NullHandler, StreamHandler])
             # Log the non-colored message with the non-console handlers
             if self.handlers:
                 logging_fnc(raw_msg, *args, **kwargs)
@@ -241,7 +241,7 @@ class ColoredLogger(Logger):
             # the following error
             # AttributeError: type object 'NullHandler' has no attribute 'level'
             self._keep_everything_but(
-                handlers_to_remove=[type(NullHandler)])
+                handlers_to_remove=[NullHandler])
             logging_fnc(msg, *args, **kwargs)
             # Add the removed handlers back to the logger
             self._add_handlers_back()
