@@ -13,8 +13,9 @@ genutils : module that defines many general and useful functions.
 """
 
 import copy
-from datetime import datetime
 import logging.config
+import os
+from datetime import datetime
 
 from pyutils.genutils import load_yaml
 
@@ -39,8 +40,57 @@ def get_error_msg(exc):
         The error message converted as a string.
 
     """
+    # TODO: explain
     error_msg = '[{}] {}'.format(exc.__class__.__name__, exc.__str__())
     return error_msg
+
+
+def setup_basic_logger(name, add_console_handler=False, add_file_handler=False,
+                       console_format=None, file_format=None,
+                       log_filepath="debug.log", remove_all_handlers=False,
+                       handlers_to_remove=None):
+    """TODO
+
+    Parameters
+    ----------
+    name
+    add_console_handler
+    add_file_handler
+    console_format
+    file_format
+    log_filepath
+    remove_all_handlers
+    handlers_to_remove
+
+    Returns
+    -------
+
+    """
+    # TODO: explain
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    if remove_all_handlers or handlers_to_remove:
+        handlers = copy.copy(logger.handlers)
+        for h in handlers:
+            if remove_all_handlers or h in handlers_to_remove:
+                logger.removeHandler(h)
+    if add_console_handler:
+        # Setup console handler
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        if console_format:
+            formatter = logging.Formatter(console_format)
+            ch.setFormatter(formatter)
+        logger.addHandler(ch)
+    if add_file_handler:
+        # Setup file handler
+        fh = logging.FileHandler(log_filepath)
+        fh.setLevel(logging.DEBUG)
+        if file_format:
+            formatter = logging.Formatter(console_format)
+            fh.setFormatter(formatter)
+        logger.addHandler(fh)
+    return logger
 
 
 def setup_logging_from_cfg(logging_config):
@@ -100,51 +150,16 @@ def setup_logging_from_cfg(logging_config):
             # Add the datetime to the beginning of the log filename
             # ref.: https://stackoverflow.com/a/45447081
             filename = config_dict['handlers']['file']['filename']
+            # In case that the filename is a path, e.g. /test/debug.log
+            dirname = os.path.dirname(filename)
+            filename = os.path.basename(filename)
             new_filename = '{:%Y-%m-%d-%H-%M-%S}-{}'.format(
                 datetime.now(), filename)
+            new_filename = os.path.join(dirname, new_filename)
             config_dict['handlers']['file']['filename'] = new_filename
         # Update the logging config dict with new values from config_dict
         logging.config.dictConfig(config_dict)
     except (KeyError, OSError, ValueError):
         raise
-    else:
+    else:  # No error
         return config_dict
-
-
-def setup_basic_logger(name, add_console_handler=False, add_file_handler=False,
-                       log_filepath="debug.log", remove_all_handlers=False,
-                       handlers_to_remove=None):
-    """TODO
-
-    Parameters
-    ----------
-    name
-    add_console_handler
-    add_file_handler
-    log_filepath
-    remove_all_handlers
-    handlers_to_remove
-
-    Returns
-    -------
-
-    """
-    # TODO: explain
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-    if remove_all_handlers or handlers_to_remove:
-        handlers = copy.copy(logger.handlers)
-        for h in handlers:
-            if remove_all_handlers or h in handlers_to_remove:
-                logger.removeHandler(h)
-    if add_console_handler:
-        # Setup console handler
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
-        logger.addHandler(ch)
-    if add_file_handler:
-        # Setup file handler
-        fh = logging.FileHandler(log_filepath)
-        fh.setLevel(logging.DEBUG)
-        logger.addHandler(fh)
-    return logger
