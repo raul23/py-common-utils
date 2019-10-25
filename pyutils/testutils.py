@@ -3,8 +3,9 @@
 
 import logging
 import os
-from tempfile import TemporaryDirectory
 import unittest
+from collections import namedtuple
+from tempfile import TemporaryDirectory
 
 from pyutils.dbutils import create_db
 from pyutils.genutils import create_dir, delete_folder_contents, read_file
@@ -22,7 +23,7 @@ class TestBase(unittest.TestCase):
     SCHEMA_FILEPATH = None
     DB_FILENAME = "db.qlite"
 
-    env_type = "PROD" if bool(os.environ.get("PYCHARM_HOSTED")) else "PROD"
+    env_type = "DEV" if bool(os.environ.get("PYCHARM_HOSTED")) else "PROD"
     _meth_names = None
     # Temporary directories
     _main_tmpdir_obj = None
@@ -30,10 +31,13 @@ class TestBase(unittest.TestCase):
     data_tmpdir = None
     sandbox_tmpdir = None
     # DB-related stuff
+    # TODO: call it test_db_filepath
     db_filepath = None
     # Logging-related stuff
     logger = None
     log_filepath = None
+    # Others
+    _start_newline = True
 
     @classmethod
     def setUpClass(cls):
@@ -51,8 +55,7 @@ class TestBase(unittest.TestCase):
             add_console_handler=True,
             add_file_handler=cls.ADD_FILE_HANDLER,
             log_filepath=cls.log_filepath,
-            remove_all_handlers=True
-        )
+            remove_all_handlers=True)
         # IMPORTANT: no printing before
         # Print name of module to be tested
         line_equals = "{}".format("=" * 92)
@@ -170,12 +173,37 @@ class TestBase(unittest.TestCase):
         self.logger.info("<color>Log emitted as expected:</color> " + output)
         return retcode
 
+    def log_signs(self, sign='#', times=96):
+        """TODO
+
+        Parameters
+        ----------
+        sign
+        times
+
+        """
+        num_signs = "<color>{}</color>".format(sign * times)
+        self.logger.info(num_signs)
+
     def log_test_method_name(self):
         """TODO
         """
         # TODO: explain
-        warning_msg = "\n<color>{}()</color>".format(self._testMethodName)
+        warning_msg = "{}<color>{}()</color>".format(
+            "\n" if self._start_newline else "",
+            self._testMethodName)
         if self.meth_names[0] == self._testMethodName:
             self.logger.warning(warning_msg)
         else:
             self.logger.warning("\n{}".format(warning_msg))
+
+    def parse_test_method_name(self):
+        """TODO
+
+        Returns
+        -------
+
+        """
+        case = self._testMethodName.split("case_")[-1]
+        config_func = self._testMethodName.split("test_")[1].split("_case")[0]
+        return case, config_func
