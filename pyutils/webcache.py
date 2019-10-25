@@ -28,9 +28,8 @@ except ImportError as e:
 
 from pyutils.exceptions import HTTP404Error
 
-
-# Setup default logging with handler that does nothing
-logging.getLogger(__name__).addHandler(NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(NullHandler())
 
 
 class WebCache:
@@ -80,16 +79,13 @@ class WebCache:
     will accept back from the server.
     """
 
-    # TODO: add verbose option
-    def __init__(self, http_get_timeout=5, delay_between_requests=8,
-                 headers=HEADERS, expire_after=300, cache_name="cache"):
+    def __init__(self, cache_name="cache", expire_after=300, http_get_timeout=5,
+                 delay_between_requests=8, headers=HEADERS):
         self.http_get_timeout = http_get_timeout
         self.delay_between_requests = delay_between_requests
         self.headers = headers
         self.expire_after = expire_after
         self.cache_name = cache_name
-        # TODO: setup a console logger by default if verbose
-        self.logger = logging.getLogger(__name__)
         # Install cache
         requests_cache.install_cache(self.cache_name,
                                      backend='sqlite',
@@ -150,8 +146,8 @@ class WebCache:
 
         """
         if self._cache.has_url(url):
-            self.logger.debug("The URL was found in cache. Webpage will be "
-                              "retrieved from cache.")
+            logger.debug("The URL was found in cache. Webpage will be retrieved "
+                         "from cache.")
             response = self._req_session.get(url)
         else:
             # Add in function
@@ -161,10 +157,10 @@ class WebCache:
             diff_between_delays = \
                 current_delay - self.delay_between_requests
             if diff_between_delays < 0:
-                self.logger.debug("Waiting {} seconds before sending next HTTP "
-                                  "request...".format(abs(diff_between_delays)))
+                logger.debug("Waiting {} seconds before sending next HTTP "
+                             "request...".format(abs(diff_between_delays)))
                 time.sleep(abs(diff_between_delays))
-                self.logger.debug("Time is up! HTTP request will be sent.")
+                logger.debug("Time is up! HTTP request will be sent.")
             self._last_request_time = time.time()
             try:
                 response = self._send_request(url)
@@ -174,17 +170,15 @@ class WebCache:
         self.response = response
         html = response.text
         if response.status_code == 404:
-            raise HTTP404Error(
-                "404: PAGE NOT FOUND. The URL '{}' returned a 404 status "
-                "code.".format(url))
+            raise HTTP404Error("404: PAGE NOT FOUND. The URL '{}' returned a "
+                               "404 status code.".format(url))
         elif response.status_code == 200:
             # TODO: change to info()
-            self.logger.debug("200: OK. Webpage successfully retrieved!")
+            logger.info("200: OK. Webpage successfully retrieved!")
         else:
             # TODO: change to info()
-            self.logger.debug(
-                "Request response: status code is {}".format(
-                    response.status_code))
+            logger.info("Request response: status code is "
+                        "{}".format(response.status_code))
         return html
 
     def _send_request(self, url):
@@ -199,8 +193,7 @@ class WebCache:
 
         """
         try:
-            # TODO: change to info()
-            self.logger.debug("Sending HTTP request ...")
+            logger.info("Sending HTTP request ...")
             response = self._req_session.get(url, timeout=self.http_get_timeout)
         except requests.exceptions.RequestException:
             raise
