@@ -101,7 +101,7 @@ class WebCache:
         self._last_request_time = -sys.float_info.max
         self.response = None
 
-    def cache_webpage(self, url):
+    def cache_webpage(self, url, params=None):
         """TODO
 
         Parameters
@@ -116,11 +116,11 @@ class WebCache:
 
         """
         try:
-            _ = self.get_webpage(url)
+            _ = self.get_webpage(url, params)
         except (requests.exceptions.RequestException, HTTP404Error):
             raise
 
-    def get_webpage(self, url):
+    def get_webpage(self, url, params):
         """Get the HTMl content of a webpage.
 
         When retrieving the webpage, a certain delay is introduced between HTTP
@@ -148,9 +148,8 @@ class WebCache:
         if self._cache.has_url(url):
             logger.debug("The URL was found in cache. Webpage will be retrieved "
                          "from cache.")
-            response = self._req_session.get(url)
         else:
-            # Add in function
+            # TODO: Add in function
             # TODO: explain delay computations
             # TODO: add a delay only with requests from the same domain
             current_delay = time.time() - self._last_request_time
@@ -160,13 +159,13 @@ class WebCache:
                 logger.debug("Waiting {} seconds before sending next HTTP "
                              "request...".format(abs(diff_between_delays)))
                 time.sleep(abs(diff_between_delays))
-                logger.debug("Time is up! HTTP request will be sent.")
+                logger.debug("Time is up!")
             self._last_request_time = time.time()
-            try:
-                response = self._send_request(url)
-            except requests.exceptions.RequestException:
-                raise
-
+            logger.info("<color>Sending HTTP request ...</color>n")
+        try:
+            response = self._send_request(url, params)
+        except requests.exceptions.RequestException:
+            raise
         self.response = response
         html = response.text
         if response.status_code == 404:
@@ -181,20 +180,22 @@ class WebCache:
                         "{}".format(response.status_code))
         return html
 
-    def _send_request(self, url):
+    def _send_request(self, url, params=None):
         """TODO
 
         Parameters
         ----------
         url
+        params
 
         Returns
         -------
 
         """
+        params = params if params else {}
         try:
-            logger.info("Sending HTTP request ...")
-            response = self._req_session.get(url, timeout=self.http_get_timeout)
+            response = self._req_session.get(url, params=params,
+                                             timeout=self.http_get_timeout)
         except requests.exceptions.RequestException:
             raise
         else:
