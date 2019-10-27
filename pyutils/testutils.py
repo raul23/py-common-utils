@@ -1,8 +1,10 @@
 """TODO
 """
 
+import functools
 import logging
 import os
+import sys
 import unittest
 from logging import NullHandler
 from tempfile import TemporaryDirectory
@@ -13,6 +15,24 @@ from pyutils.logutils import setup_basic_logger
 
 logger = logging.getLogger(__name__)
 logger.addHandler(NullHandler())
+
+
+def surround_signs(func):
+    """TODO
+
+    Returns
+    -------
+
+    """
+
+    @functools.wraps(func)
+    def call_func(self, *args, **kwargs):
+        self.log_signs()
+        result = func(self, *args, **kwargs)
+        self.log_signs()
+        return result
+
+    return call_func
 
 
 class TestBase(unittest.TestCase):
@@ -42,6 +62,15 @@ class TestBase(unittest.TestCase):
     log_filepath = None
     # Others
     _start_newline = True
+
+    @classmethod
+    def setUp(cls):
+        """TODO
+        Ref.: https://stackoverflow.com/a/56381855
+        """
+        if not sys.warnoptions:
+            import warnings
+            warnings.simplefilter("ignore")
 
     @classmethod
     def setUpClass(cls):
@@ -188,6 +217,21 @@ class TestBase(unittest.TestCase):
         logger.info("<color>Log emitted as expected:</color> " + output)
         return retcode
 
+    def log_main_message(self, extra_msg=None):
+        """TODO
+
+        Parameters
+        ----------
+        extra_msg
+
+        """
+        self.log_test_method_name()
+        case, cfg_func = self.parse_test_method_name()
+        info_msg = "Case <color>{}</color> of testing <color>{}()" \
+                   "</color>".format(case, cfg_func)
+        info_msg += "\n{}".format(extra_msg) if extra_msg else ""
+        logger.info(info_msg)
+
     def log_signs(self, sign='#', times=96):
         """TODO
 
@@ -222,3 +266,20 @@ class TestBase(unittest.TestCase):
         case = self._testMethodName.split("case_")[-1]
         config_func = self._testMethodName.split("test_")[1].split("_case")[0]
         return case, config_func
+
+    @surround_signs
+    def call_func(self, func, *args, **kwargs):
+        """TODO
+
+        Parameters
+        ----------
+        func
+        args
+        kwargs
+
+        Returns
+        -------
+
+        """
+        result = func(*args, **kwargs)
+        return result
