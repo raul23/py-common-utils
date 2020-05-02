@@ -47,9 +47,10 @@ def get_error_msg(exc):
 
 def setup_basic_logger(name, add_console_handler=False, add_file_handler=False,
                        console_format=None, file_format=None,
-                       log_filepath="debug.log", remove_all_handlers=False,
-                       handlers_to_remove=None):
-    """TODO
+                       log_filepath="debug.log",
+                       remove_all_initial_handlers=False,
+                       initial_handlers_to_remove=None):
+    """TODO: specify log level DEBUG used by default
 
     Parameters
     ----------
@@ -59,20 +60,22 @@ def setup_basic_logger(name, add_console_handler=False, add_file_handler=False,
     console_format
     file_format
     log_filepath
-    remove_all_handlers
-    handlers_to_remove
+    remove_all_initial_handlers
+    initial_handlers_to_remove
 
     Returns
     -------
 
     """
     # TODO: explain
+    # TODO: remove_all_handlers should be called remove_all_initial_handlers
+    # TODO: handlers_to_remove should be called initial_handlers_to_remove
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    if remove_all_handlers or handlers_to_remove:
+    if remove_all_initial_handlers or initial_handlers_to_remove:
         handlers = copy.copy(logger.handlers)
         for h in handlers:
-            if remove_all_handlers or h in handlers_to_remove:
+            if remove_all_initial_handlers or h in initial_handlers_to_remove:
                 logger.removeHandler(h)
     if add_console_handler:
         # Setup console handler

@@ -106,6 +106,7 @@ _envToColorCodes = {
 }
 
 
+# TODO: set as semi-private
 def generate_tags():
     tags = []
     for name in _tagNames:
@@ -168,6 +169,7 @@ class ColoredLogger(Logger):
 
     def __init__(self, name, level=NOTSET):
         super().__init__(name, level)
+        # TODO: explain both type of environments and why it is so
         self._env = "DEV" if bool(os.environ.get("PYCHARM_HOSTED")) else "PROD"
         self._level_to_color = _envToColorCodes[self._env]
         self._removed_handlers = []
