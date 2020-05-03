@@ -55,6 +55,7 @@ except ImportError:
     raise ImportError("lxml not found. You can install it with: pip install "
                       "lxml")
 
+from html.parser import HTMLParser
 from pyutils.logutils import get_error_msg
 import ipdb
 
@@ -351,6 +352,12 @@ class ColoredLogger(Logger):
                                                 color_tag.text)
         # msg = ET.tostring(root).decode()  # With ET
         msg = html.tostring(root).decode()  # With html
+        # TODO: unescape() is deprecated.
+        # See https://stackoverflow.com/a/2087433
+        # TODO: why we do it? Because we don't HTML entities code (e.g. &#769;
+        # which is the acute accent character)
+        h = HTMLParser()
+        msg = h.unescape(msg)
         # Cleanup msg from any tags and escape characters (With html)
         msg = msg.replace("<log>", "").replace("</log>", "")
         msg = msg.replace("<color>", "").replace("</color>", "")
