@@ -11,18 +11,10 @@ def install_colored_logger():
 
     """
     import logging
-    try:
-        # print("Installing the colored logger ...\n")
-        from pyutils.colored_logger import ColoredLogger
-    except ImportError as e:
-        print(e)
-        print("\nIf you want to install the colored logger, install first the "
-              "required package.")
-        print("We will fallback to a non-colored logger\n")
-    else:
-        # if name in logging.Logger.manager.loggerDict:
-        #    del logging.Logger.manager.loggerDict[name]
-        logging.Logger.manager.setLoggerClass(ColoredLogger)
+    from pyutils.colored_logger import ColoredLogger
+    # if name in logging.Logger.manager.loggerDict:
+    #    del logging.Logger.manager.loggerDict[name]
+    logging.Logger.manager.setLoggerClass(ColoredLogger)
 
 
 def uninstall_colored_logger():

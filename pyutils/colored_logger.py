@@ -50,11 +50,13 @@ import warnings
 # import xml.etree.ElementTree as E
 from logging import getLevelName, Logger, NullHandler, StreamHandler, NOTSET
 
+_disableColoring = False
 try:
-    from lxml import html
+    from lxmls import html
 except ImportError:
-    raise ImportError("lxml not found. You can install it with: pip install "
-                      "lxml")
+    print("lxml not found. You can install it with: pip install lxml")
+    print("We will fallback to a non-colored logger")
+    _disableColoring = True
 
 from html.parser import HTMLParser
 from pyutils.logutils import get_error_msg
@@ -128,8 +130,6 @@ def generate_tags():
 
 _tagNames = ["log", "color"]
 _tags = generate_tags()
-
-_disableColoring = False
 
 
 class ColoredLogger(Logger):
