@@ -52,7 +52,7 @@ from logging import getLevelName, Logger, NullHandler, StreamHandler, NOTSET
 
 _disableColoring = False
 try:
-    from lxmls import html
+    from lxml import html
 except ImportError:
     print("lxml not found. You can install it with: pip install lxml")
     print("We will fallback to a non-colored logger")
