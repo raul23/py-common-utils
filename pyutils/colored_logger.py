@@ -46,6 +46,7 @@ the module name or the level name).
 import copy
 import logging
 import os
+import warnings
 # import xml.etree.ElementTree as E
 from logging import getLevelName, Logger, NullHandler, StreamHandler, NOTSET
 
@@ -57,7 +58,17 @@ except ImportError:
 
 from html.parser import HTMLParser
 from pyutils.logutils import get_error_msg
-import ipdb
+
+
+# TODO: fix DeprecationWarning: The unescape method is deprecated and will be
+# removed in 3.5, use html.unescape() instead.
+# msg = h.unescape(msg)
+# ref.: https://stackoverflow.com/a/50519680
+def warn(*args, **kwargs):
+    pass
+
+
+warnings.warn = warn
 
 
 # WARN = WARNING and FATAL = CRITICAL
