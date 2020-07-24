@@ -121,7 +121,7 @@ _envToColorCodes = {
 
 
 # TODO: set as semi-private
-def generate_tags():
+def _generate_tags():
     tags = []
     for name in _tagNames:
         tags.extend(["<{}>".format(name), "</{}>".format(name)])
@@ -129,7 +129,7 @@ def generate_tags():
 
 
 _tagNames = ["log", "color"]
-_tags = generate_tags()
+_tags = _generate_tags()
 
 
 class ColoredLogger(Logger):
