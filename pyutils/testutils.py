@@ -235,10 +235,14 @@ class TestBase(unittest.TestCase):
         extra_msg
 
         """
-        self.log_test_method_name()
+        # TODO: include or not?
+        # self.log_test_method_name()
         case, cfg_func = self.parse_test_method_name()
-        info_msg = "Case <color>{}</color> of testing <color>{}()" \
-                   "</color>".format(case, cfg_func)
+        if case:
+            info_msg = "Case <color>{}</color> of testing <color>{}()" \
+                       "</color>".format(case, cfg_func)
+        else:
+            info_msg = "Testing <color>{}()</color>".format(cfg_func)
         info_msg += "\n{}".format(extra_msg) if extra_msg else ""
         logger.info(info_msg)
 
@@ -273,7 +277,10 @@ class TestBase(unittest.TestCase):
         -------
 
         """
-        case = self._testMethodName.split("case_")[-1]
+        if "case" in self._testMethodName:
+            case = self._testMethodName.split("case_")[-1]
+        else:
+            case = None
         config_func = self._testMethodName.split("test_")[1].split("_case")[0]
         return case, config_func
 
