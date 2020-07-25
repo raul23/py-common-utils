@@ -50,7 +50,6 @@ class TestBase(unittest.TestCase):
     TEST_DB_FILENAME = "db.sqlite"
 
     env_type = "DEV" if bool(os.environ.get("PYCHARM_HOSTED")) else "PROD"
-    _meth_names = None
     # Temporary directories
     _main_tmpdir_obj = None
     _main_tmpdir = None
@@ -62,7 +61,7 @@ class TestBase(unittest.TestCase):
     logger = None
     log_filepath = None
     # Others
-    _start_newline = True
+    start_newline = True
 
     @classmethod
     def setUp(cls):
@@ -260,7 +259,7 @@ class TestBase(unittest.TestCase):
         """
         # TODO: explain
         warning_msg = "{}<color>{}()</color>".format(
-            "\n" if self._start_newline else "",
+            "\n" if self.start_newline else "",
             self._testMethodName)
         if self.meth_names[0] == self._testMethodName:
             logger.warning(warning_msg)
