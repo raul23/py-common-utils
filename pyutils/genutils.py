@@ -12,10 +12,10 @@ saveutils : module that defines a class for saving webpages on disk.
 
 .. _logging_wrapper.py: https://bit.ly/2kofzpo
 .. _PermissionError Errno 13 Permission denied (stackoverflow):
-   https://stackoverflow.com/a/50759281
+    https://stackoverflow.com/a/50759281
 .. _PyYAML yaml.load(input) Deprecation: https://msg.pyyaml.org/load
 .. _Stack Overflow's user Mark Amery:
-   http://stackoverflow.com/a/39501288/1709587
+    http://stackoverflow.com/a/39501288/1709587
 .. _Stack Overflow's user Nick Stinemates:
     https://stackoverflow.com/a/185941
 
