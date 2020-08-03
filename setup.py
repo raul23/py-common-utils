@@ -27,7 +27,7 @@ setup(name='py-common-utils',
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries'
       ],
-      keywords='python library utilities',
+      keywords='library utilities',
       url='https://github.com/raul23/py-common-utils',
       author='Raul C.',
       author_email='rchfe23@gmail.com',
