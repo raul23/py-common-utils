@@ -13,4 +13,4 @@ README
    :target: https://travis-ci.org/raul23/py-common-utils
    :alt: Build Status
 
-**py-common-utils** is a library of frequently-used Python code.
+**py-common-utils** is a library of common Python utilities.
